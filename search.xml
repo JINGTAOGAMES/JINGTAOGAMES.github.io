@@ -4,13 +4,21 @@
   
     
     <entry>
-      <title></title>
-      <link href="/2025/08/20/test/"/>
-      <url>/2025/08/20/test/</url>
+      <title>Test cn 2219</title>
+      <link href="/2025/09/06/test/"/>
+      <url>/2025/09/06/test/</url>
       
-        <content type="html"><![CDATA[<h2>Test cn 2219</h2>]]></content>
+        <content type="html"><![CDATA[<h2 id="Test-cn-2219"><a href="#Test-cn-2219" class="headerlink" title="Test cn 2219"></a>Test cn 2219</h2>]]></content>
       
       
+      
+        <tags>
+            
+            <tag> 测试 </tag>
+            
+            <tag> Hexo </tag>
+            
+        </tags>
       
     </entry>
     
