@@ -1,0 +1,444 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>説説 | JINGTAOGAMES</title><meta name="author" content="景涛"><meta name="copyright" content="景涛"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="游戏设计师的个人站">
+<meta property="og:type" content="website">
+<meta property="og:title" content="説説">
+<meta property="og:url" content="https://www.jingtao.games/shuoshuo/index.html">
+<meta property="og:site_name" content="JINGTAOGAMES">
+<meta property="og:description" content="游戏设计师的个人站">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.jingtao.games/img/butterfly-icon.png">
+<meta property="article:published_time" content="2025-08-20T14:17:49.000Z">
+<meta property="article:modified_time" content="2025-12-17T12:27:20.122Z">
+<meta property="article:author" content="景涛">
+<meta property="article:tag" content="游戏开发, 编程">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.jingtao.games/img/butterfly-icon.png"><script type="application/ld+json"></script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://www.jingtao.games/shuoshuo/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.2"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '説説',
+  isHighlightShrink: false,
+  isToc: false,
+  pageType: 'shuoshuo'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">1</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div><div class="menus_item"><a class="site-page" href="/shuoshuo/"><i class="fa-fw fas fa-shuoshuo"></i><span> 说说</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-language"></i><span> 语言</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/en"><i class="fa-fw fa-solid fa-language multiple-language-switch"></i><span> English</span></a></li><li><a class="site-page child" href="/ja"><i class="fa-fw fa-solid fa-language multiple-language-switch"></i><span> 日本語</span></a></li><li><a class="site-page child" href="/zh"><i class="fa-fw fa-solid fa-language multiple-language-switch"></i><span> 中文</span></a></li></ul></div></div></div></div><div class="page type-shuoshuo" id="body-wrap"><header class="not-home-page" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">JINGTAOGAMES</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div><div class="menus_item"><a class="site-page" href="/shuoshuo/"><i class="fa-fw fas fa-shuoshuo"></i><span> 说说</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-language"></i><span> 语言</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/en"><i class="fa-fw fa-solid fa-language multiple-language-switch"></i><span> English</span></a></li><li><a class="site-page child" href="/ja"><i class="fa-fw fa-solid fa-language multiple-language-switch"></i><span> 日本語</span></a></li><li><a class="site-page child" href="/zh"><i class="fa-fw fa-solid fa-language multiple-language-switch"></i><span> 中文</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="page-site-info"><h1 id="site-title">説説</h1></div></header><main class="layout" id="content-inner"><div class="nc" id="page"><div id="article-container"><script type="application/json" id="shuoshuo-data">[{"date":"2025-12-13 20:00:00","content":"\u003cp\u003e十二月三号\u003c/p\u003e\n\u003cp\u003e我最近游玩了香草社的圣兽之王，除开优秀的美术和上瘾的战略模拟玩法外，我想聊聊其中的编程思维。\u003c/p\u003e\n\u003cp\u003e游戏采用了全自动回合制战斗，每一次战斗就像一次程序运行，每个角色就是搭载了不同功能的脚本。而玩家要做的就是更改每个角色的行动表：轮到这个角色行动时，会在从上到下的行动表里，执行符合条件的第一项，而这里的条件就要玩家挑选。从敌我双方的血量，人数，到行动顺序。比如友军是否为满血（判断），优先选择血量最低的友方（查找），或敌人整体血量低于75%（计算和判断的复合）\u003c/p\u003e\n\u003cp\u003e我们来看一个具体案例：牧师斯嘉丽拥有两个行动：治疗一位友方，和对一名敌人造成低伤害。同时她只有一个行动点，意味她只能在一场战斗进行一个行动。作为牧师最优先的肯定是治疗友方，所以我们把治疗放在伤害前面，这时进入战斗。轮到斯嘉丽行动，她治疗了一个血量完全健康的队友。这肯定不是我们想要的，所以我们在治疗前添加条件：1.当友方血量低于75%时 2.优先选择血量最低的友方。\u003c/p\u003e\n\u003cp\u003e而这时再进入战斗，轮到斯嘉丽行动时，她看到队友血量都很健康，所以她没有治疗，而是对敌人造成了微乎其微的伤害。等到之后敌人把友军打到残血时，她已经没有行动点去治疗了。\u003c/p\u003e\n\u003cp\u003e我们可以再给攻击加两个条件，检测敌人的血量低于斩杀线，再选中血量最低的。这样牧师虽然前期会完全跳过自己的回合（因为两个条件都不满足），但却能保证每次行动都能发挥最大作用。\u003c/p\u003e\n\u003cp\u003e这里又多了一个新的问题，如果一场战斗里敌人都被完美斩杀，队友只收到了一点伤害（不低于75%），那么牧师就不会有任何动作。队友会带着这一点伤害进入下一次战斗。这里该怎么优化呢？\u003c/p\u003e\n\u003cp\u003e答案是没有办法，也没有必要。游戏只给了每个行动两个条件框位，无法进行更复杂的条件检查。我们可以再复制一个治疗动作，把条件改成：1.第三次行动时（一般战斗接近尾声）2.优先选择血量最低的友方。这样一定程度可以达到理想的效果，但还是过于繁琐，角色的行动条数量是有限的，后期还会有多种行动，光给治疗两个栏位就很浪费。\u003c/p\u003e\n\u003cp\u003e当条件不能满足需求，就要用到妥协的艺术。把治疗触发条件改为“当友方血量低于100%”，这样就能保证触发。毕竟牧师最重要的还是保队友状态。\u003c/p\u003e\n\u003cp\u003e我在游玩过程中遇到了一个有些棘手的例子，我的某个编队里同时有骑士和剑士。骑士会在队友受攻击前保护队友，替队友承受攻击。而剑士会消耗格斗点，并格挡朝向自己的攻击再加属性。这里的问题是：骑士会保护剑士，结果剑士无法发挥出自己的格挡，浪费掉了行动点和技能。其它队友也无法很好受到骑士的保护。\u003c/p\u003e\n\u003cp\u003e相信明眼人都能看出来，不要把这两个职业放一起。但我十分中意这两角色的cp，硬是创造出了这种需求。\u003c/p\u003e\n\u003cp\u003e我最初采用了三个格挡行动，其中两个条件检测其它两位队友。以及一个格挡检测行动点为0的队友，防止低血量的剑客没有行动点而被攻击。但这实在是太繁琐了，所以我优化成一个格挡行动条件为1：优先选择后排队友 2：行动点小于2的队友。干净地解决了这个问题。\u003c/p\u003e\n\u003cp\u003e这样的if-else逻辑贯穿了整个战斗系统。随着玩家进一步扩大队伍，装备。能够扩展的可能性会指数级上升。但也不必担心过于刻板。游戏还有暴击率，闪避这种随机变量和战斗外技能，道具作为调剂。\u003c/p\u003e\n\u003cp\u003e总之，满分玩法，满分剧情。\u003c/p\u003e\n","tags":["游戏"]},{"author":"Butterfly","avatar":"https://butterfly.js.org/img/avatar.png","date":"2024-06-21 23:33:26","key":"key-1","content":"\u003cp\u003e这是第一条测试内容。\u003c/p\u003e\n"}]</script><script>(() => {
+  const limitConfig = {}
+
+  const sortDataByDate = data => data.sort((a, b) => new Date(b.date) - new Date(a.date))
+
+  const filterDataByLimit = (data, limit) => {
+    if (!limit || !limit.type) return data
+    if (limit.type === 'num') return data.slice(0, limit.value)
+    if (limit.type === 'date') {
+      const limitDate = new Date(limit.value)
+      return data.filter(item => new Date(item.date) >= limitDate)
+    }
+    return data
+  };
+
+  const formatToTimeZone = (date) => {
+    const fullDate = date.length === 10 ? `${date} 00:00:00` : date
+    const visitorTimeZone = 'Asia/Shanghai' || Intl.DateTimeFormat().resolvedOptions().timeZone
+    const options = {
+      timeZone: visitorTimeZone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    }
+    const [day, month, year, hour, minute, second] = new Intl.DateTimeFormat('en-GB', options)
+      .format(new Date(fullDate))
+      .match(/\d+/g)
+    return `${year}-${month}-${day} ${hour}:${minute}:${second}`
+  }
+
+  const addLazyload = str => {
+    const config = {
+      enable: false,
+      native: false,
+      field: 'site',
+      placeholder: '/null',
+    }
+
+    if (!config.enable || config.field !== 'site') return str
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(str, 'text/html')
+    const images = doc.querySelectorAll('img')
+
+    images.forEach(img => {
+      if (config.native) {
+        img.setAttribute('loading', 'lazy')
+      } else {
+        const src = img.getAttribute('src')
+        img.setAttribute('data-lazy-src', src)
+
+        if (config.placeholder) {
+          img.setAttribute('src', config.placeholder)
+        } else {
+          img.removeAttribute('src')
+        }
+      }
+    })
+    return doc.body.innerHTML
+  }
+
+  let currentPage = 1
+  const itemsPerPage = 8
+  let totalPages = 0
+  let data = []
+  let inputEventsAttached = false // Flag to mark if input event listeners have been added
+
+  const renderData = (dataSlice) => {
+    const content = dataSlice.map(item => {
+      const formattedDate = formatToTimeZone(item.date)
+      const tags = item.tags && item.tags.map(tag => `<span class="shuoshuo-tag">${tag}</span>`).join('') || ''
+      const commentButton = item.key && false
+        ? `<div class="shuoshuo-comment-btn" onclick="addCommentToShuoshuo(event)">
+            <i class="fa-solid fa-comments"></i>
+          </div>`
+        : ''
+      const commentContainer = item.key
+        ? `<div class="shuoshuo-comment no-comment" data-key="${item.key}"></div>`
+        : ''
+
+      return `
+        <div class="shuoshuo-item">
+          <div class="container">
+            <div class="shuoshuo-item-header">
+              <div class="shuoshuo-avatar">
+                <img class="no-lightbox" src="${item.avatar || '/img/butterfly-icon.png'}">
+              </div>
+              <div class="shuoshuo-info">
+                <div class="shuoshuo-author">${item.author || '景涛'}</div>
+                <time class="shuoshuo-date" title="${formattedDate}">
+                  ${btf.diffDate(formattedDate, true)}
+                </time>
+              </div>
+            </div>
+            <div class="shuoshuo-content">${addLazyload(item.content)}</div>
+            <div class="shuoshuo-footer ${tags ? 'flex-between' : 'flex-end'}">
+              ${tags ? `<div class="shuoshuo-tags">${tags}</div>` : ''}
+              ${commentButton}
+            </div>
+          </div>
+          ${commentContainer}
+        </div>`
+    }).join('')
+
+    const container = document.getElementById('article-container')
+    container.innerHTML = content
+
+    window.lazyLoadInstance && window.lazyLoadInstance.update()
+    btf.loadLightbox(document.querySelectorAll('#article-container img:not(.no-lightbox)'))
+  }
+
+  const renderNavigation = () => {
+    const container = document.getElementById('article-container')
+    const existingNav = container.nextElementSibling
+    if (existingNav && existingNav.classList.contains('shuoshuo-navigation')) {
+      existingNav.remove()
+    }
+
+    const pageInfoTemplate = '第 ${current} 页 / 共 ${total} 页'
+    const pageInfoText = pageInfoTemplate
+      .replace(/\$\{current}/g, currentPage)
+      .replace(/\$\{total}/g, totalPages)
+
+    const navHtml = `
+      <div class="shuoshuo-navigation">
+        <button onclick="window.shuoshuoPrevPage()" ${currentPage === 1 ? 'disabled' : ''}><i class="fa-solid fa-chevron-left"></i></button>
+        <span class="shuoshuo-page-info">${pageInfoText}</span>
+        <input type="number" class="shuoshuo-page-input" min="1" max="${totalPages}" placeholder="${currentPage}" onkeydown="window.shuoshuoHandleKeyDown(event)">
+        <button onclick="window.shuoshuoNextPage()" ${currentPage === totalPages ? 'disabled' : ''}><i class="fa-solid fa-chevron-right"></i></button>
+      </div>
+    `
+    container.insertAdjacentHTML('afterend', navHtml)
+
+    // Add input validation event listeners (only once)
+    if (!inputEventsAttached) {
+      setTimeout(() => {
+        const input = document.querySelector('.shuoshuo-page-input')
+        if (input) {
+          // Clear placeholder when clicking the input box
+          input.addEventListener('focus', (event) => {
+            event.target.placeholder = ''
+          })
+
+          // Restore placeholder if no content when losing focus
+          input.addEventListener('blur', (event) => {
+            if (!event.target.value.trim()) {
+              event.target.placeholder = currentPage
+            }
+          })
+
+          input.addEventListener('input', (event) => {
+            const value = parseInt(event.target.value) || 0
+            let wasInvalid = false
+
+            if (value > totalPages) {
+              event.target.value = totalPages
+              wasInvalid = true
+            } else if (value < 1 && event.target.value !== '') {
+              event.target.value = 1
+              wasInvalid = true
+            }
+
+            // If value is corrected, show red and shake effect
+            if (wasInvalid) {
+              event.target.classList.add('invalid')
+              setTimeout(() => {
+                event.target.classList.remove('invalid')
+              }, 500)
+            }
+          })
+
+          inputEventsAttached = true // Mark that event listeners have been added
+        }
+      }, 0)
+    }
+  }
+
+  const renderPage = (page) => {
+    const start = (page - 1) * itemsPerPage
+    const end = start + itemsPerPage
+    const pageData = data.slice(start, end)
+    renderData(pageData)
+    renderNavigation()
+  }
+
+  window.shuoshuoPrevPage = () => {
+    if (currentPage > 1) {
+      currentPage--
+      renderPage(currentPage)
+    }
+  }
+
+  window.shuoshuoNextPage = () => {
+    if (currentPage < totalPages) {
+      currentPage++
+      renderPage(currentPage)
+    }
+  }
+
+  window.shuoshuoGoToPage = (page) => {
+    if (typeof page === 'number') {
+      // Directly jump to the specified page
+      if (page >= 1 && page <= totalPages && page !== currentPage) {
+        currentPage = page
+        renderPage(currentPage)
+      }
+    } else {
+      // Get page from input box
+      const input = document.querySelector('.shuoshuo-page-input')
+      const inputValue = input.value.trim()
+      const inputPage = inputValue === '' ? currentPage : parseInt(inputValue)
+      if (inputPage >= 1 && inputPage <= totalPages && inputPage !== currentPage) {
+        currentPage = inputPage
+        renderPage(currentPage)
+      } else if (inputValue === '') {
+        // If input box is empty, re-render current page (update placeholder)
+        renderPage(currentPage)
+      }
+    }
+  }
+
+  window.shuoshuoHandleKeyDown = (event) => {
+    const input = event.target
+    const value = input.value + event.key
+
+    // Allow delete, arrow keys, backspace, etc.
+    if (event.key === 'Enter' || event.key === 'Backspace' || event.key === 'Delete' ||
+        event.key === 'ArrowLeft' || event.key === 'ArrowRight' ||
+        event.key === 'Tab' || event.ctrlKey || event.metaKey) {
+      if (event.key === 'Enter') {
+        window.shuoshuoGoToPage()
+      }
+      return
+    }
+
+    // Only allow numbers
+    if (!/^\d$/.test(event.key)) {
+      event.preventDefault()
+      return
+    }
+
+    // Check if the value after input exceeds the range
+    const newValue = parseInt(value) || 0
+    if (newValue > totalPages || (value.length > 1 && newValue === 0)) {
+      event.preventDefault()
+      // Add red and shake effect
+      input.classList.add('invalid')
+      setTimeout(() => {
+        input.classList.remove('invalid')
+      }, 500)
+    }
+  }
+
+  const loadShuoshuo = async () => {
+    try {
+      let originData = []
+      if (false) {
+        const response = await fetch('/')
+        originData = await response.json()
+      } else {
+        const dataElement = document.getElementById('shuoshuo-data')
+        originData = dataElement ? JSON.parse(dataElement.textContent) : []
+      }
+
+      data = filterDataByLimit(sortDataByDate(originData), limitConfig)
+
+      totalPages = Math.ceil(data.length / itemsPerPage)
+
+      renderPage(currentPage)
+    } catch (error) {
+      console.error(error)
+    }
+  };
+
+  window.pjax ? loadShuoshuo() : window.addEventListener('load', loadShuoshuo)
+})()</script></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">景涛</div><div class="author-info-description">游戏设计师的个人站</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">1</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/JINGTAOGAMES"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/09/06/2023Archived/" title="2023~2025文章归档">2023~2025文章归档</a><time datetime="2025-09-06T07:55:27.000Z" title="发表于 2025-09-06 15:55:27">2025-09-06</time></div></div></div></div><div class="card-widget card-archives">
+    <div class="item-headline">
+      <i class="fas fa-archive"></i>
+      <span>归档</span>
+      
+    </div>
+  
+    <ul class="card-archive-list">
+      
+        <li class="card-archive-list-item">
+          <a class="card-archive-list-link" href="/archives/2025/09/">
+            <span class="card-archive-list-date">
+              九月 2025
+            </span>
+            <span class="card-archive-list-count">1</span>
+          </a>
+        </li>
+      
+    </ul>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">1</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2025-12-17T12:30:38.300Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2023 - 2025 By 景涛</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.2</a></span></div><div class="footer_custom_text">由 <a href="https://hexo.io/" target="_blank">Hexo</a> 强力驱动 | 主题 - <a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.2"></script><script src="/js/main.js?v=5.5.2"></script><div class="js-pjax"></div><script defer src="/self/js/switch-language.js"></script><script async data-pjax src="/"></script></div></body></html>
