@@ -31,7 +31,7 @@ const supportedLanguages = {
  * 语言选择的缓存时间（毫秒）
  * @type {number}
  */
-const storage_ttl = 100000; // 1分钟
+const storage_ttl = 2592000000; // 1分钟
 
 // --------------- 页面信息获取区域 ---------------
 /**
