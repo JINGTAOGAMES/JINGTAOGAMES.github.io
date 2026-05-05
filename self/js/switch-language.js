@@ -162,7 +162,7 @@ function handleBrowserLanguageRedirect() {
         }
     } else if (supportedLanguage && !supportedLanguage.includes(currentLanguagePath)) {
         window.location.href = `${pageProtocol}//${pageHost}/${supportedLanguage[0]}`;
-    } else if (!browserLanguage in supportedLanguages && currentLanguagePath !== notMatchedLanguage) {
+    } else if (!(browserLanguage in supportedLanguages) && currentLanguagePath !== notMatchedLanguage) {
         window.location.href = `${pageProtocol}//${pageHost}/${notMatchedLanguage}`;
     }
 }
