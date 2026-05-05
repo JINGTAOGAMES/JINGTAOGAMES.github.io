@@ -1,6 +1,6 @@
 (function () {
-  var NOW_URL  = '/now/';
-  var API_BASE = 'https://now-api.719783307e.workers.dev';
+  var NOW_URL   = '/now/';
+  var API_BASE  = 'https://now-api.719783307e.workers.dev';
   var LINK_TEXT = '查看 Now 页面 →';
   var LOADING   = '加载中…';
   var UPDATED   = '更新于 ';
@@ -16,10 +16,9 @@
 
   function escHtml(str) {
     return String(str)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
-  // 动态加载 Leaflet（仅首页需要时加载）
   function loadLeaflet(cb) {
     if (window.L) { cb(); return; }
     var css = document.createElement('link');
@@ -33,16 +32,15 @@
   }
 
   function init() {
-    // 只在首页（同时有 #content-inner 和 #recent-posts）运行
     var contentInner = document.getElementById('content-inner');
-    var recentPosts  = document.getElementById('recent-posts');
-    if (!contentInner || !recentPosts) return;
+    if (!contentInner) return;
+    if (!document.getElementById('recent-posts')) return; // 只在首页运行
 
-    // 注入样式
+    // ── 注入样式 ──
     var style = document.createElement('style');
     style.textContent =
       '#now-widget{' +
-        'grid-column:1/-1;' +          /* 横跨 grid 全部列 */
+        'box-sizing:border-box;' +
         'margin-bottom:20px;' +
         'border-radius:12px;' +
         'overflow:hidden;' +
@@ -51,17 +49,12 @@
         'box-shadow:var(--card-box-shadow,0 2px 8px rgba(0,0,0,.06));' +
         'display:flex;flex-direction:row;' +
       '}' +
-      '#nw-map{' +
-        'width:45%;min-width:240px;height:220px;flex-shrink:0;' +
-      '}' +
+      '#nw-map{width:45%;min-width:240px;height:220px;flex-shrink:0;}' +
       '.nw-info{' +
         'flex:1;padding:22px 26px;display:flex;' +
-        'flex-direction:column;justify-content:center;gap:14px;' +
+        'flex-direction:column;justify-content:center;gap:14px;min-width:0;' +
       '}' +
-      '.nw-row{' +
-        'display:flex;align-items:center;gap:10px;' +
-        'font-size:1rem;color:var(--font-color,#333);' +
-      '}' +
+      '.nw-row{display:flex;align-items:center;gap:10px;font-size:1rem;color:var(--font-color,#333);}' +
       '.nw-updated{font-size:.75rem;color:var(--font-second-color,#aaa);}' +
       '.nw-link{' +
         'display:inline-flex;align-items:center;gap:6px;' +
@@ -69,7 +62,6 @@
         'font-size:.85rem;font-weight:500;margin-top:4px;' +
       '}' +
       '.nw-link:hover{text-decoration:underline;}' +
-      /* 移动端：地图堆叠在上方，全宽展开 */
       '@media(max-width:680px){' +
         '#now-widget{flex-direction:column;}' +
         '#nw-map{width:100%;min-width:unset;height:200px;}' +
@@ -77,7 +69,7 @@
       '}';
     document.head.appendChild(style);
 
-    // 创建组件 HTML
+    // ── 创建组件 HTML ──
     var widget = document.createElement('div');
     widget.id = 'now-widget';
     widget.innerHTML =
@@ -89,16 +81,22 @@
         '<a href="' + NOW_URL + '" class="nw-link">' + LINK_TEXT + '</a>' +
       '</div>';
 
-    // 插入为 #content-inner 的第一个子节点（横跨全宽）
-    contentInner.insertBefore(widget, contentInner.firstChild);
+    // ── 插入到 #content-inner 之前（作为兄弟节点，完全绕开 grid）──
+    // 同时复制 #content-inner 的宽度约束，保持视觉对齐
+    contentInner.parentNode.insertBefore(widget, contentInner);
+    var cs = window.getComputedStyle(contentInner);
+    widget.style.maxWidth  = cs.maxWidth  !== 'none' ? cs.maxWidth  : '';
+    widget.style.width     = '100%';
+    widget.style.marginLeft   = cs.marginLeft;
+    widget.style.marginRight  = cs.marginRight;
+    widget.style.paddingLeft  = cs.paddingLeft;
+    widget.style.paddingRight = cs.paddingRight;
 
-    // 加载 Leaflet 后再拉取数据
+    // ── 加载 Leaflet 并拉取数据 ──
     loadLeaflet(function () {
       fetch(API_BASE + '/api/status')
         .then(function (r) { return r.json(); })
         .then(function (data) {
-
-          // 地图 & 位置
           if (data.location && data.location.lat) {
             var lat  = data.location.lat;
             var lng  = data.location.lng;
@@ -106,7 +104,7 @@
 
             var map = L.map('nw-map', {
               zoomControl: false,
-              scrollWheelZoom: false,   // 禁止滚轮缩放（防止页面滚动被打断）
+              scrollWheelZoom: false,
               dragging: true,
               touchZoom: true,
             }).setView([lat, lng], 13);
@@ -116,7 +114,8 @@
               maxZoom: 19,
             }).addTo(map);
 
-            L.marker([lat, lng]).addTo(map).bindPopup('<b>' + escHtml(area) + '</b>').openPopup();
+            L.marker([lat, lng]).addTo(map)
+              .bindPopup('<b>' + escHtml(area) + '</b>').openPopup();
 
             document.getElementById('nw-loc').innerHTML =
               '📍 <span>' + escHtml(area) + '</span>';
@@ -124,16 +123,15 @@
               UPDATED + timeAgo(data.location.updated_at);
           }
 
-          // 自定义状态
           if (data.status && data.status.text) {
             document.getElementById('nw-status').innerHTML =
-              (data.status.emoji || '💭') + ' <span>' + escHtml(data.status.text) + '</span>';
+              (data.status.emoji || '💭') +
+              ' <span>' + escHtml(data.status.text) + '</span>';
           } else {
             document.getElementById('nw-status').style.display = 'none';
           }
         })
         .catch(function () {
-          // 加载失败静默隐藏，不影响博客主体
           var w = document.getElementById('now-widget');
           if (w) w.style.display = 'none';
         });

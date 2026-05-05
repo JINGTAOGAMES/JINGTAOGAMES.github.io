@@ -1,6 +1,6 @@
 (function () {
-  var NOW_URL  = '/ja/now/';
-  var API_BASE = 'https://now-api.719783307e.workers.dev';
+  var NOW_URL   = '/ja/now/';
+  var API_BASE  = 'https://now-api.719783307e.workers.dev';
   var LINK_TEXT = 'Now ページを見る →';
   var LOADING   = '読み込み中…';
   var UPDATED   = '更新：';
@@ -16,10 +16,9 @@
 
   function escHtml(str) {
     return String(str)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
-  // 动态加载 Leaflet（仅首页需要时加载）
   function loadLeaflet(cb) {
     if (window.L) { cb(); return; }
     var css = document.createElement('link');
@@ -33,16 +32,15 @@
   }
 
   function init() {
-    // 只在首页（同时有 #content-inner 和 #recent-posts）运行
     var contentInner = document.getElementById('content-inner');
-    var recentPosts  = document.getElementById('recent-posts');
-    if (!contentInner || !recentPosts) return;
+    if (!contentInner) return;
+    if (!document.getElementById('recent-posts')) return; // 只在首页运行
 
-    // 注入样式
+    // ── 注入样式 ──
     var style = document.createElement('style');
     style.textContent =
       '#now-widget{' +
-        'grid-column:1/-1;' +          /* 横跨 grid 全部列 */
+        'box-sizing:border-box;' +
         'margin-bottom:20px;' +
         'border-radius:12px;' +
         'overflow:hidden;' +
@@ -51,16 +49,15 @@
         'box-shadow:var(--card-box-shadow,0 2px 8px rgba(0,0,0,.06));' +
         'display:flex;flex-direction:row;' +
       '}' +
-      '#nw-map{' +
-        'width:45%;min-width:240px;height:220px;flex-shrink:0;' +
-      '}' +
+      '#nw-map{width:45%;min-width:240px;height:220px;flex-shrink:0;}' +
       '.nw-info{' +
         'flex:1;padding:22px 26px;display:flex;' +
-        'flex-direction:column;justify-content:center;gap:14px;' +
+        'flex-direction:column;justify-content:center;gap:14px;min-width:0;' +
       '}' +
-      '.nw-row{' +
-        'display:flex;align-items:center;gap:10px;' +
-        'font-size:1rem;color:var(--font-color,#333);' +
-      '}' +
+      '.nw-row{display:flex;align-items:center;gap:10px;font-size:1rem;color:var(--font-color,#333);}' +
       '.nw-updated{font-size:.75rem;color:var(--font-second-color,#aaa);}' +
-      '.nw-li
+      '.nw-link{' +
+        'display:inline-flex;align-items:center;gap:6px;' +
+        'color:var(--link-color,#6366f1);text-decoration:none;' +
+        'font-size:.85rem;font-weight:500;margin-top:4px;' +
+    
