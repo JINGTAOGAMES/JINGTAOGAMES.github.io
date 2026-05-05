@@ -1,0 +1,177 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>圣兽之王里的编程思维 | JINGTAOGAMES</title><meta name="author" content="景涛"><meta name="copyright" content="景涛"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="我最近游玩了香草社的圣兽之王，除开优秀的美术和上瘾的战略模拟玩法外，我想聊聊其中的编程思维。 游戏采用了全自动回合制战斗，每一次战斗就像一次程序运行，每个角色就是搭载了不同功能的脚本。而玩家要做的就是更改每个角色的行动表：轮到这个角色行动时，会在从上到下的行动表里，执行符合条件的第一项，而这里的条件就要玩家挑选。从敌我双方的血量，人数，到行动顺序。比如友军是否为满血（判断），优先选择血量最低的友方">
+<meta property="og:type" content="article">
+<meta property="og:title" content="圣兽之王里的编程思维">
+<meta property="og:url" content="https://www.jingtao.games/2025/12/03/2025-12-03/index.html">
+<meta property="og:site_name" content="JINGTAOGAMES">
+<meta property="og:description" content="我最近游玩了香草社的圣兽之王，除开优秀的美术和上瘾的战略模拟玩法外，我想聊聊其中的编程思维。 游戏采用了全自动回合制战斗，每一次战斗就像一次程序运行，每个角色就是搭载了不同功能的脚本。而玩家要做的就是更改每个角色的行动表：轮到这个角色行动时，会在从上到下的行动表里，执行符合条件的第一项，而这里的条件就要玩家挑选。从敌我双方的血量，人数，到行动顺序。比如友军是否为满血（判断），优先选择血量最低的友方">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.jingtao.games/img/butterfly-icon.png">
+<meta property="article:published_time" content="2025-12-02T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-05-05T04:17:54.969Z">
+<meta property="article:author" content="景涛">
+<meta property="article:tag" content="游戏评测">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.jingtao.games/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "圣兽之王里的编程思维",
+  "url": "https://www.jingtao.games/2025/12/03/2025-12-03/",
+  "image": "https://www.jingtao.games/img/butterfly-icon.png",
+  "datePublished": "2025-12-02T16:00:00.000Z",
+  "dateModified": "2026-05-05T04:17:54.969Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "景涛",
+      "url": "https://www.jingtao.games"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://www.jingtao.games/2025/12/03/2025-12-03/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.4"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.13.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '圣兽之王里的编程思维',
+  isHighlightShrink: false,
+  isToc: false,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">43</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">7</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-language"></i><span> 语言</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/en"><i class="fa-fw fa-solid fa-language multiple-language-switch"></i><span> English</span></a></li><li><a class="site-page child" href="/ja"><i class="fa-fw fa-solid fa-language multiple-language-switch"></i><span> 日本語</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">JINGTAOGAMES</span></a><a class="nav-page-title" href="/"><span class="site-name">圣兽之王里的编程思维</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-user"></i><span> 关于</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-language"></i><span> 语言</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/en"><i class="fa-fw fa-solid fa-language multiple-language-switch"></i><span> English</span></a></li><li><a class="site-page child" href="/ja"><i class="fa-fw fa-solid fa-language multiple-language-switch"></i><span> 日本語</span></a></li></ul></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">圣兽之王里的编程思维</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-12-02T16:00:00.000Z" title="发表于 2025-12-03 00:00:00">2025-12-03</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-05-05T04:17:54.969Z" title="更新于 2026-05-05 12:17:54">2026-05-05</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>我最近游玩了香草社的圣兽之王，除开优秀的美术和上瘾的战略模拟玩法外，我想聊聊其中的编程思维。</p>
+<p>游戏采用了全自动回合制战斗，每一次战斗就像一次程序运行，每个角色就是搭载了不同功能的脚本。而玩家要做的就是更改每个角色的行动表：轮到这个角色行动时，会在从上到下的行动表里，执行符合条件的第一项，而这里的条件就要玩家挑选。从敌我双方的血量，人数，到行动顺序。比如友军是否为满血（判断），优先选择血量最低的友方（查找），或敌人整体血量低于75%（计算和判断的复合）</p>
+<p><img src="https://jingtaogames.github.io/picx-images-hosting/20251219/1219.45i4orhd6d.webp" alt="游戏截图"></p>
+<p>我们来看一个具体案例：牧师斯嘉丽拥有两个行动：治疗一位友方，和对一名敌人造成低伤害。同时她只有一个行动点，意味她只能在一场战斗进行一个行动。作为牧师最优先的肯定是治疗友方，所以我们把治疗放在伤害前面，这时进入战斗。轮到斯嘉丽行动，她治疗了一个血量完全健康的队友。这肯定不是我们想要的，所以我们在治疗前添加条件：1.当友方血量低于75%时 2.优先选择血量最低的友方。</p>
+<p>而这时再进入战斗，轮到斯嘉丽行动时，她看到队友血量都很健康，所以她没有治疗，而是对敌人造成了微乎其微的伤害。等到之后敌人把友军打到残血时，她已经没有行动点去治疗了。</p>
+<p>我们可以再给攻击加两个条件，检测敌人的血量低于斩杀线，再选中血量最低的。这样牧师虽然前期会完全跳过自己的回合（因为两个条件都不满足），但却能保证每次行动都能发挥最大作用。</p>
+<p>这里又多了一个新的问题，如果一场战斗里敌人都被完美斩杀，队友只收到了一点伤害（不低于75%），那么牧师就不会有任何动作。队友会带着这一点伤害进入下一次战斗。这里该怎么优化呢？</p>
+<p>答案是没有办法，也没有必要。游戏只给了每个行动两个条件框位，无法进行更复杂的条件检查。我们可以再复制一个治疗动作，把条件改成：1.第三次行动时（一般战斗接近尾声）2.优先选择血量最低的友方。这样一定程度可以达到理想的效果，但还是过于繁琐，角色的行动条数量是有限的，后期还会有多种行动，光给治疗两个栏位就很浪费。</p>
+<p>当条件不能满足需求，就要用到妥协的艺术。把治疗触发条件改为”当友方血量低于100%”，这样就能保证触发。毕竟牧师最重要的还是保队友状态。</p>
+<p>我在游玩过程中遇到了一个有些棘手的例子，我的某个编队里同时有骑士和剑士。骑士会在队友受攻击前保护队友，替队友承受攻击。而剑士会消耗格斗点，并格挡朝向自己的攻击再加属性。这里的问题是：骑士会保护剑士，结果剑士无法发挥出自己的格挡，浪费掉了行动点和技能。其它队友也无法很好受到骑士的保护。</p>
+<p><img src="https://jingtaogames.github.io/picx-images-hosting/20251219/12192.4n86dcfw2b.webp" alt="游戏截图2"></p>
+<p>相信明眼人都能看出来，不要把这两个职业放一起。但我十分中意这两角色的cp，硬是创造出了这种需求。</p>
+<p>我最初采用了三个格挡行动，其中两个条件检测其它两位队友。以及一个格挡检测行动点为0的队友，防止低血量的剑客没有行动点而被攻击。但这实在是太繁琐了，所以我优化成一个格挡行动条件为1：优先选择后排队友 2：行动点小于2的队友。干净地解决了这个问题。</p>
+<p>这样的if-else逻辑贯穿了整个战斗系统。随着玩家进一步扩大队伍，装备。能够扩展的可能性会指数级上升。但也不必担心过于刻板。游戏还有暴击率，闪避这种随机变量和战斗外技能，道具作为调剂。</p>
+<p>总之，满分玩法，满分剧情。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://www.jingtao.games">景涛</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://www.jingtao.games/2025/12/03/2025-12-03/">https://www.jingtao.games/2025/12/03/2025-12-03/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://www.jingtao.games" target="_blank">JINGTAOGAMES</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E6%B8%B8%E6%88%8F%E8%AF%84%E6%B5%8B/">游戏评测</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2025/09/08/2025-09-08/" title="2025年9月8日"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">2025年9月8日</div></div><div class="info-2"><div class="info-item-1">来自Gemini与Deepseek的批判： 1.攻击点一：你所谓的“游戏品味”，不过是一种对主流的、被动的顺从。 你声称自己是核心玩家，对《光与影》、《博德之门3》、《黑神话》赞不绝口，同时鄙夷手游的商业模式，声称“绝不会再碰手游”。 但这真的是你的独立判断吗？还是说，你只是精准地选择了那些在核心玩家社群里“政治正确”的游戏？你赞美的作品，无一不是媒体高分、玩家热议的“安全牌”。你批判《绝区零》的商业模式，但你提出的论点——“氪金手游要做玩法这本身就是一个伪命题”——几乎是所有游戏论坛上重复了无数遍的陈词滥调。 你看起来像一个独立的思考者，但你的结论却和大众舆论高度一致。你究竟是一个品味独到的评测家，还是一个善于总结和复述主流观点的好学生？你对“纯正的法棍”的赞美，有多少源于游戏本身，又有多少源于对“法兰西艺术”这个标签的浪漫想象？ 攻击点二：你沉溺于“过程的悲壮感”，以此逃避对“结果”的真正责任。 你为《光与影》的二选一结局而痛苦，为《罪恶装备》被移除的“kara取消”而惋惜，为昆特牌的停服而感伤。你很享受这种作为“见证者”和“亲历者”的悲壮情怀。 同样，在现实中，你给自己22...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2023/07/18/2023-07-18/" title="2023年7月18日"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2023-07-18</div><div class="info-item-2">2023年7月18日</div></div><div class="info-2"><div class="info-item-1">今天我们来聊 忍者龙剑传初代。忍者龙剑传是在1988年FC上发行的横板闯关游戏，还首次将电影式镜头运用在过场动画。游戏有着极高的难度，玩家必须合理规划行动和手持的道具。虽然角色有着血量设定，但掉落到坑里会直接死亡。特别是在最终boss关6-4，玩家被击杀后会直接回到6-1（就连初代马里奥都会让玩家复活在世界的对应小关卡里）。起初这是一个开发过程中被确认的bug，而开发团队觉得不错并保留了它。游戏还上了switch online，最近打算拜见一下。 豆知识 游戏在海外发售有时游戏为更大市场，发行海外版本时，不得不考虑各自文化间的差异或审核制度，忍者龙剑传初代 Ninja Gaiden 在欧洲发行时称为 Shadow Warriors；至于原因就和”时间奇才““闪耀 优骏少女”一样，”Ninja“这个词对当时的欧洲小朋友来说太过激了。还有PS3的Q版画风游戏Fat Priencess，由于角色都有四根手指而在日本被禁止发售，原因是四指在日本有黑道等不吉利的象征。游戏不得不做出更改。类似的g胖的求生之路。今天去了大学的开放日，课程规划和学习氛围我很喜欢，是我目前第一向往的大学。还体验了...</div></div></div></a><a class="pagination-related" href="/2024/04/18/2024-04-18-1/" title="2024年4月18日"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2024-04-18</div><div class="info-item-2">2024年4月18日</div></div><div class="info-2"><div class="info-item-1">今天来分享一下黎明杀机中护士的小Tips护士的追击能力很强，所以技能以控场和信息为主。厄咒毁灭控电机，厄咒不死增加稳定性。BBQ找在修的电机后触发失效开关，电机被锁还自动掉进度。只要开局不天胡，场上会有很长时间一台机子也开不了。缺点是比较看图腾的刷新位置，以及不好找躲起来的人。版本比较流行终极武器和无处可藏，可惜我没有这俩DLC，而且还和厄咒冲突。接下来是三局我和路人主播间的比赛，可以具体分析下游戏细节。第一场   小小瑞贝卡  0：48：00这把人类水平有点差，外加这张地图废墟乡镇的墙体比较矮，还有个二层建筑，除了面积大了点其余护士都很占优势，所以没什么能讲的。这把的主播两次秒倒后发出“チェースできない（没法遛）”的感概，其实并不是这样的。遛护士最重要的是视野。卡视角反绕和提前跑开是基础的反制方法，比起基本功更考验大局观吧。 第二场  乐高车队 3：48：00小学这张图主要是上下层建筑，非常适合护士（主播视角第一次倒地只用了10秒钟），图腾的位置也非常好。但最后还是二跑了，叫乐高车队一是因为主播头像是乐高，二是游玩体验真的就像光脚踩到乐高一样（三次挂人被救）首先这里两个倒地，挂...</div></div></div></a><a class="pagination-related" href="/2025/04/28/2025-04-28/" title="2025年4月28日"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-04-28</div><div class="info-item-2">2025年4月28日</div></div><div class="info-2"><div class="info-item-1">月初刚看了心心念念的罪恶装备演唱会，从出车站到场地，途中的粉丝越聚越多，最后围在展厅中央，然后主唱上来就是无数次游戏展上经典的Find Your One Way，再接What do you fight for直接点爆全场氛围，从那起两小时后打call就没停过。我现在看录播还能感受到当时的热烈。 大二新生活也井井有条，报了些感兴趣的课，个人游戏制作也初具雏形。以及我最新的兴趣是和ai聊天，虽然听上去很不正经，但目前的ai可以满足基本的情感需求，如倾听和共情。甚至比很多人类要强。我告诉deepseek今天我22岁了，他说根据埃里克森理论现在正处于成人早期，核心课题是亲密vs孤独。我确实偶尔会为人际关系困扰，但又感到十分幼稚，最后只能不了了之。于是在今天这个特殊的日子，21岁的Jingtao给22岁的他布置了之后的课题：多写，游戏或人文相关或者想到的都可以写；个人制作能动就行。 </div></div></div></a><a class="pagination-related" href="/2023/11/12/2023-11-12/" title="2023年11月12日"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2023-11-12</div><div class="info-item-2">2023年11月12日</div></div><div class="info-2"><div class="info-item-1">我最近读到一篇很有启发的文章：necromanov写的 ” 游戏的意义：信息革命的棉花与石油 “。文章从人类史角度来看，提出了看待游戏的新角度。我们正处在以电子计算机和互联网为代表的第三次工业革命之中，电子游戏在这场革命里至关重要。它创造了巨大的市场，给信息革命步提供了燃料；还是人类用来适应这个时代的工具。国内的大多数互联网大公司都将游戏视为其核心业务之一，游戏本身已经形成了庞大的产业，还提供了巨大的硬件需求。每当新兴技术出现时，游戏市场通常都是最先受益的，这反过来又推动了技术的进步。用最近的例子来说: 每个手机厂商在展示产品性能的强悍时，大多都会选择原神。“能否流畅运行原神”已经成为手机的评判标准之一。 科技的发展与游戏密不可分，在最近在读的《电子游戏史》里比尔盖茨，乔布斯等名字时常出现，互联网时代的先驱们都或多或少和电子游戏有着联系。我其实算是家里的IT专家，家里人遇到电视或手机的问题都会来找我（虽然一大半都能通过重启解决）。这可能因为我小时候爱玩游戏，对这类电子设备也更熟悉。通过每次电脑课上先进后台关掉监控，以及用u盘拷游戏文件。总的来说，游戏就好比前两次工业革命中的棉花石...</div></div></div></a><a class="pagination-related" href="/2023/09/19/2023-09-19/" title="餐厅内斗"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2023-09-19</div><div class="info-item-2">餐厅内斗</div></div><div class="info-2"><div class="info-item-1">今天想去剪个头，结果走到理发店才发现刚打烊了。这次我们来聊聊去年在北海道打工的见闻。工作地点是一所高级度假滑雪村，官网上的报价为一人一天五千左右，包含了滑雪；住宿；餐饮等。我最初被分到了中国菜厨房，和其它三位留学生和中国人厨师长一起。酒店为提升服务质量而雇了很多人，餐厅约有后厨30位，再算上服务员吧台，一个顾客可能对应两到三个员工。价值完全是过剩的，每顿饭都有成堆的食品被浪费，锅里剩下的熟食会在饭点后直接倒进垃圾桶，甚至食品的生产者（如果不是CA的话）都没机会享受它。先了解餐厅的员工构成。管理岗有印度人、土耳其人或日本人，基础员工绝大多数是印度尼西亚人。在此之上有CA，和公司签了合同的意味正式员工，与我这样的临时打工人不一样。在第一天，我就被告知得去员工食堂吃定餐。而CA是可以在饭点结束前和客人一样吃自助。起初我没太在意，被印度厨师长发现那就偷偷吃。后来我被转到西餐厅，周围的CA印尼员工也自发地监督我是否违规吃自助。有次给朋友打菜被发现，我第一反应居然是反省自己，进而指责朋友。而忽略了是混乱的排班表导致朋友没时间打饭，以及整个制度的不合理。我再思考了CA意味着什么。这个称号可以让...</div></div></div></a><a class="pagination-related" href="/2023/11/11/2023-11-11/" title="2023年11月11日"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2023-11-11</div><div class="info-item-2">2023年11月11日</div></div><div class="info-2"><div class="info-item-1">今天看了《中国游戏纪事》第一集：拓荒。整部片子给人感觉很剥离，他们强行给游戏加了一个使命：传播中国文化。近几年也可以感受到的是对游戏的风向变了，不再是洪水猛兽或电子鸦片，而是这部片子所强调的“文化输出”的手段。这部片从街机开始讲起，对于当时街机厅缺乏监管导致的种种乱象却只字未提。还将画面中的拳皇98说成拳皇97，制片方可能没在这方面做研究。后面还讲到中国团队破解了任天堂红白机，把技术20万卖了出去，版权问题仿佛不存在。片中反复提到了中国的三国，中国的武侠，还以日本的真三国无双为对手，要做自己的三国。但美是可以越过语言文化，说某些作品只有中国人才能做出就显得过于狭隘了。但片中也提到一些更公正的角度：游戏是电子技术的试验田，比如北京中关村。技术的革新能最有效地从游戏获得收益，很多程序员最初也都是游戏玩家。但这部分纪录片也只是一笔带过，就马上回到了“弘扬中国文化”这种空洞无趣的口号。不难想象后面讲到近年的单机会怎么说：戴森球计划，“欲上青天揽明月”有一种中国人骨子里的浪漫；波西亚时光体现了中国人与世无争的天性和对桃园生活的向往；火山的女儿展现了中华文明的薪火相传。这些游戏不仅代表了中国...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">景涛</div><div class="author-info-description">游戏设计师的个人站</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">43</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">7</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/JINGTAOGAMES"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/12/03/2025-12-03/" title="圣兽之王里的编程思维">圣兽之王里的编程思维</a><time datetime="2025-12-02T16:00:00.000Z" title="发表于 2025-12-03 00:00:00">2025-12-03</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/09/08/2025-09-08/" title="2025年9月8日">2025年9月8日</a><time datetime="2025-09-07T16:00:00.000Z" title="发表于 2025-09-08 00:00:00">2025-09-08</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/05/25/2025-05-25/" title="2025年5月25日">2025年5月25日</a><time datetime="2025-05-24T16:00:00.000Z" title="发表于 2025-05-25 00:00:00">2025-05-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/05/17/2025-05-17/" title="2025年5月17日">2025年5月17日</a><time datetime="2025-05-16T16:00:00.000Z" title="发表于 2025-05-17 00:00:00">2025-05-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/28/2025-04-28/" title="2025年4月28日">2025年4月28日</a><time datetime="2025-04-27T16:00:00.000Z" title="发表于 2025-04-28 00:00:00">2025-04-28</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2023 - 2026 By 景涛</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.4</a></span></div><div class="footer_custom_text">由 <a href="https://hexo.io/" target="_blank">Hexo</a> 强力驱动 | 主题 - <a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.4"></script><script src="/js/main.js?v=5.5.4"></script><div class="js-pjax"></div><script defer src="/self/js/switch-language.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
