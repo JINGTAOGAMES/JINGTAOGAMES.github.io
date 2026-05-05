@@ -41,7 +41,7 @@
     style.textContent =
       '#now-widget{' +
         'box-sizing:border-box;' +
-        'margin-bottom:20px;' +
+        'margin-top:20px;margin-bottom:20px;' +
         'border-radius:12px;' +
         'overflow:hidden;' +
         'background:var(--card-bg-color,#fff);' +
