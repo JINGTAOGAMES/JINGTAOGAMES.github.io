@@ -1,13 +1,13 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>JINGTAOGAMES | JINGTAOGAMES</title><meta name="author" content="景涛"><meta name="copyright" content="景涛"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Now · JINGTAOGAMES                   &#x2F;* ── CSS 变量：兼容亮色 &#x2F; 暗色模式 ── *&#x2F;     :root {       --bg:          #f5f6fa;       --card-bg:     #ffffff;       --text:        #2d2d3a;       --text-muted:">
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>JINGTAOGAMES | JINGTAOGAMES</title><meta name="author" content="景涛"><meta name="copyright" content="景涛"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Now · JINGTAOGAMES                :root {       --bg:          #f5f6fa;       --card-bg:     #ffffff;       --text:        #2d2d3a;       --text-muted:  #8a8a9a;       --border:      #e8e8f">
 <meta property="og:type" content="website">
 <meta property="og:title" content="JINGTAOGAMES">
 <meta property="og:url" content="https://www.jingtao.games/now/index.html">
 <meta property="og:site_name" content="JINGTAOGAMES">
-<meta property="og:description" content="Now · JINGTAOGAMES                   &#x2F;* ── CSS 变量：兼容亮色 &#x2F; 暗色模式 ── *&#x2F;     :root {       --bg:          #f5f6fa;       --card-bg:     #ffffff;       --text:        #2d2d3a;       --text-muted:">
+<meta property="og:description" content="Now · JINGTAOGAMES                :root {       --bg:          #f5f6fa;       --card-bg:     #ffffff;       --text:        #2d2d3a;       --text-muted:  #8a8a9a;       --border:      #e8e8f">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://www.jingtao.games/img/butterfly-icon.png">
-<meta property="article:published_time" content="2026-05-05T08:07:49.793Z">
-<meta property="article:modified_time" content="2026-05-05T08:07:49.793Z">
+<meta property="article:published_time" content="2026-05-05T15:20:20.761Z">
+<meta property="article:modified_time" content="2026-05-05T15:20:20.760Z">
 <meta property="article:author" content="景涛">
 <meta property="article:tag" content="游戏开发, 编程">
 <meta name="twitter:card" content="summary">
@@ -152,12 +152,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Now · JINGTAOGAMES</title>
 
-  <!-- Leaflet 地图 -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <style>
-    /* ── CSS 变量：兼容亮色 / 暗色模式 ── */
     :root {
       --bg:          #f5f6fa;
       --card-bg:     #ffffff;
@@ -178,8 +176,6 @@
         --shadow:     0 2px 16px rgba(0,0,0,.35);
       }
     }
-
-    /* ── 基础重置 ── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
@@ -188,135 +184,82 @@
       color: var(--text);
       min-height: 100vh;
     }
+    .now-wrap { max-width: 720px; margin: 0 auto; padding: 32px 16px 48px; }
 
-    /* ── 页面容器 ── */
-    .now-wrap {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 32px 16px 48px;
-    }
-
-    /* ── 顶部导航 ── */
     .now-nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      display: flex; align-items: center; justify-content: space-between;
       margin-bottom: 28px;
     }
     .now-nav a {
-      color: var(--text-muted);
-      text-decoration: none;
-      font-size: .9rem;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: color .2s;
+      color: var(--text-muted); text-decoration: none; font-size: .9rem;
+      display: flex; align-items: center; gap: 6px; transition: color .2s;
     }
     .now-nav a:hover { color: var(--accent); }
-    .now-title {
-      font-size: 1.6rem;
-      font-weight: 700;
-      letter-spacing: -.02em;
-    }
-    .now-subtitle {
-      font-size: .85rem;
-      color: var(--text-muted);
-      margin-top: 2px;
-    }
+    .now-title { font-size: 1.6rem; font-weight: 700; letter-spacing: -.02em; }
+    .now-subtitle { font-size: .85rem; color: var(--text-muted); margin-top: 2px; }
 
-    /* ── 卡片 ── */
     .card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 22px 24px;
-      margin-bottom: 16px;
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: var(--radius); box-shadow: var(--shadow);
+      padding: 22px 24px; margin-bottom: 16px;
     }
-    .card-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-    .card-header h2 {
-      font-size: 1rem;
-      font-weight: 600;
-      letter-spacing: .01em;
-    }
+    .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+    .card-header h2 { font-size: 1rem; font-weight: 600; letter-spacing: .01em; }
     .card-icon {
-      font-size: 1.1rem;
-      width: 32px;
-      height: 32px;
-      background: var(--border);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      font-size: 1.1rem; width: 32px; height: 32px; background: var(--border);
+      border-radius: 8px; display: flex; align-items: center; justify-content: center;
     }
 
-    /* ── 地图 ── */
+    /* Map */
     #map {
-      height: 300px;
-      width: 100%;
-      border-radius: 10px;
-      overflow: hidden;
-      border: 1px solid var(--border);
+      height: 300px; width: 100%; border-radius: 10px;
+      overflow: hidden; border: 1px solid var(--border);
     }
 
-    /* ── 更新时间 ── */
-    .updated {
-      margin-top: 10px;
-      font-size: .8rem;
-      color: var(--text-muted);
+    .updated { margin-top: 10px; font-size: .8rem; color: var(--text-muted); }
+
+    /* Status */
+    .status-text { font-size: 1.15rem; display: flex; align-items: center; gap: 10px; }
+
+    /* Steam */
+    .steam-row { display: flex; align-items: center; gap: 10px; font-size: .95rem; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .game-name { margin-top: 8px; font-size: .88rem; color: #90ba3c; padding-left: 20px; }
+
+    /* Goals */
+    .goal-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .goal-list li {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: .95rem; line-height: 1.5;
+    }
+    .goal-check {
+      width: 18px; height: 18px; border-radius: 4px; flex-shrink: 0;
+      border: 2px solid var(--border); margin-top: 2px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .7rem; font-weight: 700;
+    }
+    .goal-check.done { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .goal-done-text { color: var(--text-muted); text-decoration: line-through; }
+
+    /* News */
+    .news-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .news-list li {
+      display: flex; align-items: flex-start; gap: 12px;
+      font-size: .95rem; line-height: 1.5;
+    }
+    .news-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent); flex-shrink: 0; margin-top: 7px;
     }
 
-    /* ── Steam 状态 ── */
-    .steam-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: .95rem;
-    }
-    .dot {
-      width: 10px; height: 10px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-    .game-name {
-      margin-top: 8px;
-      font-size: .88rem;
-      color: #90ba3c;
-      padding-left: 20px;
-    }
-
-    /* ── 自定义状态 ── */
-    .status-text {
-      font-size: 1.15rem;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    /* ── Listening 占位 ── */
-    .placeholder {
-      font-size: .9rem;
-      color: var(--text-muted);
-      padding: 4px 0;
-    }
-
-    /* ── 骨架屏 loading ── */
+    /* Skeleton */
     .skeleton {
       background: linear-gradient(90deg, var(--border) 25%, var(--card-bg) 50%, var(--border) 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
-      border-radius: 6px;
-      height: 18px;
-      width: 60%;
+      background-size: 200% 100%; animation: shimmer 1.5s infinite;
+      border-radius: 6px; height: 18px; width: 60%;
     }
     @keyframes shimmer { to { background-position: -200% 0; } }
 
-    /* ── 响应式 ── */
     @media (max-width: 480px) {
       .now-wrap { padding: 20px 12px 40px; }
       .card { padding: 18px 16px; }
@@ -327,7 +270,6 @@
 <body>
 <div class="now-wrap">
 
-  <!-- 顶部导航 -->
   <nav class="now-nav">
     <a href="/">← 返回博客</a>
     <div style="text-align:right">
@@ -346,25 +288,6 @@
     <div class="updated" id="loc-updated">加载中…</div>
   </div>
 
-  <!-- 🎮 Gaming -->
-  <div class="card" id="card-gaming">
-    <div class="card-header">
-      <div class="card-icon">🎮</div>
-      <h2>Gaming</h2>
-    </div>
-    <div id="steam-content"><div class="skeleton"></div></div>
-    <div class="updated" id="steam-updated"></div>
-  </div>
-
-  <!-- 🎵 Listening -->
-  <div class="card">
-    <div class="card-header">
-      <div class="card-icon">🎵</div>
-      <h2>Listening</h2>
-    </div>
-    <p class="placeholder">暂未接入音乐数据</p>
-  </div>
-
   <!-- 💭 Status -->
   <div class="card">
     <div class="card-header">
@@ -375,63 +298,87 @@
     <div class="updated" id="status-updated"></div>
   </div>
 
+  <!-- 🎮 Gaming -->
+  <div class="card" id="card-gaming">
+    <div class="card-header">
+      <div class="card-icon">🎮</div>
+      <h2>Gaming</h2>
+    </div>
+    <div id="steam-content"><div class="skeleton"></div></div>
+    <div class="updated" id="steam-updated"></div>
+  </div>
+
+  <!-- 🎯 Monthly Goals -->
+  <div class="card" id="card-goals">
+    <div class="card-header">
+      <div class="card-icon">🎯</div>
+      <h2>本月目标</h2>
+    </div>
+    <div id="goals-content"><div class="skeleton"></div></div>
+  </div>
+
+  <!-- 📰 Recent News -->
+  <div class="card" id="card-news">
+    <div class="card-header">
+      <div class="card-icon">📰</div>
+      <h2>最近动态</h2>
+    </div>
+    <div id="news-content"><div class="skeleton"></div></div>
+  </div>
+
 </div>
 
 <script>
-// ── 配置 ───────────────────────────────────────────────────────
-// 部署 Worker 后将此地址替换为真实的 Workers URL
-// 格式：https://now-api.<你的CF账户子域>.workers.dev
-// 或者自定义域名：https://api.jingtao.games
 const API_BASE = 'https://now-api.719783307e.workers.dev';
 
-// ── Steam 状态枚举 ──────────────────────────────────────────────
 const STEAM_STATES = {
-  0: { label: '离线',   color: '#8e9297' },
-  1: { label: '在线',   color: '#57cbde' },
-  2: { label: '忙碌',   color: '#ed4245' },
-  3: { label: '离开',   color: '#faa81a' },
-  4: { label: '打盹',   color: '#faa81a' },
-  5: { label: '在线',   color: '#57cbde' },
-  6: { label: '在线',   color: '#57cbde' },
+  0: { label: '离线',  color: '#8e9297' },
+  1: { label: '在线',  color: '#57cbde' },
+  2: { label: '忙碌',  color: '#ed4245' },
+  3: { label: '离开',  color: '#faa81a' },
+  4: { label: '打盹',  color: '#faa81a' },
+  5: { label: '在线',  color: '#57cbde' },
+  6: { label: '在线',  color: '#57cbde' },
 };
 
-// ── 相对时间工具 ────────────────────────────────────────────────
 function timeAgo(isoStr) {
   if (!isoStr) return '未知';
   const diff = Math.floor((Date.now() - new Date(isoStr).getTime()) / 1000);
-  if (diff < 60)  return `${diff} 秒前`;
-  if (diff < 3600) return `${Math.floor(diff / 60)} 分钟前`;
+  if (diff < 60)    return `${diff} 秒前`;
+  if (diff < 3600)  return `${Math.floor(diff / 60)} 分钟前`;
   if (diff < 86400) return `${Math.floor(diff / 3600)} 小时前`;
   return `${Math.floor(diff / 86400)} 天前`;
 }
 
-// ── 地图实例（单例，避免重复初始化）────────────────────────────
-let mapInstance = null;
-let markerInstance = null;
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = `<span style="color:var(--text-muted);font-size:.9rem">${msg}</span>`;
+}
+
+let mapInstance = null, markerInstance = null;
 
 function initMap(lat, lng, area) {
   if (!mapInstance) {
-    // 初始化 Leaflet 地图
     mapInstance = L.map('map', { zoomControl: true, scrollWheelZoom: false })
                    .setView([lat, lng], 12);
-
-    // OpenStreetMap 底图
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
       attribution: '© <a target="_blank" rel="noopener" href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a target="_blank" rel="noopener" href="https://carto.com/">CARTO</a>',
       maxZoom: 19,
     }).addTo(mapInstance);
   } else {
-    // 已存在地图，只更新视角
     mapInstance.setView([lat, lng], 12);
     if (markerInstance) markerInstance.remove();
   }
-
-  // 添加标记并打开 popup
   markerInstance = L.marker([lat, lng]).addTo(mapInstance);
   markerInstance.bindPopup(`<b>${area}</b>`).openPopup();
 }
 
-// ── 渲染 Steam 状态 ─────────────────────────────────────────────
 function renderSteam(steam) {
   const state = STEAM_STATES[steam.persona_state] ?? STEAM_STATES[0];
   let html = `<div class="steam-row">
@@ -445,7 +392,6 @@ function renderSteam(steam) {
   document.getElementById('steam-updated').textContent = `最后更新：${timeAgo(steam.updated_at)}`;
 }
 
-// ── 渲染自定义状态 ──────────────────────────────────────────────
 function renderStatus(status) {
   document.getElementById('status-content').innerHTML =
     `<div class="status-text">
@@ -456,29 +402,42 @@ function renderStatus(status) {
     `最后更新：${timeAgo(status.updated_at)}`;
 }
 
-// ── XSS 防护：转义 HTML 特殊字符 ───────────────────────────────
-function escHtml(str) {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+function renderGoals(goals) {
+  if (!goals || !goals.text || !goals.text.trim()) {
+    showError('goals-content', '暂无目标');
+    return;
+  }
+  const lines = goals.text.trim().split('\n').filter(l => l.trim());
+  const items = lines.map(line => {
+    const trimmed = line.trim();
+    const done = /^\[x\]/i.test(trimmed);
+    const text = trimmed.replace(/^\[[ x]\]\s*/i, '');
+    return `<li>
+      <div class="goal-check${done ? ' done' : ''}">${done ? '✓' : ''}</div>
+      <span class="${done ? 'goal-done-text' : ''}">${escHtml(text)}</span>
+    </li>`;
+  }).join('');
+  document.getElementById('goals-content').innerHTML = `<ul class="goal-list">${items}</ul>`;
 }
 
-// ── 错误占位 ────────────────────────────────────────────────────
-function showError(id, msg) {
-  const el = document.getElementById(id);
-  if (el) el.innerHTML = `<span style="color:var(--text-muted);font-size:.9rem">${msg}</span>`;
+function renderNews(news) {
+  if (!news || !news.text || !news.text.trim()) {
+    showError('news-content', '暂无动态');
+    return;
+  }
+  const lines = news.text.trim().split('\n').filter(l => l.trim());
+  const items = lines.map(line =>
+    `<li><div class="news-dot"></div><span>${escHtml(line.trim())}</span></li>`
+  ).join('');
+  document.getElementById('news-content').innerHTML = `<ul class="news-list">${items}</ul>`;
 }
 
-// ── 主加载函数 ──────────────────────────────────────────────────
 async function loadNow() {
   try {
     const res = await fetch(`${API_BASE}/api/status`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const { location, status, steam } = await res.json();
+    const { location, status, steam, goals, news } = await res.json();
 
-    // 位置 & 地图
     if (location && location.lat && location.lng) {
       initMap(location.lat, location.lng, location.area || '');
       document.getElementById('loc-updated').textContent =
@@ -488,34 +447,30 @@ async function loadNow() {
       document.getElementById('loc-updated').textContent = '暂无位置数据';
     }
 
-    // Steam 状态
-    if (steam) {
-      renderSteam(steam);
-    } else {
-      showError('steam-content', '暂无 Steam 数据');
-    }
+    if (status && status.text) renderStatus(status);
+    else showError('status-content', '暂无状态');
 
-    // 自定义状态
-    if (status && status.text) {
-      renderStatus(status);
-    } else {
-      showError('status-content', '暂无状态');
-    }
+    if (steam) renderSteam(steam);
+    else showError('steam-content', '暂无 Steam 数据');
+
+    renderGoals(goals);
+    renderNews(news);
 
   } catch (e) {
     console.error('[Now] 加载失败:', e);
     showError('steam-content', '加载失败，请稍后刷新');
     showError('status-content', '加载失败，请稍后刷新');
+    showError('goals-content', '加载失败');
+    showError('news-content', '加载失败');
     document.getElementById('loc-updated').textContent = '加载失败';
   }
 }
 
-// 页面就绪后加载
 loadNow();
 </script>
 </body>
 </html>
-</div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">景涛</div><div class="author-info-description">游戏设计师的个人站</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">45</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">7</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/JINGTAOGAMES"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/12/03/%E5%9C%A3%E5%85%BD%E4%B9%8B%E7%8E%8B%E9%87%8C%E7%9A%84%E7%BC%96%E7%A8%8B%E6%80%9D%E7%BB%B4/" title="圣兽之王里的编程思维">圣兽之王里的编程思维</a><time datetime="2025-12-02T16:00:00.000Z" title="发表于 2025-12-03 00:00:00">2025-12-03</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/09/08/AI%E7%9A%84%E6%89%B9%E5%88%A4/" title="AI的批判">AI的批判</a><time datetime="2025-09-07T16:00:00.000Z" title="发表于 2025-09-08 00:00:00">2025-09-08</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/05/25/1999%E4%B8%A4%E5%91%A8%E5%B9%B4/" title="1999两周年">1999两周年</a><time datetime="2025-05-24T16:00:00.000Z" title="发表于 2025-05-25 00:00:00">2025-05-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/05/17/%E5%85%89%E4%B8%8E%E5%BD%B133%E5%8F%B7%E8%BF%9C%E5%BE%81%E9%98%9F/" title="光与影33号远征队">光与影33号远征队</a><time datetime="2025-05-16T16:00:00.000Z" title="发表于 2025-05-17 00:00:00">2025-05-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/28/4%E6%9C%8828%E5%8F%B7/" title="4月28号">4月28号</a><time datetime="2025-04-27T16:00:00.000Z" title="发表于 2025-04-28 00:00:00">2025-04-28</time></div></div></div></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/%E6%97%A5%E5%B8%B8/" style="font-size: 1.43em; color: #99a6b9">日常</a> <a href="/tags/%E8%AF%BB%E4%B9%A6/" style="font-size: 1.3em; color: #99a1ac">读书</a> <a href="/tags/%E5%BD%B1%E8%A7%86/" style="font-size: 1.37em; color: #99a4b2">影视</a> <a href="/tags/%E6%89%93%E5%B7%A5%E8%A7%81%E9%97%BB/" style="font-size: 1.1em; color: #999">打工见闻</a> <a href="/tags/%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0/" style="font-size: 1.23em; color: #999ea6">语言学习</a> <a href="/tags/%E8%B7%91%E5%9B%A2/" style="font-size: 1.17em; color: #999c9f">跑团</a> <a href="/tags/%E6%B8%B8%E6%88%8F%E8%AF%84%E6%B5%8B/" style="font-size: 1.5em; color: #99a9bf">游戏评测</a></div></div><div class="card-widget card-archives">
+</div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">景涛</div><div class="author-info-description">游戏设计师的个人站</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">45</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">7</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/JINGTAOGAMES"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/12/03/%E5%9C%A3%E5%85%BD%E4%B9%8B%E7%8E%8B%E9%87%8C%E7%9A%84%E7%BC%96%E7%A8%8B%E6%80%9D%E7%BB%B4/" title="圣兽之王里的编程思维">圣兽之王里的编程思维</a><time datetime="2025-12-02T16:00:00.000Z" title="发表于 2025-12-03 00:00:00">2025-12-03</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/09/08/AI%E7%9A%84%E6%89%B9%E5%88%A4/" title="AI的批判">AI的批判</a><time datetime="2025-09-07T16:00:00.000Z" title="发表于 2025-09-08 00:00:00">2025-09-08</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/05/25/1999%E4%B8%A4%E5%91%A8%E5%B9%B4/" title="1999两周年">1999两周年</a><time datetime="2025-05-24T16:00:00.000Z" title="发表于 2025-05-25 00:00:00">2025-05-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/05/17/%E5%85%89%E4%B8%8E%E5%BD%B133%E5%8F%B7%E8%BF%9C%E5%BE%81%E9%98%9F/" title="光与影33号远征队">光与影33号远征队</a><time datetime="2025-05-16T16:00:00.000Z" title="发表于 2025-05-17 00:00:00">2025-05-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/28/4%E6%9C%8828%E5%8F%B7/" title="4月28号">4月28号</a><time datetime="2025-04-27T16:00:00.000Z" title="发表于 2025-04-28 00:00:00">2025-04-28</time></div></div></div></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/%E6%89%93%E5%B7%A5%E8%A7%81%E9%97%BB/" style="font-size: 1.1em; color: #999">打工见闻</a> <a href="/tags/%E5%BD%B1%E8%A7%86/" style="font-size: 1.37em; color: #99a4b2">影视</a> <a href="/tags/%E8%AF%BB%E4%B9%A6/" style="font-size: 1.3em; color: #99a1ac">读书</a> <a href="/tags/%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0/" style="font-size: 1.23em; color: #999ea6">语言学习</a> <a href="/tags/%E8%B7%91%E5%9B%A2/" style="font-size: 1.17em; color: #999c9f">跑团</a> <a href="/tags/%E6%B8%B8%E6%88%8F%E8%AF%84%E6%B5%8B/" style="font-size: 1.5em; color: #99a9bf">游戏评测</a> <a href="/tags/%E6%97%A5%E5%B8%B8/" style="font-size: 1.43em; color: #99a6b9">日常</a></div></div><div class="card-widget card-archives">
     <div class="item-headline">
       <i class="fas fa-archive"></i>
       <span>归档</span>
@@ -600,4 +555,4 @@ loadNow();
         </li>
       
     </ul>
-  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">45</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2026-05-05T14:40:12.820Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2023 - 2026 By 景涛</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.4</a></span></div><div class="footer_custom_text">由 <a href="https://hexo.io/" target="_blank">Hexo</a> 强力驱动 | 主题 - <a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.4"></script><script src="/js/main.js?v=5.5.4"></script><div class="js-pjax"></div><script defer src="/js/now-widget.js"></script><script defer src="/self/js/switch-language.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">45</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2026-05-05T15:26:23.040Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2023 - 2026 By 景涛</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.4</a></span></div><div class="footer_custom_text">由 <a href="https://hexo.io/" target="_blank">Hexo</a> 强力驱动 | 主题 - <a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.4"></script><script src="/js/main.js?v=5.5.4"></script><div class="js-pjax"></div><script defer src="/js/now-widget.js"></script><script defer src="/self/js/switch-language.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

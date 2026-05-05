@@ -6,8 +6,8 @@
 <meta property="og:description" content="Now · JINGTAOGAMES                :root {       --bg:          #f5f6fa;       --card-bg:     #ffffff;       --text:        #2d2d3a;       --text-muted:  #8a8a9a;       --border:      #e8e8f">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://www.jingtao.games/ja/img/butterfly-icon.png">
-<meta property="article:published_time" content="2026-05-05T06:24:31.804Z">
-<meta property="article:modified_time" content="2026-05-05T06:24:31.803Z">
+<meta property="article:published_time" content="2026-05-05T15:21:35.281Z">
+<meta property="article:modified_time" content="2026-05-05T15:21:35.280Z">
 <meta property="article:author" content="けいとう">
 <meta property="article:tag" content="ゲーム開発, プログラミング">
 <meta name="twitter:card" content="summary">
@@ -178,11 +178,9 @@
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans',
-                   'Yu Gothic', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Gothic UI',
+                   'Segoe UI', sans-serif;
+      background: var(--bg); color: var(--text); min-height: 100vh;
     }
     .now-wrap { max-width: 720px; margin: 0 auto; padding: 32px 16px 48px; }
     .now-nav {
@@ -212,11 +210,32 @@
       overflow: hidden; border: 1px solid var(--border);
     }
     .updated { margin-top: 10px; font-size: .8rem; color: var(--text-muted); }
+    .status-text { font-size: 1.15rem; display: flex; align-items: center; gap: 10px; }
     .steam-row { display: flex; align-items: center; gap: 10px; font-size: .95rem; }
     .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
     .game-name { margin-top: 8px; font-size: .88rem; color: #90ba3c; padding-left: 20px; }
-    .status-text { font-size: 1.15rem; display: flex; align-items: center; gap: 10px; }
-    .placeholder { font-size: .9rem; color: var(--text-muted); padding: 4px 0; }
+    .goal-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .goal-list li {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: .95rem; line-height: 1.5;
+    }
+    .goal-check {
+      width: 18px; height: 18px; border-radius: 4px; flex-shrink: 0;
+      border: 2px solid var(--border); margin-top: 2px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .7rem; font-weight: 700;
+    }
+    .goal-check.done { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .goal-done-text { color: var(--text-muted); text-decoration: line-through; }
+    .news-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .news-list li {
+      display: flex; align-items: flex-start; gap: 12px;
+      font-size: .95rem; line-height: 1.5;
+    }
+    .news-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent); flex-shrink: 0; margin-top: 7px;
+    }
     .skeleton {
       background: linear-gradient(90deg, var(--border) 25%, var(--card-bg) 50%, var(--border) 75%);
       background-size: 200% 100%; animation: shimmer 1.5s infinite;
@@ -241,39 +260,52 @@
     </div>
   </nav>
 
+  <!-- 📍 Location -->
   <div class="card" id="card-location">
     <div class="card-header">
       <div class="card-icon">📍</div>
-      <h2>現在地</h2>
+      <h2>Location</h2>
     </div>
     <div id="map"></div>
     <div class="updated" id="loc-updated">読み込み中…</div>
   </div>
 
+  <!-- 💭 Status -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon">💭</div>
+      <h2>Status</h2>
+    </div>
+    <div id="status-content"><div class="skeleton"></div></div>
+    <div class="updated" id="status-updated"></div>
+  </div>
+
+  <!-- 🎮 Gaming -->
   <div class="card" id="card-gaming">
     <div class="card-header">
       <div class="card-icon">🎮</div>
-      <h2>ゲーム</h2>
+      <h2>Gaming</h2>
     </div>
     <div id="steam-content"><div class="skeleton"></div></div>
     <div class="updated" id="steam-updated"></div>
   </div>
 
-  <div class="card">
+  <!-- 🎯 Monthly Goals -->
+  <div class="card" id="card-goals">
     <div class="card-header">
-      <div class="card-icon">🎵</div>
-      <h2>音楽</h2>
+      <div class="card-icon">🎯</div>
+      <h2>今月の目標</h2>
     </div>
-    <p class="placeholder">未接続</p>
+    <div id="goals-content"><div class="skeleton"></div></div>
   </div>
 
-  <div class="card">
+  <!-- 📰 Recent News -->
+  <div class="card" id="card-news">
     <div class="card-header">
-      <div class="card-icon">💭</div>
-      <h2>ステータス</h2>
+      <div class="card-icon">📰</div>
+      <h2>最近の出来事</h2>
     </div>
-    <div id="status-content"><div class="skeleton"></div></div>
-    <div class="updated" id="status-updated"></div>
+    <div id="news-content"><div class="skeleton"></div></div>
   </div>
 
 </div>
@@ -282,13 +314,13 @@
 const API_BASE = 'https://now-api.719783307e.workers.dev';
 
 const STEAM_STATES = {
-  0: { label: 'オフライン',     color: '#8e9297' },
-  1: { label: 'オンライン',     color: '#57cbde' },
-  2: { label: '取り込み中',     color: '#ed4245' },
-  3: { label: '退席中',         color: '#faa81a' },
-  4: { label: 'スヌーズ',       color: '#faa81a' },
-  5: { label: 'オンライン',     color: '#57cbde' },
-  6: { label: 'オンライン',     color: '#57cbde' },
+  0: { label: 'オフライン', color: '#8e9297' },
+  1: { label: 'オンライン', color: '#57cbde' },
+  2: { label: '取り込み中', color: '#ed4245' },
+  3: { label: '離席中',     color: '#faa81a' },
+  4: { label: 'スヌーズ',   color: '#faa81a' },
+  5: { label: 'オンライン', color: '#57cbde' },
+  6: { label: 'オンライン', color: '#57cbde' },
 };
 
 function timeAgo(isoStr) {
@@ -300,8 +332,18 @@ function timeAgo(isoStr) {
   return `${Math.floor(diff / 86400)}日前`;
 }
 
-let mapInstance = null;
-let markerInstance = null;
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = `<span style="color:var(--text-muted);font-size:.9rem">${msg}</span>`;
+}
+
+let mapInstance = null, markerInstance = null;
 
 function initMap(lat, lng, area) {
   if (!mapInstance) {
@@ -342,22 +384,41 @@ function renderStatus(status) {
     `最終更新：${timeAgo(status.updated_at)}`;
 }
 
-function escHtml(str) {
-  return String(str)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+function renderGoals(goals) {
+  if (!goals || !goals.text || !goals.text.trim()) {
+    showError('goals-content', '目標なし');
+    return;
+  }
+  const lines = goals.text.trim().split('\n').filter(l => l.trim());
+  const items = lines.map(line => {
+    const trimmed = line.trim();
+    const done = /^\[x\]/i.test(trimmed);
+    const text = trimmed.replace(/^\[[ x]\]\s*/i, '');
+    return `<li>
+      <div class="goal-check${done ? ' done' : ''}">${done ? '✓' : ''}</div>
+      <span class="${done ? 'goal-done-text' : ''}">${escHtml(text)}</span>
+    </li>`;
+  }).join('');
+  document.getElementById('goals-content').innerHTML = `<ul class="goal-list">${items}</ul>`;
 }
 
-function showError(id, msg) {
-  const el = document.getElementById(id);
-  if (el) el.innerHTML = `<span style="color:var(--text-muted);font-size:.9rem">${msg}</span>`;
+function renderNews(news) {
+  if (!news || !news.text || !news.text.trim()) {
+    showError('news-content', '最近の出来事なし');
+    return;
+  }
+  const lines = news.text.trim().split('\n').filter(l => l.trim());
+  const items = lines.map(line =>
+    `<li><div class="news-dot"></div><span>${escHtml(line.trim())}</span></li>`
+  ).join('');
+  document.getElementById('news-content').innerHTML = `<ul class="news-list">${items}</ul>`;
 }
 
 async function loadNow() {
   try {
     const res = await fetch(`${API_BASE}/api/status`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const { location, status, steam } = await res.json();
+    const { location, status, steam, goals, news } = await res.json();
 
     if (location && location.lat && location.lng) {
       initMap(location.lat, location.lng, location.area || '');
@@ -368,16 +429,21 @@ async function loadNow() {
       document.getElementById('loc-updated').textContent = '位置情報なし';
     }
 
-    if (steam) renderSteam(steam);
-    else showError('steam-content', 'Steamデータなし');
-
     if (status && status.text) renderStatus(status);
     else showError('status-content', 'ステータスなし');
+
+    if (steam) renderSteam(steam);
+    else showError('steam-content', 'Steam データなし');
+
+    renderGoals(goals);
+    renderNews(news);
 
   } catch (e) {
     console.error('[Now] 読み込み失敗:', e);
     showError('steam-content', '読み込み失敗');
     showError('status-content', '読み込み失敗');
+    showError('goals-content', '読み込み失敗');
+    showError('news-content', '読み込み失敗');
     document.getElementById('loc-updated').textContent = '読み込み失敗';
   }
 }
@@ -405,4 +471,4 @@ loadNow();
         </li>
       
     </ul>
-  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">1</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2026-05-05T14:40:08.773Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2023 - 2026 By けいとう</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.4</a></span></div><div class="footer_custom_text">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> | Theme - <a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/ja/js/utils.js?v=5.5.4"></script><script src="/ja/js/main.js?v=5.5.4"></script><div class="js-pjax"></div><script defer src="/js/now-widget.js"></script><script defer src="/self/js/switch-language.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>网站信息</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">文章数目 :</div><div class="item-count">1</div></div><div class="webinfo-item"><div class="item-name">本站访客数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">本站总浏览量 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最后更新时间 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2026-05-05T15:26:17.541Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2023 - 2026 By けいとう</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.4</a></span></div><div class="footer_custom_text">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> | Theme - <a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/ja/js/utils.js?v=5.5.4"></script><script src="/ja/js/main.js?v=5.5.4"></script><div class="js-pjax"></div><script defer src="/js/now-widget.js"></script><script defer src="/self/js/switch-language.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
