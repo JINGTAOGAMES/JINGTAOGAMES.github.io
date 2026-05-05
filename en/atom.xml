@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <author>
+    <name>Jing</name>
+  </author>
+  <generator uri="https://hexo.io/">Hexo</generator>
+  <icon>https://www.jingtao.games/en/icon.png</icon>
+  <id>https://www.jingtao.games/en/</id>
+  <link href="https://www.jingtao.games/en/" rel="alternate"/>
+  <link href="https://www.jingtao.games/en/atom.xml" rel="self"/>
+  <rights>All rights reserved 2026, Jing</rights>
+  <subtitle>Game Designer’s Personal Site</subtitle>
+  <title>JINGTAOGAMES</title>
+  <updated>2025-12-19T09:00:43.556Z</updated>
+  <entry>
+    <author>
+      <name>Jing</name>
+    </author>
+    <category term="Mandarin" scheme="https://www.jingtao.games/en/tags/Mandarin/"/>
+    <content>
+      <![CDATA[<p><strong>Learning Mandarin 101</strong></p><p>So, you are interested in Mandarin? I am here to help.</p><p>I am Jingtao, born in Shanxi, China. Mandarin is my native language, and I have reached a B2 level in both English and Japanese. Because of this, I am confident in my experience learning foreign languages, and I am here to show you how to start learning Mandarin in the most fun and effective way.</p><p><strong>Why now?</strong><br>It is the best time to learn Mandarin right now. There is tons of content on the Chinese internet and a rich culture to explore, which means you can find comprehensible input that actually interests you. AI is also definitely a great tool for learning at all levels.</p><p>Most importantly, I created a Discord group to help you practice your output and answer all your questions about Mandarin. I will talk about this at the end of the article.</p><p>The method is based on the book “Hacking Chinese,” written by Olle Linge. There are four fields in language learning: Listening, Speaking, Reading, and Writing.</p><ul><li><p><strong>Listening and Reading are Input.</strong><br>You can learn grammar and characters by accumulating input. This can be improved on your own through a textbook or media.</p></li><li><p><strong>Speaking and Writing are Output.</strong><br>To really communicate with people, output is essential. This is best done with someone else.</p></li></ul><p>Input and output go hand-in-hand; both are important.</p><p>For starters, I recommend learning a <a href="https://studycli.org/chinese-characters/the-100-most-common-chinese-characters/">basic list of 100 words</a> and grammar rules. Once you have that, you can immediately start practicing output. This is possible because Chinese grammar is actually quite simple: it doesn’t have verb conjugations for past or future tense, there are no gender changes, or other weird rules.<br>Therefore, your proficiency in Chinese mainly depends on the number of characters you have learned. Characters are the most important part of learning Chinese.</p><p><strong>MindSet</strong><br>Next, let’s talk about mindset. Chinese is, without a doubt, one of the hardest languages for Western learners. Because of this, it is crucial to maintain your passion and set a clear goal.<br>Your motivation can come from anything: maybe you want to travel to China one day, or perhaps there is a Chinese TV show you really love and want to understand. I am sure you will find even more interesting things to motivate you as you learn.</p><p>Next is to make your goals Specific. Your goal needs to have a timeline and be specific enough that you can track your progress at any time. If you have a long-term goal, you should break it down into smaller milestones.<br>Of course, one can learn aimlessly, but having a goal is the most effective way to succeed. Like the Chinese idiom says事半功倍: “Half the work, double the result.”</p><p><strong>Jimi’s TaiChi class</strong><br>If this sounds good to you, you are welcome to join my Discord learning group!<br>This is where we discuss learning Mandarin and host regular events, such as: Daily Challenges: “Describe a Picture or Character of the Day”. We also gather once a week in VRChat.<br>It is the best place to practice your output and make friends so we can improve together. You can also ask me for advice on learning Mandarin.</p>]]>
+    </content>
+    <id>https://www.jingtao.games/en/2025/11/05/Mandarin101/</id>
+    <link href="https://www.jingtao.games/en/2025/11/05/Mandarin101/"/>
+    <published>2025-11-05T10:00:00.000Z</published>
+    <summary>A guide on how to start learning Mandarin in the most fun and effective way.</summary>
+    <title>Learning Mandarin 101</title>
+    <updated>2025-12-19T09:00:43.556Z</updated>
+  </entry>
+  <entry>
+    <author>
+      <name>Jing</name>
+    </author>
+    <category term="daily" scheme="https://www.jingtao.games/en/tags/daily/"/>
+    <content>
+      <![CDATA[<p>It’s been an hour since I opened my eyes and I still can’t wrap my head around it.</p><p>It all started when I was looking for English learning materials and stumbled upon Charlie’s podcast. I was quickly drawn to his style of open debate and humor.</p><p>Though I can’t support some of his political views, he is a true symbol of freedom of speech. Traveling through the nation and making youth interested in politics was unprecedented, and the fact that he spoke with quantifiable data just makes me respect him more.</p><p>Rest In Peace, Charlie Kirk.</p>]]>
+    </content>
+    <id>https://www.jingtao.games/en/2025/09/11/2025-09-11/</id>
+    <link href="https://www.jingtao.games/en/2025/09/11/2025-09-11/"/>
+    <published>2025-09-11T00:00:00.000Z</published>
+    <summary>
+      <![CDATA[<p>It’s been an hour since I opened my eyes and I still can’t wrap my head around it.</p>
+<p>It all started when I was looking for English]]>
+    </summary>
+    <title>Rest In Peace, Charlie Kirk</title>
+    <updated>2026-05-05T04:18:01.429Z</updated>
+  </entry>
+</feed>

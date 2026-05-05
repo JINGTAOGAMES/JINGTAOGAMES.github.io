@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <author>
+    <name>けいとう</name>
+  </author>
+  <generator uri="https://hexo.io/">Hexo</generator>
+  <icon>https://www.jingtao.games/ja/icon.png</icon>
+  <id>https://www.jingtao.games/ja/</id>
+  <link href="https://www.jingtao.games/ja/" rel="alternate"/>
+  <link href="https://www.jingtao.games/ja/atom.xml" rel="self"/>
+  <rights>All rights reserved 2026, けいとう</rights>
+  <subtitle>ゲームデザイナーの個人サイト</subtitle>
+  <title>JINGTAOGAMES</title>
+  <updated>2025-08-23T00:36:29.884Z</updated>
+  <entry>
+    <author>
+      <name>けいとう</name>
+    </author>
+    <content>
+      <![CDATA[<h2>Test jp</h2>]]>
+    </content>
+    <id>https://www.jingtao.games/ja/2025/08/20/test/</id>
+    <link href="https://www.jingtao.games/ja/2025/08/20/test/"/>
+    <published>2025-08-20T10:07:15.241Z</published>
+    <summary>
+      <![CDATA[<h2>Test]]>
+    </summary>
+    <updated>2025-08-23T00:36:29.884Z</updated>
+  </entry>
+</feed>
