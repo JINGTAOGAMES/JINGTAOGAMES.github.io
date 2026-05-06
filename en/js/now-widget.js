@@ -60,4 +60,87 @@
         'display:inline-flex;align-items:center;gap:6px;' +
         'color:var(--link-color,#6366f1);text-decoration:none;' +
         'font-size:.85rem;font-weight:500;margin-top:4px;' +
-    
+      '}' +
+      '.nw-link:hover{text-decoration:underline;}' +
+      '@media(max-width:680px){' +
+        '#now-widget{flex-direction:column;}' +
+        '#nw-map{width:100%;min-width:unset;height:200px;}' +
+        '.nw-info{padding:16px 18px;}' +
+      '}';
+    document.head.appendChild(style);
+
+    // ── 创建组件 HTML ──
+    var widget = document.createElement('div');
+    widget.id = 'now-widget';
+    widget.innerHTML =
+      '<div id="nw-map"></div>' +
+      '<div class="nw-info">' +
+        '<div class="nw-row" id="nw-loc">📍 <span>' + LOADING + '</span></div>' +
+        '<div class="nw-row" id="nw-status">💭 <span>' + LOADING + '</span></div>' +
+        '<div class="nw-updated" id="nw-time"></div>' +
+        '<a href="' + NOW_URL + '" class="nw-link">' + LINK_TEXT + '</a>' +
+      '</div>';
+
+    // ── 插入到 #content-inner 之前（作为兄弟节点，完全绕开 grid）──
+    // 同时复制 #content-inner 的宽度约束，保持视觉对齐
+    contentInner.parentNode.insertBefore(widget, contentInner);
+    var cs = window.getComputedStyle(contentInner);
+    widget.style.maxWidth  = cs.maxWidth  !== 'none' ? cs.maxWidth  : '';
+    widget.style.width     = '100%';
+    widget.style.marginLeft   = cs.marginLeft;
+    widget.style.marginRight  = cs.marginRight;
+    widget.style.paddingLeft  = cs.paddingLeft;
+    widget.style.paddingRight = cs.paddingRight;
+
+    // ── 加载 Leaflet 并拉取数据 ──
+    loadLeaflet(function () {
+      fetch(API_BASE + '/api/status')
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data.location && data.location.lat) {
+            var lat  = data.location.lat;
+            var lng  = data.location.lng;
+            var area = data.location.area || '';
+
+            var map = L.map('nw-map', {
+              zoomControl: false,
+              scrollWheelZoom: false,
+              dragging: true,
+              touchZoom: true,
+            }).setView([lat, lng], 13);
+
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+              attribution: '© <a href="https://openstreetmap.org">OSM</a> © <a href="https://carto.com">CARTO</a>',
+              maxZoom: 19,
+            }).addTo(map);
+
+            L.marker([lat, lng]).addTo(map)
+              .bindPopup('<b>' + escHtml(area) + '</b>').openPopup();
+
+            document.getElementById('nw-loc').innerHTML =
+              '📍 <span>' + escHtml(area) + '</span>';
+            document.getElementById('nw-time').textContent =
+              UPDATED + timeAgo(data.location.updated_at);
+          }
+
+          if (data.status && data.status.text) {
+            document.getElementById('nw-status').innerHTML =
+              (data.status.emoji || '💭') +
+              ' <span>' + escHtml(data.status.text) + '</span>';
+          } else {
+            document.getElementById('nw-status').style.display = 'none';
+          }
+        })
+        .catch(function () {
+          var w = document.getElementById('now-widget');
+          if (w) w.style.display = 'none';
+        });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
