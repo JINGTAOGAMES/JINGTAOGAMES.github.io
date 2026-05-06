@@ -65,7 +65,7 @@ function initLanguageSwitchLinks() {
  * 处理语言切换逻辑
  * @param {string} languageType - 目标语言代码
  */
-function handleLanguageSwitch(languageType) {
+async function handleLanguageSwitch(languageType) {
     // 保存语言选择到本地存储
     setItemWithExpiry(localStorageLanguage, languageType, storage_ttl);
 
@@ -73,11 +73,36 @@ function handleLanguageSwitch(languageType) {
     const hostUrl = `${pageProtocol}//${pageHost}`;
     const subPagePathName = getSubPagePath();
 
-    // 根据是否为默认语言决定跳转路径
+    // 构建目标URL
+    let targetUrl;
+    let fallbackUrl;
+
     if (defaultLanguage.includes(languageType)) {
-        window.location.href = `${hostUrl}/${subPagePathName}`;
+        targetUrl = `${hostUrl}/${subPagePathName}`;
+        fallbackUrl = `${hostUrl}/`;
     } else {
-        window.location.href = `${hostUrl}/${languageType}/${subPagePathName}`;
+        targetUrl = `${hostUrl}/${languageType}/${subPagePathName}`;
+        fallbackUrl = `${hostUrl}/${languageType}/`;
+    }
+
+    // 如果是主页，直接跳转
+    if (!subPagePathName) {
+        window.location.href = targetUrl;
+        return;
+    }
+
+    // 检查目标页面是否存在
+    try {
+        const response = await fetch(targetUrl, { method: 'HEAD' });
+        if (response.ok) {
+            window.location.href = targetUrl;
+        } else {
+            // 页面不存在，跳转到该语言的主页
+            window.location.href = fallbackUrl;
+        }
+    } catch (error) {
+        // 网络错误或其他问题，跳转到该语言的主页
+        window.location.href = fallbackUrl;
     }
 }
 
