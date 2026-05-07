@@ -6,8 +6,8 @@
 <meta property="og:description" content="Now · JINGTAOGAMES                :root {       --bg:          #f5f6fa;       --card-bg:     #ffffff;       --text:        #2d2d3a;       --text-muted:  #8a8a9a;       --border:      #e8e8f">
 <meta property="og:locale" content="ja_JP">
 <meta property="og:image" content="https://www.jingtao.games/ja/img/butterfly-icon.png">
-<meta property="article:published_time" content="2026-05-06T17:36:16.910Z">
-<meta property="article:modified_time" content="2026-05-06T17:36:16.909Z">
+<meta property="article:published_time" content="2026-05-07T02:08:34.453Z">
+<meta property="article:modified_time" content="2026-05-07T02:08:34.452Z">
 <meta property="article:author" content="けいとう">
 <meta property="article:tag" content="ゲーム開発, プログラミング">
 <meta name="twitter:card" content="summary">
@@ -361,33 +361,38 @@ function initMap(lat, lng, area) {
   markerInstance.bindPopup(`<b>${area}</b>`).openPopup();
 }
 
-function renderSteam(steamHistory) {
-  if (!steamHistory || !Array.isArray(steamHistory) || steamHistory.length === 0) {
-    showError('steam-content', 'ゲーム記録なし');
+function renderSteam(steam) {
+  if (!steam || !steam.current) {
+    showError('steam-content', 'Steam データなし');
     return;
   }
+  const { current, history } = steam;
+  const state = STEAM_STATES[current.persona_state] ?? STEAM_STATES[0];
 
-  let html = '<div style="display:flex;flex-direction:column;gap:14px;">';
+  let html = `<div class="steam-row">
+    <span class="dot" style="background:${state.color}"></span>
+    <span>${state.label}</span>
+  </div>`;
 
-  steamHistory.forEach((steam, index) => {
-    const timeLabel = index === 0 ? '現在' : timeAgo(steam.updated_at);
+  if (current.game_name) {
+    html += `<div class="game-name">プレイ中：${escHtml(current.game_name)}</div>`;
+  }
 
-    html += `<div style="padding-bottom:${index < steamHistory.length - 1 ? '14px' : '0'};border-bottom:${index < steamHistory.length - 1 ? '1px solid var(--border)' : 'none'}">`;
-
-    if (steam.game_name) {
-      html += `<div style="display:flex;align-items:center;justify-content:space-between;">
-        <div class="game-name" style="margin:0;padding:0;">${escHtml(steam.game_name)}</div>
-        <span style="font-size:.8rem;color:var(--text-muted);white-space:nowrap;margin-left:12px;">${timeLabel}</span>
+  const pastGames = (history || []).filter(h => h.game_name && h.game_name !== current.game_name);
+  if (pastGames.length > 0) {
+    html += `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+      <div style="font-size:.78rem;color:var(--text-muted);margin-bottom:8px;">最近プレイ</div>`;
+    pastGames.slice(0, 3).forEach(g => {
+      html += `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <span style="font-size:.88rem;color:#90ba3c">${escHtml(g.game_name)}</span>
+        <span style="font-size:.78rem;color:var(--text-muted)">${timeAgo(g.updated_at)}</span>
       </div>`;
-    }
-
-    html += '</div>';
-  });
-
-  html += '</div>';
+    });
+    html += `</div>`;
+  }
 
   document.getElementById('steam-content').innerHTML = html;
-  document.getElementById('steam-updated').textContent = `最終確認：${timeAgo(steamHistory[0].updated_at)}`;
+  document.getElementById('steam-updated').textContent = `最終更新：${timeAgo(current.updated_at)}`;
 }
 
 function renderStatus(status) {
@@ -442,7 +447,7 @@ async function loadNow() {
     if (status && status.text) renderStatus(status);
     else showError('status-content', 'ステータスなし');
 
-    if (steam && Array.isArray(steam) && steam.length > 0) renderSteam(steam);
+    if (steam && steam.current) renderSteam(steam);
     else showError('steam-content', 'Steam データなし');
 
     renderFocus(focus);
@@ -481,4 +486,4 @@ loadNow();
         </li>
       
     </ul>
-  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>サイト情報</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">記事数 :</div><div class="item-count">1</div></div><div class="webinfo-item"><div class="item-name">ユーザー数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">ページビュー数 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最終更新日 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2026-05-06T17:38:51.736Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer" style="background-image: url(https://JINGTAOGAMES.github.io/picx-images-hosting/20260506/1_upscayl_2x_high-fidelity-4x.8dxhfqnp2q.jpg);"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2023 - 2026 By けいとう</span><span class="framework-info"><span>フレームワーク </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>テーマ </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.4</a></span></div><div class="footer_custom_text">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> | Theme - <a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="ライトモード/ダークモード切り替え"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="シングルカラムとダブルカラムの切り替え"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="設定"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="トップに戻る"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/ja/js/utils.js?v=5.5.4"></script><script src="/ja/js/main.js?v=5.5.4"></script><div class="js-pjax"></div><script defer src="/ja/js/now-widget.js"></script><script defer src="/self/js/switch-language.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
+  </div><div class="card-widget card-webinfo"><div class="item-headline"><i class="fas fa-chart-line"></i><span>サイト情報</span></div><div class="webinfo"><div class="webinfo-item"><div class="item-name">記事数 :</div><div class="item-count">1</div></div><div class="webinfo-item"><div class="item-name">ユーザー数 :</div><div class="item-count" id="busuanzi_value_site_uv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">ページビュー数 :</div><div class="item-count" id="busuanzi_value_site_pv"><i class="fa-solid fa-spinner fa-spin"></i></div></div><div class="webinfo-item"><div class="item-name">最終更新日 :</div><div class="item-count" id="last-push-date" data-lastPushDate="2026-05-07T02:16:42.613Z"><i class="fa-solid fa-spinner fa-spin"></i></div></div></div></div></div></div></main><footer id="footer" style="background-image: url(https://JINGTAOGAMES.github.io/picx-images-hosting/20260506/1_upscayl_2x_high-fidelity-4x.8dxhfqnp2q.jpg);"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2023 - 2026 By けいとう</span><span class="framework-info"><span>フレームワーク </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>テーマ </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.4</a></span></div><div class="footer_custom_text">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> | Theme - <a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="ライトモード/ダークモード切り替え"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="シングルカラムとダブルカラムの切り替え"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="設定"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="トップに戻る"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/ja/js/utils.js?v=5.5.4"></script><script src="/ja/js/main.js?v=5.5.4"></script><div class="js-pjax"></div><script defer src="/ja/js/now-widget.js"></script><script defer src="/self/js/switch-language.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
