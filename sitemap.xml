@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://www.jingtao.games/2026/05/31/%E5%86%99%E5%9C%A8%E4%BA%94%E6%9C%88/</loc>
+    <loc>https://www.jingtao.games/2026/05/31/2026MayCN/</loc>
     
     <lastmod>2026-06-13</lastmod>
     
@@ -489,6 +489,13 @@
   </url>
   
   <url>
+    <loc>https://www.jingtao.games/tags/%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0/</loc>
+    <lastmod>2026-06-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
     <loc>https://www.jingtao.games/tags/%E6%B8%B8%E6%88%8F/</loc>
     <lastmod>2026-06-13</lastmod>
     <changefreq>weekly</changefreq>
@@ -497,13 +504,6 @@
   
   <url>
     <loc>https://www.jingtao.games/tags/%E8%B7%91%E5%9B%A2/</loc>
-    <lastmod>2026-06-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://www.jingtao.games/tags/%E8%AF%AD%E8%A8%80%E5%AD%A6%E4%B9%A0/</loc>
     <lastmod>2026-06-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
