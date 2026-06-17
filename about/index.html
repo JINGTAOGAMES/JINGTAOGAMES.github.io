@@ -177,10 +177,10 @@ body{
         <div class="tb"><span class="ttl">👤 个人档案</span><span class="caps"><b class="cap mm">─</b><b class="cap x">✕</b></span></div>
         <div class="bd">
           <dl>
-            <dt>昵称</dt><dd>JING（晶）</dd>
-            <dt>身份</dt><dd>独立开发</dd>
-            <dt>坐标</dt><dd>🗼 </dd>
-            <dt>装备</dt><dd>C# · 键鼠双修</dd>
+            <dt>昵称</dt><dd>JING（景涛）</dd>
+            <dt>身份</dt><dd>人类</dd>
+            <dt>坐标</dt><dd>你奶奶的家里 </dd>
+            <dt>装备</dt><dd>C# </dd>
             <dt>心情</dt><dd>☀ </dd>
             <dt>状态</dt><dd class="online"><b>●</b> 在线中</dd>
           </dl>
@@ -216,7 +216,7 @@ body{
       <section class="xpwin" id="about">
         <div class="tb"><span class="ttl">★ 关于我 — About Me</span><span class="caps"><b class="cap mm">─</b><b class="cap mm">☐</b><b class="cap x">✕</b></span></div>
         <div class="bd">
-          <p>欢迎来到景涛游戏！这里是我做游戏、写开发笔记的地方 (*^▽^*)</p>
+          <p>欢迎来到景涛游戏！这里是我做游戏、写开发笔记的地方 </p>
           
         </div>
       </section>
@@ -224,8 +224,8 @@ body{
       <section class="xpwin">
         <div class="tb"><span class="ttl">📅 更新日志</span><span class="caps"><b class="cap x">✕</b></span></div>
         <div class="bd"><ul class="log">
-          <li><b>2003.06.17</b> 更新了「关于」，补充了正在开发的新游戏</li>
-          <li><b>2003.02.14</b> 留言板开通，欢迎来玩 (´▽`ʃ♡ƪ)</li>
+          <li><b>2003.06.17</b> 更新了「关于」</li>
+          <li><b>2003.02.14</b> 留言板开通 </li>
           <li><b>2003.01.01</b> 景涛游戏正式开张！</li>
         </ul></div>
       </section>
@@ -318,8 +318,8 @@ body{
   /* ===== 留言板 ===== */
   var list=document.getElementById('gbList');
   var data=[
-    {n:'小明', t:'2003-06-16 23:11', m:'顶！游戏做得很用心，期待新作，加油！(≧▽≦)'},
-    {n:'路过的玩家', t:'2003-06-15 14:02', m:'支持原创独立游戏~ 网站也做得不错，求交换友链！'}
+    {n:'小明', t:'2003-06-16 23:11', m:'顶！(≧▽≦)'},
+    {n:'路过的玩家', t:'2003-06-15 14:02', m:'求交换友链！'}
   ];
   function esc(s){return s.replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   function render(){list.innerHTML=data.map(function(x){return '<li class="gbitem"><div class="meta">📌 '+esc(x.n)+' <time>'+x.t+'</time></div><div class="text">'+esc(x.m)+'</div></li>';}).join('');}
