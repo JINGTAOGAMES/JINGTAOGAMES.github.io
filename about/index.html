@@ -164,9 +164,9 @@ body{
     <div class="tb"><span class="ttl">🎮 景涛游戏 - 首页</span><span class="caps"><b class="cap mm">─</b><b class="cap mm">☐</b><b class="cap x">✕</b></span></div>
     <div class="bd">
       <h1 class="wordart">景涛游戏</h1>
-      <div class="sub">‧₊˚ 原创独立游戏 · 一个人的游戏开发小站 ˚₊‧</div>
+      <div class="sub">‧₊˚ 原创独立网站 · 一个人的游戏开发小站 ˚₊‧</div>
       <div class="badges"><span class="gifbadge blink">NEW!</span><span class="gifbadge b2">正在建设中</span></div>
-      <div class="marquee sunken"><span>☆ 欢迎来到景涛游戏 ☆ 本站于 2003 年开通 ☆ 新游戏开发中，敬请期待 ☆ 站内图片转载请注明出处 ☆ 留言记得签到哦 (๑•̀ㅂ•́)و✧ ☆</span></div>
+      <div class="marquee sunken"><span>☆ 欢迎来到景涛游戏 ☆ 本站于 2000 年开通 ☆ 新游戏开发中，敬请期待 ☆ 站内图片转载请注明出处 ☆ ☆</span></div>
     </div>
   </section>
 
@@ -179,7 +179,7 @@ body{
           <dl>
             <dt>昵称</dt><dd>JING（景涛）</dd>
             <dt>身份</dt><dd>人类</dd>
-            <dt>坐标</dt><dd>你奶奶的家里 </dd>
+            <dt>坐标</dt><dd>EVERYWHERE </dd>
             <dt>装备</dt><dd>C# </dd>
             <dt>心情</dt><dd>☀ </dd>
             <dt>状态</dt><dd class="online"><b>●</b> 在线中</dd>
@@ -206,7 +206,7 @@ body{
           <a class="btn88" href="https://jingtao.games">JINGTAO.GAMES</a>
           <a class="btn88" href="#">友链位 01</a>
           <a class="btn88" href="#">友链位 02</a>
-          <a class="btn88" href="#">交换链接?</a>
+          <a class="btn88" href="#">友链位 03</a>
         </div></div>
       </section>
     </aside>
@@ -224,9 +224,9 @@ body{
       <section class="xpwin">
         <div class="tb"><span class="ttl">📅 更新日志</span><span class="caps"><b class="cap x">✕</b></span></div>
         <div class="bd"><ul class="log">
-          <li><b>2003.06.17</b> 更新了「关于」</li>
-          <li><b>2003.02.14</b> 留言板开通 </li>
-          <li><b>2003.01.01</b> 景涛游戏正式开张！</li>
+          <li><b>2000.04.17</b> 今天下载了好多MP3，推荐给大家！</li>
+          <li><b>2000.03.14</b> 世嘉党怒了！PS2真的值得买吗？</li>
+          <li><b>2000.01.01</b> 我们活下来了！！千年虫什么都没做到</li>
         </ul></div>
       </section>
 
@@ -318,8 +318,8 @@ body{
   /* ===== 留言板 ===== */
   var list=document.getElementById('gbList');
   var data=[
-    {n:'小明', t:'2003-06-16 23:11', m:'顶！(≧▽≦)'},
-    {n:'路过的玩家', t:'2003-06-15 14:02', m:'求交换友链！'}
+    {n:'浪迹天涯の猫', t:'2000-06-16 23:11', m:'沙发！千万不要开「I LOVE YOU」的邮件！！我同学电脑全毁了'},
+    {n:'Super小明', t:'2000-07-15 14:02', m:'正在用56K看，图片加载好慢……先顶后看！'}
   ];
   function esc(s){return s.replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   function render(){list.innerHTML=data.map(function(x){return '<li class="gbitem"><div class="meta">📌 '+esc(x.n)+' <time>'+x.t+'</time></div><div class="text">'+esc(x.m)+'</div></li>';}).join('');}
