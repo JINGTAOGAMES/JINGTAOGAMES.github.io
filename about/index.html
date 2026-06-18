@@ -316,22 +316,59 @@ body{
     }
   });
 
-  /* ===== 留言板 ===== */
-  var list=document.getElementById('gbList');
-  var data=[
-    {n:'浪迹天涯の猫', t:'2000-06-16 23:11', m:'沙发！千万不要开「I LOVE YOU」的邮件！！我同学电脑全毁了'},
-    {n:'Super小明', t:'2000-07-15 14:02', m:'正在用56K看，图片加载好慢……先顶后看！'}
-  ];
-  function esc(s){return s.replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
-  function render(){list.innerHTML=data.map(function(x){return '<li class="gbitem"><div class="meta">📌 '+esc(x.n)+' <time>'+x.t+'</time></div><div class="text">'+esc(x.m)+'</div></li>';}).join('');}
-  render();
+  /* ===== 留言板 (Supabase) ===== */
+  var SB_URL = 'https://qbgliaqzrbehxfrigfhy.supabase.co';
+  var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFiZ2xpYXF6cmJlaHhmcmlnZmh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3NTExMjAsImV4cCI6MjA5NzMyNzEyMH0.v1qxeIYZIPgfaFyK8FQhT7wzu_KPPtNhoaslyzzDBig';
+  var list = document.getElementById('gbList');
+
+  function esc(s){return s.replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+
+  function fmtTime(iso){
+    var d=new Date(iso);
+    return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());
+  }
+
+  function renderMessages(rows){
+    if(!rows||rows.length===0){
+      list.innerHTML='<li class="gbitem"><div class="text" style="color:#999">还没有留言，来第一个吧 (๑•̀ㅂ•́)و</div></li>';
+      return;
+    }
+    list.innerHTML=rows.map(function(x){
+      return '<li class="gbitem"><div class="meta">📌 '+esc(x.name)+' <time>'+fmtTime(x.created_at)+'</time></div><div class="text">'+esc(x.text)+'</div></li>';
+    }).join('');
+  }
+
+  function loadMessages(){
+    list.innerHTML='<li class="gbitem"><div class="text" style="color:#999">加载中…</div></li>';
+    fetch(SB_URL+'/rest/v1/messages?select=*&order=created_at.desc&limit=50',{
+      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
+    })
+    .then(function(r){return r.json();})
+    .then(function(rows){renderMessages(rows);})
+    .catch(function(){list.innerHTML='<li class="gbitem"><div class="text" style="color:#c00">加载失败，请刷新重试</div></li>';});
+  }
+
+  loadMessages();
+
   document.getElementById('gbForm').addEventListener('submit',function(e){
     e.preventDefault();
-    var n=document.getElementById('gbName'), m=document.getElementById('gbMsg');
-    if(!n.value.trim()||!m.value.trim())return;
-    var d=new Date();
-    var t=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes());
-    data.unshift({n:n.value.trim(), t:t, m:m.value.trim()}); n.value=''; m.value=''; render();
+    var nEl=document.getElementById('gbName'), mEl=document.getElementById('gbMsg');
+    var name=nEl.value.trim(), text=mEl.value.trim();
+    if(!name||!text)return;
+    var btn=this.querySelector('.xpbtn');
+    btn.textContent='发送中…'; btn.disabled=true;
+    fetch(SB_URL+'/rest/v1/messages',{
+      method:'POST',
+      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({name:name,text:text})
+    })
+    .then(function(r){
+      if(!r.ok)throw new Error('failed');
+      nEl.value=''; mEl.value='';
+      loadMessages();
+    })
+    .catch(function(){alert('留言失败，请重试');})
+    .finally(function(){btn.textContent='提交留言'; btn.disabled=false;});
   });
 
   /* ===== 开始菜单 ===== */
