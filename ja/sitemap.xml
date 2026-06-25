@@ -2,16 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://www.jingtao.games/ja/2026/05/31/2026MayCN/</loc>
+    <loc>https://jingtaogames.github.io/ja/2026/05/31/2026MayCN/</loc>
     
-    <lastmod>2026-06-14</lastmod>
+    <lastmod>2026-06-25</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>https://www.jingtao.games/ja/now/index.html</loc>
+    <loc>https://jingtaogames.github.io/ja/now/index.html</loc>
     
     <lastmod>2026-05-07</lastmod>
     
@@ -20,7 +20,7 @@
   </url>
   
   <url>
-    <loc>https://www.jingtao.games/ja/about/index.html</loc>
+    <loc>https://jingtaogames.github.io/ja/about/index.html</loc>
     
     <lastmod>2026-05-05</lastmod>
     
@@ -29,7 +29,7 @@
   </url>
   
   <url>
-    <loc>https://www.jingtao.games/ja/shuoshuo/index.html</loc>
+    <loc>https://jingtaogames.github.io/ja/shuoshuo/index.html</loc>
     
     <lastmod>2026-05-05</lastmod>
     
@@ -38,7 +38,7 @@
   </url>
   
   <url>
-    <loc>https://www.jingtao.games/ja/tags/index.html</loc>
+    <loc>https://jingtaogames.github.io/ja/tags/index.html</loc>
     
     <lastmod>2026-05-05</lastmod>
     
@@ -48,7 +48,7 @@
   
 
   <url>
-    <loc>https://www.jingtao.games/ja</loc>
+    <loc>https://jingtaogames.github.io/ja</loc>
     <lastmod>2026-06-25</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
@@ -56,14 +56,14 @@
 
   
   <url>
-    <loc>https://www.jingtao.games/ja/tags/%E6%97%A5%E5%B8%B8/</loc>
+    <loc>https://jingtaogames.github.io/ja/tags/%E6%97%A5%E5%B8%B8/</loc>
     <lastmod>2026-06-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://www.jingtao.games/ja/tags/%E3%82%B2%E3%83%BC%E3%83%A0/</loc>
+    <loc>https://jingtaogames.github.io/ja/tags/%E3%82%B2%E3%83%BC%E3%83%A0/</loc>
     <lastmod>2026-06-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
