@@ -2,7 +2,6 @@
   'use strict';
 
   var CHARACTERS = [
-    { id: 'red', type: 'placeholder', color: '#e74c3c', quotes: ['嗨！', '继续加油鸭', '这篇文章写得不错~', '游戏做到哪一步了？'] },
     {
       id: 'jiaqiu',
       type: 'sprite',
@@ -12,10 +11,24 @@
       height: 100,
       canMove: false,
       quotes: ['君主御驾亲征。', '勿以知之为不知。', '勿以不知为知之，是知也。']
+    },
+    {
+      id: 'exusiai',
+      type: 'multistate',
+      width: 75,
+      height: 75,
+      canMove: true,
+      media: {
+        move: '/img/pets/exusiaiMove-x1.webm',
+        interact: '/img/pets/exusiaiInteract-x1.webm',
+        sleep: '/img/pets/exusiaiSleep-x1.webm',
+        relax: '/img/pets/exusiaiRelax-x1.webm',
+        special: '/img/pets/exusiaiSpecial-x1.webm'
+      }
     }
   ];
 
-  var MIN_SCALE = 0.5, MAX_SCALE = 2.5, SCALE_STEP = 0.1;
+  var MIN_SCALE = 0.5, MAX_SCALE = 4, SCALE_STEP = 0.1;
   var SCALE_KEY = 'blogPetScale';
   var POS_KEY = 'blogPetPos';
   var DRAG_THRESHOLD = 5;
@@ -30,6 +43,9 @@
       '.bp-visual{position:absolute;left:0;top:0;width:100%;height:100%;transform-origin:50% 100%;',
         'transform:scale(calc(var(--bp-face,1) * var(--bp-scale,1)), var(--bp-scale,1));}',
       '.bp-media{width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;}',
+      '.bp-media.bp-media-click{transform:translate(-20%,-20%) scale(1.15);}',
+      '.bp-quote{position:absolute;left:50%;transform:translate(calc(-50% - 16px),0);background:radial-gradient(ellipse at center, rgba(0,0,0,.82) 0%, rgba(0,0,0,.55) 65%, rgba(0,0,0,0) 100%);color:#fff;font-size:12px;font-weight:600;line-height:1.4;padding:8px 22px;border-radius:999px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s;}',
+      '.bp-quote.show{opacity:1;}',
       '.bp-body{position:absolute;left:6px;top:8px;width:24px;height:20px;border-radius:6px 6px 3px 3px;box-shadow:0 3px 0 rgba(0,0,0,.15) inset;}',
       '.bp-eye{position:absolute;top:14px;width:4px;height:4px;background:#222;border-radius:50%;}',
       '.bp-eye.l{left:11px;} .bp-eye.r{left:21px;}',
@@ -49,10 +65,7 @@
         '0%{transform:scale(calc(var(--bp-face,1) * var(--bp-scale,1)), var(--bp-scale,1)) translateY(0);}',
         '40%{transform:scale(calc(var(--bp-face,1) * var(--bp-scale,1) * 1.05), calc(var(--bp-scale,1) * .95)) translateY(-16px);}',
         '100%{transform:scale(calc(var(--bp-face,1) * var(--bp-scale,1)), var(--bp-scale,1)) translateY(0);}',
-      '}',
-      '.bp-bubble{position:absolute;left:50%;transform:translateX(-50%);background:var(--card-bg-color,#fff);color:var(--font-color,#333);border:1px solid var(--card-border,rgba(0,0,0,.1));border-radius:8px;padding:5px 10px;font-size:12px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.12);opacity:0;pointer-events:none;transition:opacity .2s;}',
-      '.bp-bubble::after{content:"";position:absolute;top:100%;left:50%;margin-left:-4px;border:4px solid transparent;border-top-color:var(--card-bg-color,#fff);}',
-      '.bp-bubble.show{opacity:1;}'
+      '}'
     ].join('');
     document.head.appendChild(style);
   }
@@ -89,6 +102,7 @@
 
     var character = CHARACTERS[Math.floor(Math.random() * CHARACTERS.length)];
     var isSprite = character.type === 'sprite';
+    var isMultistate = character.type === 'multistate';
     var canMove = character.canMove !== false;
     var boxW = character.width || 36;
     var boxH = character.height || 36;
@@ -109,10 +123,10 @@
     visual.style.setProperty('--bp-scale', scale);
 
     var media = null;
-    if (isSprite) {
+    if (isSprite || isMultistate) {
       media = document.createElement('video');
       media.className = 'bp-media';
-      media.src = character.idleSrc;
+      media.src = isMultistate ? character.media.relax : character.idleSrc;
       media.autoplay = true;
       media.muted = true;
       media.loop = true;
@@ -137,10 +151,10 @@
     }
     sprite.appendChild(visual);
 
-    var bubble = document.createElement('div');
-    bubble.className = 'bp-bubble';
-    bubble.style.bottom = (boxH * scale + 8) + 'px';
-    sprite.appendChild(bubble);
+    var quote = document.createElement('div');
+    quote.className = 'bp-quote';
+    quote.style.bottom = (boxH * scale + 8) + 'px';
+    sprite.appendChild(quote);
 
     root.appendChild(sprite);
 
@@ -149,8 +163,13 @@
     }
 
     // ---------- 位置：拖动落点 / 上次记住的位置 ----------
-    function effectiveW() { return boxW * scale; }
-    function effectiveH() { return boxH * scale; }
+    // 缩放锚点在视觉层的"底部中心"（transform-origin:50% 100%），放大后
+    // 多出来的高度只往上长、宽度左右对称外扩，脚底位置不变。
+    // 边界计算要按这个实际渲染范围来，不能简单地用 boxW*scale/boxH*scale。
+    function minLeftBound() { return boxW * (scale - 1) / 2; }
+    function maxLeftBound() { return window.innerWidth - boxW * (scale + 1) / 2; }
+    function minTopBound() { return boxH * (scale - 1); }
+    function maxTopBound() { return window.innerHeight - boxH; }
 
     var savedPos = loadPos();
     var left, top;
@@ -159,15 +178,19 @@
       top = savedPos.top;
     } else {
       var bottomGap = window.innerWidth < 600 ? 70 : 24;
-      left = Math.random() * Math.max(window.innerWidth - effectiveW(), 0);
-      top = window.innerHeight - bottomGap - effectiveH();
+      var initMinLeft = minLeftBound();
+      var initMaxLeft = Math.max(maxLeftBound(), initMinLeft);
+      left = initMinLeft + Math.random() * (initMaxLeft - initMinLeft);
+      top = window.innerHeight - bottomGap - boxH;
     }
 
     function clampPosition() {
-      var maxLeft = Math.max(window.innerWidth - effectiveW(), 0);
-      var maxTop = Math.max(window.innerHeight - effectiveH(), 0);
-      left = Math.min(Math.max(left, 0), maxLeft);
-      top = Math.min(Math.max(top, 0), maxTop);
+      var minLeft = minLeftBound();
+      var maxLeft = Math.max(maxLeftBound(), minLeft);
+      var minTop = minTopBound();
+      var maxTop = Math.max(maxTopBound(), minTop);
+      left = Math.min(Math.max(left, minLeft), maxLeft);
+      top = Math.min(Math.max(top, minTop), maxTop);
     }
 
     function applyPosition() {
@@ -185,12 +208,130 @@
       var delta = e.deltaY < 0 ? SCALE_STEP : -SCALE_STEP;
       scale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, Math.round((scale + delta) * 100) / 100));
       visual.style.setProperty('--bp-scale', scale);
-      bubble.style.bottom = (boxH * scale + 8) + 'px';
+      quote.style.bottom = (boxH * scale + 8) + 'px';
       clampPosition();
       applyPosition();
       saveScale(scale);
       savePos(left, top);
     }, { passive: false });
+
+    // ---------- 多状态生物行为（如exusiai：defaultX/move/interact/sleep/relax/special）----------
+    var msState = 'relax';
+    var msFacingLeft = false;
+    var msTimer = null;
+    var moveRafId = null;
+
+    function msSetMedia(src, loop) {
+      media.loop = !!loop;
+      media.src = src;
+      media.load();
+      media.play().catch(function () {});
+    }
+
+    function msEnterRelax() {
+      msState = 'relax';
+      msSetMedia(character.media.relax, true);
+      clearTimeout(msTimer);
+      var delay = 2000 + Math.random() * 3000;
+      msTimer = setTimeout(function () {
+        if (Math.random() < 0.3) msEnterSleep();
+        else msEnterMove();
+      }, delay);
+    }
+
+    function msEnterMove() {
+      msState = 'move';
+      msSetMedia(character.media.move, true);
+
+      var moveSpeed = 0.5;
+      var minDurationMs = 1000; // 至少朝一个方向走1秒，避免频繁掉头
+      var maxDurationMs = 3500;
+      var estFrameMs = 16.7;    // 约60fps下每帧耗时，用来估算至少需要多少可用空间
+      var minDist = moveSpeed * (minDurationMs / estFrameMs);
+
+      var boundMinLeft = minLeftBound();
+      var boundMaxLeft = Math.max(maxLeftBound(), boundMinLeft);
+      var roomLeft = left - boundMinLeft;
+      var roomRight = boundMaxLeft - left;
+      var canLeft = roomLeft >= minDist;
+      var canRight = roomRight >= minDist;
+
+      var dir;
+      if (canLeft && canRight) {
+        dir = Math.random() < 0.5 ? -1 : 1;
+      } else if (canRight) {
+        dir = 1;
+      } else if (canLeft) {
+        dir = -1;
+      } else {
+        // 两侧空间都不够走满1秒（容器太窄），选空间较大的一侧，能走多远走多远
+        dir = roomRight >= roomLeft ? 1 : -1;
+      }
+
+      msFacingLeft = dir < 0;
+      setFacing(msFacingLeft);
+
+      var duration = minDurationMs + Math.random() * (maxDurationMs - minDurationMs);
+      var startTime = null;
+
+      function step(now) {
+        if (msState !== 'move') return;
+        if (startTime === null) startTime = now;
+        left += dir * moveSpeed;
+        var curMinLeft = minLeftBound();
+        var curMaxLeft = Math.max(maxLeftBound(), curMinLeft);
+        var hitWall = false;
+        if (dir < 0 && left <= curMinLeft) { left = curMinLeft; hitWall = true; }
+        if (dir > 0 && left >= curMaxLeft) { left = curMaxLeft; hitWall = true; }
+        applyPosition();
+        if (hitWall || now - startTime >= duration) {
+          savePos(left, top);
+          msEnterRelax();
+        } else {
+          moveRafId = requestAnimationFrame(step);
+        }
+      }
+      moveRafId = requestAnimationFrame(step);
+    }
+
+    function msEnterSleep() {
+      msState = 'sleep';
+      // 朝向保持和之前移动时一致，不在这里改变 --bp-face
+      msSetMedia(character.media.sleep, true);
+      clearTimeout(msTimer);
+      var duration = 6000 + Math.random() * 8000;
+      msTimer = setTimeout(function () { msEnterRelax(); }, duration);
+    }
+
+    function msResumeSleep() {
+      msState = 'sleep';
+      msSetMedia(character.media.sleep, true);
+      clearTimeout(msTimer);
+      var duration = 6000 + Math.random() * 8000;
+      msTimer = setTimeout(function () { msEnterRelax(); }, duration);
+    }
+
+    function msPlayInteract(onDone) {
+      msState = 'interact';
+      clearTimeout(msTimer);
+      if (moveRafId) cancelAnimationFrame(moveRafId);
+      msSetMedia(character.media.interact, false);
+      media.onended = function () {
+        media.onended = null;
+        onDone();
+      };
+    }
+
+    function msPlaySpecial(onDone) {
+      msState = 'special';
+      clearTimeout(msTimer);
+      if (moveRafId) cancelAnimationFrame(moveRafId);
+      msSetMedia(character.media.special, false);
+      media.onended = function () {
+        media.onended = null;
+        onDone();
+      };
+    }
 
     // ---------- 拖动：鼠标 + 触摸 ----------
     var dragging = false;
@@ -204,7 +345,12 @@
       startClientY = clientY;
       startLeft = left;
       startTop = top;
-      running = false;
+      if (isMultistate) {
+        clearTimeout(msTimer);
+        if (moveRafId) cancelAnimationFrame(moveRafId);
+      } else {
+        running = false;
+      }
       sprite.style.cursor = 'grabbing';
     }
 
@@ -224,7 +370,11 @@
       dragging = false;
       sprite.style.cursor = 'grab';
       savePos(left, top);
-      if (canMove && !reduceMotion) {
+      if (isMultistate) {
+        if (msState !== 'interact' && msState !== 'special') {
+          msEnterRelax();
+        }
+      } else if (canMove && !reduceMotion) {
         running = true;
         rafId = requestAnimationFrame(tick);
       }
@@ -243,44 +393,119 @@
       document.addEventListener('mouseup', onUp);
     });
 
-    sprite.addEventListener('touchstart', function (e) {
-      var t = e.touches[0];
-      dragStart(t.clientX, t.clientY);
-      function onMove(ev) {
-        var t2 = ev.touches[0];
-        dragMove(t2.clientX, t2.clientY);
+    // ---------- 缩放：双指捏合（手机） ----------
+    var pinching = false;
+    var pinchStartDist = 0;
+    var pinchStartScale = 1;
+    var touchActive = false;
+
+    function touchDistance(t1, t2) {
+      var dx = t2.clientX - t1.clientX;
+      var dy = t2.clientY - t1.clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    function onTouchMove(ev) {
+      if (pinching && ev.touches.length >= 2) {
+        ev.preventDefault();
+        var dist = touchDistance(ev.touches[0], ev.touches[1]);
+        var ratio = dist / pinchStartDist;
+        scale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, Math.round(pinchStartScale * ratio * 100) / 100));
+        visual.style.setProperty('--bp-scale', scale);
+        quote.style.bottom = (boxH * scale + 8) + 'px';
+        clampPosition();
+        applyPosition();
+      } else if (dragging && ev.touches.length === 1) {
+        var t = ev.touches[0];
+        dragMove(t.clientX, t.clientY);
         ev.preventDefault();
       }
-      function onEnd() {
-        dragEnd();
-        document.removeEventListener('touchmove', onMove);
-        document.removeEventListener('touchend', onEnd);
-      }
-      document.addEventListener('touchmove', onMove, { passive: false });
-      document.addEventListener('touchend', onEnd);
-    }, { passive: true });
+    }
 
-    // ---------- 点击互动：跳一下/播放专属动作 + 冒泡说话 ----------
-    var bubbleTimer = null;
+    function onTouchEnd(ev) {
+      if (ev.touches.length >= 2) {
+        pinching = true;
+        pinchStartDist = touchDistance(ev.touches[0], ev.touches[1]);
+        pinchStartScale = scale;
+        return;
+      }
+      if (pinching) {
+        pinching = false;
+        saveScale(scale);
+        savePos(left, top);
+        if (!isMultistate && canMove && !reduceMotion) {
+          running = true;
+          rafId = requestAnimationFrame(tick);
+        }
+      }
+      if (ev.touches.length === 0) {
+        dragEnd();
+        touchActive = false;
+        document.removeEventListener('touchmove', onTouchMove);
+        document.removeEventListener('touchend', onTouchEnd);
+        document.removeEventListener('touchcancel', onTouchEnd);
+      }
+    }
+
+    sprite.addEventListener('touchstart', function (e) {
+      if (e.touches.length >= 2) {
+        dragging = false;
+        pinching = true;
+        pinchStartDist = touchDistance(e.touches[0], e.touches[1]);
+        pinchStartScale = scale;
+        running = false;
+        e.preventDefault();
+      } else if (e.touches.length === 1 && !pinching) {
+        var t = e.touches[0];
+        dragStart(t.clientX, t.clientY);
+      }
+      if (!touchActive) {
+        touchActive = true;
+        document.addEventListener('touchmove', onTouchMove, { passive: false });
+        document.addEventListener('touchend', onTouchEnd);
+        document.addEventListener('touchcancel', onTouchEnd);
+      }
+    }, { passive: false });
+
+    // ---------- 点击互动：跳一下/播放专属动作 + 显示文字 ----------
     var revertTimer = null;
+    var quoteTimer = null;
     sprite.addEventListener('click', function () {
       if (moved) { moved = false; return; }
 
+      if (isMultistate) {
+        if (msState === 'special') return; // 不可打断，忽略点击
+        var wasSleep = msState === 'sleep';
+        function msResumeAfterClick() {
+          if (wasSleep) msResumeSleep();
+          else msEnterRelax();
+        }
+        // 玩家随时可以点击触发interact，其中有一定几率改为触发special
+        if (Math.random() < 0.3) {
+          msPlaySpecial(msResumeAfterClick);
+        } else {
+          msPlayInteract(msResumeAfterClick);
+        }
+        return;
+      }
+
       var line = character.quotes[Math.floor(Math.random() * character.quotes.length)];
-      bubble.textContent = line;
-      bubble.classList.add('show');
-      clearTimeout(bubbleTimer);
-      bubbleTimer = setTimeout(function () {
-        bubble.classList.remove('show');
+      quote.textContent = line;
+      quote.classList.add('show');
+      clearTimeout(quoteTimer);
+      quoteTimer = setTimeout(function () {
+        quote.classList.remove('show');
       }, 2600);
 
       if (isSprite && character.clickSrc) {
         media.loop = false;
+        media.classList.add('bp-media-click');
         media.src = character.clickSrc + (character.clickSrc.indexOf('?') > -1 ? '&' : '?') + 't=' + Date.now();
         media.load();
         media.play().catch(function () {});
         media.onended = function () {
           media.loop = true;
+          media.classList.remove('bp-media-click');
           media.src = character.idleSrc;
           media.load();
           media.play().catch(function () {});
@@ -303,7 +528,7 @@
     function setFacing(faceLeft) {
       visual.style.setProperty('--bp-face', faceLeft ? -1 : 1);
     }
-    setFacing(canMove && direction < 0);
+    if (!isMultistate) setFacing(canMove && direction < 0);
 
     function maybeChangeDirection(now) {
       if (now > pauseUntil && Math.random() < 0.004) {
@@ -326,21 +551,34 @@
       maybeChangeDirection(now);
       if (now > pauseUntil) {
         left += direction * speed;
-        var maxLeft = Math.max(window.innerWidth - effectiveW(), 0);
-        if (left < 0) { left = 0; direction = 1; setFacing(false); }
+        var minLeft = minLeftBound();
+        var maxLeft = Math.max(maxLeftBound(), minLeft);
+        if (left < minLeft) { left = minLeft; direction = 1; setFacing(false); }
         if (left > maxLeft) { left = maxLeft; direction = -1; setFacing(true); }
         applyPosition();
       }
       rafId = requestAnimationFrame(tick);
     }
 
-    if (!reduceMotion && canMove) {
+    if (isMultistate) {
+      if (!reduceMotion) msEnterRelax();
+    } else if (!reduceMotion && canMove) {
       running = true;
       rafId = requestAnimationFrame(tick);
     }
 
     document.addEventListener('visibilitychange', function () {
-      if (reduceMotion || !canMove) return;
+      if (reduceMotion) return;
+      if (isMultistate) {
+        if (document.hidden) {
+          clearTimeout(msTimer);
+          if (moveRafId) cancelAnimationFrame(moveRafId);
+        } else if (!dragging && msState !== 'interact' && msState !== 'special') {
+          msEnterRelax();
+        }
+        return;
+      }
+      if (!canMove) return;
       running = !document.hidden && !dragging;
       if (running) rafId = requestAnimationFrame(tick);
       else cancelAnimationFrame(rafId);
