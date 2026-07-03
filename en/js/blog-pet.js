@@ -24,13 +24,21 @@
         sleep: '/en/img/pets/exusiaiSleep-x1.webm',
         relax: '/en/img/pets/exusiaiRelax-x1.webm',
         special: '/en/img/pets/exusiaiSpecial-x1.webm'
-      }
+      },
+      quotes: [
+        'Lord, please bless the Leader with a long and wonderful dream, and let that dream... come true some day.',
+        'Real estate question: this wonderful realm or a panoramic view of hell—which did you want again?',
+        'Divine judgment, traditional!',
+        'Apple pie, with char siu!',
+        'An apple a day means seven apples a week, yay!'
+      ]
     }
   ];
 
   var MIN_SCALE = 0.5, MAX_SCALE = 4, SCALE_STEP = 0.1;
   var SCALE_KEY = 'blogPetScale';
   var POS_KEY = 'blogPetPos';
+  var CHAR_KEY = 'blogPetCharId';
   var DRAG_THRESHOLD = 5;
 
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -97,10 +105,48 @@
     try { localStorage.setItem(POS_KEY, JSON.stringify({ left: left, top: top })); } catch (e) {}
   }
 
+  // Use the performance API to tell whether this page load is a manual reload:
+  // if so, re-roll a random pet; otherwise (clicking a link to another page)
+  // keep the same one, carrying the choice across navigations within the same
+  // tab via sessionStorage. sessionStorage clears when the tab/browser closes,
+  // so a fresh visit naturally re-rolls again.
+  function isReloadNavigation() {
+    try {
+      if (performance && performance.getEntriesByType) {
+        var navEntries = performance.getEntriesByType('navigation');
+        if (navEntries && navEntries.length && navEntries[0].type) {
+          return navEntries[0].type === 'reload';
+        }
+      }
+      if (performance && performance.navigation) {
+        return performance.navigation.type === 1;
+      }
+    } catch (e) {}
+    return false;
+  }
+
+  function pickCharacter() {
+    var savedId = null;
+    if (isReloadNavigation()) {
+      try { sessionStorage.removeItem(CHAR_KEY); } catch (e) {}
+    } else {
+      try { savedId = sessionStorage.getItem(CHAR_KEY); } catch (e) {}
+    }
+    var found = null;
+    if (savedId) {
+      for (var i = 0; i < CHARACTERS.length; i++) {
+        if (CHARACTERS[i].id === savedId) { found = CHARACTERS[i]; break; }
+      }
+    }
+    var chosen = found || CHARACTERS[Math.floor(Math.random() * CHARACTERS.length)];
+    try { sessionStorage.setItem(CHAR_KEY, chosen.id); } catch (e) {}
+    return chosen;
+  }
+
   function init() {
     if (document.getElementById('blog-pet-root')) return;
 
-    var character = CHARACTERS[Math.floor(Math.random() * CHARACTERS.length)];
+    var character = pickCharacter();
     var isSprite = character.type === 'sprite';
     var isMultistate = character.type === 'multistate';
     var canMove = character.canMove !== false;
@@ -480,6 +526,15 @@
         function msResumeAfterClick() {
           if (wasSleep) msResumeSleep();
           else msEnterRelax();
+        }
+        if (character.quotes && character.quotes.length) {
+          var msLine = character.quotes[Math.floor(Math.random() * character.quotes.length)];
+          quote.textContent = msLine;
+          quote.classList.add('show');
+          clearTimeout(quoteTimer);
+          quoteTimer = setTimeout(function () {
+            quote.classList.remove('show');
+          }, 2600);
         }
         // the player can trigger interact at any time; it has a chance to become special instead
         if (Math.random() < 0.3) {

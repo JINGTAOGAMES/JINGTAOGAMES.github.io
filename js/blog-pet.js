@@ -24,13 +24,21 @@
         sleep: '/img/pets/exusiaiSleep-x1.webm',
         relax: '/img/pets/exusiaiRelax-x1.webm',
         special: '/img/pets/exusiaiSpecial-x1.webm'
-      }
+      },
+      quotes: [
+        '主啊，希望你能让老板做个长长的美梦，希望那个美梦......终有一日能成真。',
+        '我再确认下，美好人世间和地狱全景房，你到底想选哪一个啊？',
+        '正宗天意！',
+        '叉烧苹果派！',
+        '一天一苹果，一周七苹果！'
+      ]
     }
   ];
 
   var MIN_SCALE = 0.5, MAX_SCALE = 4, SCALE_STEP = 0.1;
   var SCALE_KEY = 'blogPetScale';
   var POS_KEY = 'blogPetPos';
+  var CHAR_KEY = 'blogPetCharId';
   var DRAG_THRESHOLD = 5;
 
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -97,10 +105,47 @@
     try { localStorage.setItem(POS_KEY, JSON.stringify({ left: left, top: top })); } catch (e) {}
   }
 
+  // 用performance API判断这次页面加载是不是"手动刷新"（reload）：
+  // 是reload就重新随机选一只宠物；不是的话（点链接跳转到其他页面）就沿用同一只，
+  // 靠sessionStorage在同一个标签页内的多次页面跳转之间传递选择结果，
+  // 关闭标签页/浏览器后sessionStorage自动清空，下次进入自然会重新随机。
+  function isReloadNavigation() {
+    try {
+      if (performance && performance.getEntriesByType) {
+        var navEntries = performance.getEntriesByType('navigation');
+        if (navEntries && navEntries.length && navEntries[0].type) {
+          return navEntries[0].type === 'reload';
+        }
+      }
+      if (performance && performance.navigation) {
+        return performance.navigation.type === 1;
+      }
+    } catch (e) {}
+    return false;
+  }
+
+  function pickCharacter() {
+    var savedId = null;
+    if (isReloadNavigation()) {
+      try { sessionStorage.removeItem(CHAR_KEY); } catch (e) {}
+    } else {
+      try { savedId = sessionStorage.getItem(CHAR_KEY); } catch (e) {}
+    }
+    var found = null;
+    if (savedId) {
+      for (var i = 0; i < CHARACTERS.length; i++) {
+        if (CHARACTERS[i].id === savedId) { found = CHARACTERS[i]; break; }
+      }
+    }
+    var chosen = found || CHARACTERS[Math.floor(Math.random() * CHARACTERS.length)];
+    try { sessionStorage.setItem(CHAR_KEY, chosen.id); } catch (e) {}
+    return chosen;
+  }
+
   function init() {
     if (document.getElementById('blog-pet-root')) return;
 
-    var character = CHARACTERS[Math.floor(Math.random() * CHARACTERS.length)];
+    var character = pickCharacter();
     var isSprite = character.type === 'sprite';
     var isMultistate = character.type === 'multistate';
     var canMove = character.canMove !== false;
@@ -479,6 +524,15 @@
         function msResumeAfterClick() {
           if (wasSleep) msResumeSleep();
           else msEnterRelax();
+        }
+        if (character.quotes && character.quotes.length) {
+          var msLine = character.quotes[Math.floor(Math.random() * character.quotes.length)];
+          quote.textContent = msLine;
+          quote.classList.add('show');
+          clearTimeout(quoteTimer);
+          quoteTimer = setTimeout(function () {
+            quote.classList.remove('show');
+          }, 2600);
         }
         // 玩家随时可以点击触发interact，其中有一定几率改为触发special
         if (Math.random() < 0.3) {

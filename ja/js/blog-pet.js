@@ -24,13 +24,21 @@
         sleep: '/ja/img/pets/exusiaiSleep-x1.webm',
         relax: '/ja/img/pets/exusiaiRelax-x1.webm',
         special: '/ja/img/pets/exusiaiSpecial-x1.webm'
-      }
+      },
+      quotes: [
+        '主よ、リーダーに長く幸せな夢を見せ給え。願わくはその夢が……いつの日か実現せんことを。',
+        '念のためもっかい聞くけど、美しき人の世と地獄のパノラマビューはどっちにしたいんだっけ？',
+        'ヴェルス・ディオ・ヴォーレント！',
+        'チャーシュー・アップルパイ！',
+        '一日一リンゴ、一週間七リンゴ！'
+      ]
     }
   ];
 
   var MIN_SCALE = 0.5, MAX_SCALE = 4, SCALE_STEP = 0.1;
   var SCALE_KEY = 'blogPetScale';
   var POS_KEY = 'blogPetPos';
+  var CHAR_KEY = 'blogPetCharId';
   var DRAG_THRESHOLD = 5;
 
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -97,10 +105,48 @@
     try { localStorage.setItem(POS_KEY, JSON.stringify({ left: left, top: top })); } catch (e) {}
   }
 
+  // performance APIでこのページ読み込みが「手動リロード」かどうかを判定する。
+  // リロードならペットをランダムに選び直し、そうでない場合（リンクをクリックして
+  // 別ページへ移動した場合）は同じ個体を維持する。選択結果は同一タブ内での
+  // ページ遷移をまたいでsessionStorageで引き継ぎ、タブ／ブラウザを閉じると
+  // sessionStorageは自動的にクリアされるので、次にアクセスした際は自然に選び直される。
+  function isReloadNavigation() {
+    try {
+      if (performance && performance.getEntriesByType) {
+        var navEntries = performance.getEntriesByType('navigation');
+        if (navEntries && navEntries.length && navEntries[0].type) {
+          return navEntries[0].type === 'reload';
+        }
+      }
+      if (performance && performance.navigation) {
+        return performance.navigation.type === 1;
+      }
+    } catch (e) {}
+    return false;
+  }
+
+  function pickCharacter() {
+    var savedId = null;
+    if (isReloadNavigation()) {
+      try { sessionStorage.removeItem(CHAR_KEY); } catch (e) {}
+    } else {
+      try { savedId = sessionStorage.getItem(CHAR_KEY); } catch (e) {}
+    }
+    var found = null;
+    if (savedId) {
+      for (var i = 0; i < CHARACTERS.length; i++) {
+        if (CHARACTERS[i].id === savedId) { found = CHARACTERS[i]; break; }
+      }
+    }
+    var chosen = found || CHARACTERS[Math.floor(Math.random() * CHARACTERS.length)];
+    try { sessionStorage.setItem(CHAR_KEY, chosen.id); } catch (e) {}
+    return chosen;
+  }
+
   function init() {
     if (document.getElementById('blog-pet-root')) return;
 
-    var character = CHARACTERS[Math.floor(Math.random() * CHARACTERS.length)];
+    var character = pickCharacter();
     var isSprite = character.type === 'sprite';
     var isMultistate = character.type === 'multistate';
     var canMove = character.canMove !== false;
@@ -479,6 +525,15 @@
         function msResumeAfterClick() {
           if (wasSleep) msResumeSleep();
           else msEnterRelax();
+        }
+        if (character.quotes && character.quotes.length) {
+          var msLine = character.quotes[Math.floor(Math.random() * character.quotes.length)];
+          quote.textContent = msLine;
+          quote.classList.add('show');
+          clearTimeout(quoteTimer);
+          quoteTimer = setTimeout(function () {
+            quote.classList.remove('show');
+          }, 2600);
         }
         // プレイヤーはいつでもinteractを発動できる。一定確率でspecialに変わる
         if (Math.random() < 0.3) {
