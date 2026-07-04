@@ -1062,13 +1062,13 @@
       for (var i = 0; i < this.instances.length; i++) {
         if (this.instances[i].uid === uid) {
           var src = this.instances[i].handle.getState();
-          // 固定でちょっと右下にずらすのではなく、元のペットの周り（40~100px、ランダムな方向）
-          // に落とすようにする。毎回同じ場所に重ならないように
-          var angle = Math.random() * Math.PI * 2;
-          var dist = 40 + Math.random() * 60;
+          // 横方向だけにランダムでずらす：左右どちらかをランダムに選び、距離は300~700px、
+          // 縦の位置は元と同じにする
+          var dir = Math.random() < 0.5 ? -1 : 1;
+          var dist = 300 + Math.random() * 400;
           this.spawn(this.instances[i].character, {
-            left: src.left + Math.cos(angle) * dist,
-            top: src.top + Math.sin(angle) * dist,
+            left: src.left + dir * dist,
+            top: src.top,
             scale: src.scale,
             entered: false
           });

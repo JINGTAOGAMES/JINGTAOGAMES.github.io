@@ -1058,13 +1058,12 @@
       for (var i = 0; i < this.instances.length; i++) {
         if (this.instances[i].uid === uid) {
           var src = this.instances[i].handle.getState();
-          // 随机在原来那只周围的一圈范围内落点（40~100px，随机方向），
-          // 不再固定往右下角偏移一点点，避免每次都叠在同一个位置
-          var angle = Math.random() * Math.PI * 2;
-          var dist = 40 + Math.random() * 60;
+          // 只在横向上随机落点：左右随机挑一边，距离300~700px，纵坐标跟原来的一样
+          var dir = Math.random() < 0.5 ? -1 : 1;
+          var dist = 300 + Math.random() * 400;
           this.spawn(this.instances[i].character, {
-            left: src.left + Math.cos(angle) * dist,
-            top: src.top + Math.sin(angle) * dist,
+            left: src.left + dir * dist,
+            top: src.top,
             scale: src.scale,
             entered: false
           });

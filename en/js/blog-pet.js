@@ -1054,13 +1054,13 @@
       for (var i = 0; i < this.instances.length; i++) {
         if (this.instances[i].uid === uid) {
           var src = this.instances[i].handle.getState();
-          // Drop the copy at a random point in a ring around the original (40-100px, random
-          // direction) instead of a fixed offset, so duplicates don't keep stacking in the same spot.
-          var angle = Math.random() * Math.PI * 2;
-          var dist = 40 + Math.random() * 60;
+          // Only offset horizontally: pick a random side (left/right), distance 300-700px,
+          // keep the same vertical position as the original.
+          var dir = Math.random() < 0.5 ? -1 : 1;
+          var dist = 300 + Math.random() * 400;
           this.spawn(this.instances[i].character, {
-            left: src.left + Math.cos(angle) * dist,
-            top: src.top + Math.sin(angle) * dist,
+            left: src.left + dir * dist,
+            top: src.top,
             scale: src.scale,
             entered: false
           });
