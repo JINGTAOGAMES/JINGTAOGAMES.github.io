@@ -385,9 +385,14 @@
     btnDup.className = 'bp-ctrl-btn';
     btnDup.textContent = '⧉';
     btnDup.title = '复制这只宠物';
+    var btnClear = document.createElement('div');
+    btnClear.className = 'bp-ctrl-btn';
+    btnClear.textContent = '×';
+    btnClear.title = '删除除这只以外的所有宠物';
     controls.appendChild(btnAdd);
     controls.appendChild(btnDel);
     controls.appendChild(btnDup);
+    controls.appendChild(btnClear);
     root.appendChild(controls);
 
     function stopBubble(e) { e.stopPropagation(); }
@@ -409,6 +414,10 @@
     btnDup.addEventListener('click', function (e) {
       stopBubble(e);
       manager.duplicate(opts.uid);
+    });
+    btnClear.addEventListener('click', function (e) {
+      stopBubble(e);
+      manager.removeAllExcept(opts.uid);
     });
 
     container.appendChild(root);
@@ -1157,6 +1166,16 @@
       } else {
         this.save();
       }
+    },
+
+    removeAllExcept: function (uid) {
+      for (var i = this.instances.length - 1; i >= 0; i--) {
+        if (this.instances[i].uid !== uid) {
+          this.instances[i].handle.destroy();
+          this.instances.splice(i, 1);
+        }
+      }
+      this.save();
     },
 
     duplicate: function (uid) {
