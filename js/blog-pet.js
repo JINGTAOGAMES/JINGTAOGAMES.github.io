@@ -15,8 +15,8 @@
     {
       id: 'exusiai',
       type: 'multistate',
-      width: 75,
-      height: 75,
+      width: 225,
+      height: 225,
       canMove: true,
       media: {
         relax: '/img/pets/Exusiai_Relax.webm',
@@ -38,8 +38,8 @@
     {
       id: 'heavyrain',
       type: 'multistate',
-      width: 75,
-      height: 75,
+      width: 225,
+      height: 225,
       canMove: true,
       media: {
         relax: '/img/pets/Heavyrain_Relax.webm',
@@ -60,8 +60,8 @@
     {
       id: 'irene',
       type: 'multistate',
-      width: 75,
-      height: 75,
+      width: 225,
+      height: 225,
       canMove: true,
       media: {
         relax: '/img/pets/Irene_Relax.webm',
@@ -85,8 +85,8 @@
     {
       id: 'kaltsit',
       type: 'multistate',
-      width: 75,
-      height: 75,
+      width: 225,
+      height: 225,
       canMove: true,
       media: {
         relax: "/img/pets/Kal'tsit_Relax.webm",
@@ -108,8 +108,8 @@
     {
       id: 'lancet2',
       type: 'multistate',
-      width: 75,
-      height: 75,
+      width: 225,
+      height: 225,
       canMove: true,
       media: {
         relax: '/img/pets/Lancet-2_Relax.webm',
@@ -128,8 +128,8 @@
     {
       id: 'wisdel',
       type: 'multistate',
-      width: 75,
-      height: 75,
+      width: 225,
+      height: 225,
       canMove: true,
       media: {
         relax: "/img/pets/Wis'del_Relax.webm",
@@ -169,9 +169,10 @@
       '.bp-sprite{position:relative;pointer-events:auto;cursor:grab;}',
       '.bp-visual{position:absolute;left:0;top:0;width:100%;height:100%;transform-origin:50% 100%;',
         'transform:scale(calc(var(--bp-face,1) * var(--bp-scale,1)), var(--bp-scale,1));}',
-      '.bp-media{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;opacity:0;transition:opacity .2s ease;}',
-      '.bp-media.bp-media-active{opacity:1;}',
-      '.bp-visual.bp-click-mode .bp-media.bp-media-active{transform:translate(-20%,-20%) scale(1.15);}',
+      '.bp-media{width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;}',
+      '.bp-media.bp-media-click{transform:translate(-20%,-20%) scale(1.15);}',
+      '.bp-media-buffered{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;opacity:0;transition:opacity .2s ease;}',
+      '.bp-media-buffered.bp-media-active{opacity:1;}',
       '.bp-quote{position:absolute;left:50%;transform:translate(calc(-50% - 16px),0);background:radial-gradient(ellipse at center, rgba(0,0,0,.82) 0%, rgba(0,0,0,.55) 65%, rgba(0,0,0,0) 100%);color:#fff;font-size:12px;font-weight:600;line-height:1.4;padding:8px 22px;border-radius:999px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s;}',
       '.bp-quote.show{opacity:1;}',
       '.bp-controls{position:absolute;left:50%;top:100%;transform:translateX(-50%);display:flex;gap:6px;padding-top:10px;opacity:0;pointer-events:none;transition:opacity .15s;}',
@@ -274,17 +275,32 @@
     visual.className = 'bp-visual' + (reduceMotion ? '' : (canMove ? ' bp-walk' : ' bp-idle'));
     visual.style.setProperty('--bp-scale', scale);
 
-    // 双缓冲：两个video叠在一起，谁是"当前显示"由activeMedia/inactiveMedia记录，
-    // 换动作时把新素材加载到闲置的那个上面，等它真的能播放了才淡入换上来，
-    // 播放中的画面全程不间断，不会像单video换src那样黑屏闪一下。
+    // jiaqiu这类sprite角色只有idle/click两种素材，逻辑简单，直接沿用原来单video换src的方式，
+    // 不用双缓冲——之前调过的点击动画偏移/缩放是针对这个单video结构调的，双缓冲会导致
+    // 交叉淡入淡出期间旧素材短暂也命中同一套变换样式，位置就跟着乱了。
+    // 双缓冲只用在multistate角色（exusiai等一堆有很多动作的角色）上。
     var media = null;
     var mediaA = null, mediaB = null;
     var activeMedia = null, inactiveMedia = null;
-    if (isSprite || isMultistate) {
+    if (isSprite) {
+      media = document.createElement('video');
+      media.className = 'bp-media';
+      media.src = character.idleSrc;
+      media.autoplay = true;
+      media.muted = true;
+      media.loop = true;
+      media.playsInline = true;
+      media.setAttribute('playsinline', '');
+      media.setAttribute('muted', '');
+      visual.appendChild(media);
+    } else if (isMultistate) {
+      // 双缓冲：两个video叠在一起，谁是"当前显示"由activeMedia/inactiveMedia记录，
+      // 换动作时把新素材加载到闲置的那个上面，等它真的能播放了才淡入换上来，
+      // 播放中的画面全程不间断，不会像单video换src那样黑屏闪一下。
       mediaA = document.createElement('video');
-      mediaA.className = 'bp-media';
+      mediaA.className = 'bp-media-buffered';
       mediaB = document.createElement('video');
-      mediaB.className = 'bp-media';
+      mediaB.className = 'bp-media-buffered';
       [mediaA, mediaB].forEach(function (m) {
         m.muted = true;
         m.playsInline = true;
@@ -361,7 +377,9 @@
 
     container.appendChild(root);
 
-    // 一开始两个video都还没素材，真正的播放从下面的playEntranceThenStart()/swapMedia()开始
+    // sprite角色的idle视频这里就直接播放（跟原来一样）；multistate的双缓冲还没素材，
+    // 真正的播放从下面的playEntranceThenStart()/swapMedia()开始
+    if (isSprite && media) media.play().catch(function () {});
 
     function minLeftBound() { return boxW * (scale - 1) / 2; }
     function maxLeftBound() { return window.innerWidth - boxW * (scale + 1) / 2; }
@@ -784,11 +802,19 @@
       }, 2600);
 
       if (isSprite && character.clickSrc) {
-        visual.classList.add('bp-click-mode');
-        swapMedia(character.clickSrc + (character.clickSrc.indexOf('?') > -1 ? '&' : '?') + 't=' + Date.now(), false, function () {
-          visual.classList.remove('bp-click-mode');
-          swapMedia(character.idleSrc, true, null);
-        });
+        media.loop = false;
+        media.classList.add('bp-media-click');
+        media.src = character.clickSrc + (character.clickSrc.indexOf('?') > -1 ? '&' : '?') + 't=' + Date.now();
+        media.load();
+        media.play().catch(function () {});
+        media.onended = function () {
+          media.loop = true;
+          media.classList.remove('bp-media-click');
+          media.src = character.idleSrc;
+          media.load();
+          media.play().catch(function () {});
+          media.onended = null;
+        };
       } else if (!reduceMotion) {
         visual.classList.remove('bp-jump');
         void visual.offsetWidth;
@@ -871,21 +897,41 @@
     window.addEventListener('resize', onResize);
 
     function playEntranceThenStart() {
-      var enterSrc = isMultistate ? (character.media && character.media.start) : character.enterSrc;
-      if (!entered && enterSrc && media) {
-        msState = 'enter';
-        swapMedia(enterSrc, false, function () {
+      if (isMultistate) {
+        var enterSrc = character.media && character.media.start;
+        if (!entered && enterSrc && media) {
+          msState = 'enter';
+          swapMedia(enterSrc, false, function () {
+            entered = true;
+            persist();
+            startBehavior();
+          });
+        } else {
+          entered = true;
+          if (media) {
+            // 两个video刚创建时都还没有素材，这里把常态画面摆上去，
+            // 双缓冲本身就能兜住这次"从无到有"的展示
+            swapMedia(character.media.relax, true, null);
+          }
+          startBehavior();
+        }
+        return;
+      }
+      // sprite角色（比如jiaqiu）不用双缓冲，跟原来一样直接处理
+      var spriteEnterSrc = character.enterSrc;
+      if (!entered && spriteEnterSrc && media) {
+        media.loop = false;
+        media.src = spriteEnterSrc;
+        media.load();
+        media.play().catch(function () {});
+        media.onended = function () {
+          media.onended = null;
           entered = true;
           persist();
           startBehavior();
-        });
+        };
       } else {
         entered = true;
-        if (media) {
-          // 两个video刚创建时都还没有素材，这里把常态画面摆上去，
-          // 双缓冲本身就能兜住这次"从无到有"的展示
-          swapMedia(isMultistate ? character.media.relax : character.idleSrc, true, null);
-        }
         startBehavior();
       }
     }
@@ -1012,9 +1058,13 @@
       for (var i = 0; i < this.instances.length; i++) {
         if (this.instances[i].uid === uid) {
           var src = this.instances[i].handle.getState();
+          // 随机在原来那只周围的一圈范围内落点（40~100px，随机方向），
+          // 不再固定往右下角偏移一点点，避免每次都叠在同一个位置
+          var angle = Math.random() * Math.PI * 2;
+          var dist = 40 + Math.random() * 60;
           this.spawn(this.instances[i].character, {
-            left: src.left + 24,
-            top: src.top + 12,
+            left: src.left + Math.cos(angle) * dist,
+            top: src.top + Math.sin(angle) * dist,
             scale: src.scale,
             entered: false
           });

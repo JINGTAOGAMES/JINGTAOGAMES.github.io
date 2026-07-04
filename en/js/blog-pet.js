@@ -15,8 +15,8 @@
     {
       id: 'exusiai',
       type: 'multistate',
-      width: 75,
-      height: 75,
+      width: 225,
+      height: 225,
       canMove: true,
       media: {
         relax: '/img/pets/Exusiai_Relax.webm',
@@ -38,8 +38,8 @@
     {
       id: 'heavyrain',
       type: 'multistate',
-      width: 75,
-      height: 75,
+      width: 225,
+      height: 225,
       canMove: true,
       media: {
         relax: '/img/pets/Heavyrain_Relax.webm',
@@ -60,8 +60,8 @@
     {
       id: 'irene',
       type: 'multistate',
-      width: 75,
-      height: 75,
+      width: 225,
+      height: 225,
       canMove: true,
       media: {
         relax: '/img/pets/Irene_Relax.webm',
@@ -85,8 +85,8 @@
     {
       id: 'kaltsit',
       type: 'multistate',
-      width: 75,
-      height: 75,
+      width: 225,
+      height: 225,
       canMove: true,
       media: {
         relax: "/img/pets/Kal'tsit_Relax.webm",
@@ -100,8 +100,8 @@
     {
       id: 'lancet2',
       type: 'multistate',
-      width: 75,
-      height: 75,
+      width: 225,
+      height: 225,
       canMove: true,
       media: {
         relax: '/img/pets/Lancet-2_Relax.webm',
@@ -120,8 +120,8 @@
     {
       id: 'wisdel',
       type: 'multistate',
-      width: 75,
-      height: 75,
+      width: 225,
+      height: 225,
       canMove: true,
       media: {
         relax: "/img/pets/Wis'del_Relax.webm",
@@ -161,9 +161,10 @@
       '.bp-sprite{position:relative;pointer-events:auto;cursor:grab;}',
       '.bp-visual{position:absolute;left:0;top:0;width:100%;height:100%;transform-origin:50% 100%;',
         'transform:scale(calc(var(--bp-face,1) * var(--bp-scale,1)), var(--bp-scale,1));}',
-      '.bp-media{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;opacity:0;transition:opacity .2s ease;}',
-      '.bp-media.bp-media-active{opacity:1;}',
-      '.bp-visual.bp-click-mode .bp-media.bp-media-active{transform:translate(-20%,-20%) scale(1.15);}',
+      '.bp-media{width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;}',
+      '.bp-media.bp-media-click{transform:translate(-20%,-20%) scale(1.15);}',
+      '.bp-media-buffered{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;opacity:0;transition:opacity .2s ease;}',
+      '.bp-media-buffered.bp-media-active{opacity:1;}',
       '.bp-quote{position:absolute;left:50%;transform:translate(calc(-50% - 16px),0);background:radial-gradient(ellipse at center, rgba(0,0,0,.82) 0%, rgba(0,0,0,.55) 65%, rgba(0,0,0,0) 100%);color:#fff;font-size:12px;font-weight:600;line-height:1.4;padding:8px 22px;border-radius:999px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s;}',
       '.bp-quote.show{opacity:1;}',
       '.bp-controls{position:absolute;left:50%;top:100%;transform:translateX(-50%);display:flex;gap:6px;padding-top:10px;opacity:0;pointer-events:none;transition:opacity .15s;}',
@@ -266,17 +267,33 @@
     visual.className = 'bp-visual' + (reduceMotion ? '' : (canMove ? ' bp-walk' : ' bp-idle'));
     visual.style.setProperty('--bp-scale', scale);
 
-    // Double buffering: two stacked video elements. activeMedia/inactiveMedia track which
-    // one is currently shown; on a state change the new clip loads into the idle one and only
-    // fades in once it's actually ready to play, so playback is never interrupted mid-transition.
+    // Sprite characters (jiaqiu) only have idle/click clips and simple swap logic, so they keep
+    // the original single-video src-swap approach — the click animation's offset/scale was tuned
+    // against this exact single-video setup, and double buffering caused the outgoing clip to
+    // briefly match the same transform during the crossfade, throwing the position off.
+    // Double buffering is only used for multistate characters (exusiai and the rest).
     var media = null;
     var mediaA = null, mediaB = null;
     var activeMedia = null, inactiveMedia = null;
-    if (isSprite || isMultistate) {
+    if (isSprite) {
+      media = document.createElement('video');
+      media.className = 'bp-media';
+      media.src = character.idleSrc;
+      media.autoplay = true;
+      media.muted = true;
+      media.loop = true;
+      media.playsInline = true;
+      media.setAttribute('playsinline', '');
+      media.setAttribute('muted', '');
+      visual.appendChild(media);
+    } else if (isMultistate) {
+      // Double buffering: two stacked video elements. activeMedia/inactiveMedia track which
+      // one is currently shown; on a state change the new clip loads into the idle one and only
+      // fades in once it's actually ready to play, so playback is never interrupted mid-transition.
       mediaA = document.createElement('video');
-      mediaA.className = 'bp-media';
+      mediaA.className = 'bp-media-buffered';
       mediaB = document.createElement('video');
-      mediaB.className = 'bp-media';
+      mediaB.className = 'bp-media-buffered';
       [mediaA, mediaB].forEach(function (m) {
         m.muted = true;
         m.playsInline = true;
@@ -353,7 +370,9 @@
 
     container.appendChild(root);
 
-    // Neither buffer has any content yet — real playback starts in playEntranceThenStart()/swapMedia() below
+    // Sprite characters' idle video starts playing right here (same as before); multistate's
+    // double buffer has no content yet — real playback starts in playEntranceThenStart()/swapMedia() below
+    if (isSprite && media) media.play().catch(function () {});
 
     function minLeftBound() { return boxW * (scale - 1) / 2; }
     function maxLeftBound() { return window.innerWidth - boxW * (scale + 1) / 2; }
@@ -779,11 +798,19 @@
       }, 2600);
 
       if (isSprite && character.clickSrc) {
-        visual.classList.add('bp-click-mode');
-        swapMedia(character.clickSrc + (character.clickSrc.indexOf('?') > -1 ? '&' : '?') + 't=' + Date.now(), false, function () {
-          visual.classList.remove('bp-click-mode');
-          swapMedia(character.idleSrc, true, null);
-        });
+        media.loop = false;
+        media.classList.add('bp-media-click');
+        media.src = character.clickSrc + (character.clickSrc.indexOf('?') > -1 ? '&' : '?') + 't=' + Date.now();
+        media.load();
+        media.play().catch(function () {});
+        media.onended = function () {
+          media.loop = true;
+          media.classList.remove('bp-media-click');
+          media.src = character.idleSrc;
+          media.load();
+          media.play().catch(function () {});
+          media.onended = null;
+        };
       } else if (!reduceMotion) {
         visual.classList.remove('bp-jump');
         void visual.offsetWidth;
@@ -866,21 +893,41 @@
     window.addEventListener('resize', onResize);
 
     function playEntranceThenStart() {
-      var enterSrc = isMultistate ? (character.media && character.media.start) : character.enterSrc;
-      if (!entered && enterSrc && media) {
-        msState = 'enter';
-        swapMedia(enterSrc, false, function () {
+      if (isMultistate) {
+        var enterSrc = character.media && character.media.start;
+        if (!entered && enterSrc && media) {
+          msState = 'enter';
+          swapMedia(enterSrc, false, function () {
+            entered = true;
+            persist();
+            startBehavior();
+          });
+        } else {
+          entered = true;
+          if (media) {
+            // Neither buffer has anything loaded yet — put the relax clip up now;
+            // the double-buffer mechanism itself handles this first "nothing to something" reveal.
+            swapMedia(character.media.relax, true, null);
+          }
+          startBehavior();
+        }
+        return;
+      }
+      // Sprite characters (jiaqiu) don't use double buffering — same as before
+      var spriteEnterSrc = character.enterSrc;
+      if (!entered && spriteEnterSrc && media) {
+        media.loop = false;
+        media.src = spriteEnterSrc;
+        media.load();
+        media.play().catch(function () {});
+        media.onended = function () {
+          media.onended = null;
           entered = true;
           persist();
           startBehavior();
-        });
+        };
       } else {
         entered = true;
-        if (media) {
-          // Neither buffer has anything loaded yet — put the idle/relax clip up now;
-          // the double-buffer mechanism itself handles this first "nothing to something" reveal.
-          swapMedia(isMultistate ? character.media.relax : character.idleSrc, true, null);
-        }
         startBehavior();
       }
     }
@@ -1007,9 +1054,13 @@
       for (var i = 0; i < this.instances.length; i++) {
         if (this.instances[i].uid === uid) {
           var src = this.instances[i].handle.getState();
+          // Drop the copy at a random point in a ring around the original (40-100px, random
+          // direction) instead of a fixed offset, so duplicates don't keep stacking in the same spot.
+          var angle = Math.random() * Math.PI * 2;
+          var dist = 40 + Math.random() * 60;
           this.spawn(this.instances[i].character, {
-            left: src.left + 24,
-            top: src.top + 12,
+            left: src.left + Math.cos(angle) * dist,
+            top: src.top + Math.sin(angle) * dist,
             scale: src.scale,
             entered: false
           });
