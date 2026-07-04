@@ -48,7 +48,14 @@
         sleep: '/img/pets/Heavyrain_Sleep.webm',
         interact: '/img/pets/Heavyrain_Interact.webm',
         start: '/img/pets/Heavyrain_Start.webm'
-      }
+      },
+      quotes: [
+        '嗯，我来保护博士。',
+        '遵命。',
+        '......我会尽力。',
+        '我在。',
+        '欸欸？！'
+      ]
     },
     {
       id: 'irene',
@@ -64,7 +71,16 @@
         interact: '/img/pets/Irene_Interact.webm',
         special: '/img/pets/Irene_Special.webm',
         start: '/img/pets/Irene_Start.webm'
-      }
+      },
+      quotes: [
+        '跟着我的灯光走，小心潮水和海雾。',
+        '看到我的灯了吗？我在这里。',
+        '我的灯将净化邪恶！',
+        '我的剑将劈开海潮！',
+        '我的眼将找出真相！',
+        '我的心会作出判决。',
+        '恐鱼？！哦，是你啊。'
+      ]
     },
     {
       id: 'kaltsit',
@@ -79,7 +95,15 @@
         sleep: "/img/pets/Kal'tsit_Sleep.webm",
         interact: "/img/pets/Kal'tsit_Interact.webm",
         start: "/img/pets/Kal'tsit_Start.webm"
-      }
+      },
+      quotes: [
+        '所幸......这并不是另一个梦。',
+        '没有问题。',
+        '我相信你。',
+        '也许我们能够看到那个属于所有人的未来。',
+        '不必频繁确认我的状态，这副躯体与常人无异。',
+        '如果你的确很在意的话，我现在很好。'
+      ]
     },
     {
       id: 'lancet2',
@@ -93,7 +117,13 @@
         interact: '/img/pets/Lancet-2_Interact.webm',
         special: '/img/pets/Lancet-2_Special.webm',
         start: '/img/pets/Lancet-2_Start.webm'
-      }
+      },
+      quotes: [
+        '感觉什么地方不舒服？请让我来帮你看一看吧。',
+        '嗨，你好，博士。你在期待我能对你多说些什么，但我不能，毕竟我只是一台医疗机器人......',
+        '医疗设备消毒，ok。电力，ok。随时可以出发。',
+        '啊啊啊......'
+      ]
     },
     {
       id: 'wisdel',
@@ -109,7 +139,15 @@
         interact: "/img/pets/Wis'del_Interact.webm",
         special: "/img/pets/Wis'del_Special.webm",
         start: "/img/pets/Wis'del_Start.webm"
-      }
+      },
+      quotes: [
+        '美好的日子真是怎么过都过不完啊。',
+        '今天又轮到谁粉身碎骨了呢？',
+        '砰！是谁告诉你，我每次都会倒数的？',
+        '喜欢我指甲的颜色嘛，猜猜看是用什么染的？',
+        '又看到你这张脸了呢，博士，真是个好的开始。',
+        '终于活腻味了？'
+      ]
     }
   ];
 
@@ -131,12 +169,13 @@
       '.bp-sprite{position:relative;pointer-events:auto;cursor:grab;}',
       '.bp-visual{position:absolute;left:0;top:0;width:100%;height:100%;transform-origin:50% 100%;',
         'transform:scale(calc(var(--bp-face,1) * var(--bp-scale,1)), var(--bp-scale,1));}',
-      '.bp-media{width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;}',
-      '.bp-media.bp-media-click{transform:translate(-20%,-20%) scale(1.15);}',
+      '.bp-media{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;opacity:0;transition:opacity .2s ease;}',
+      '.bp-media.bp-media-active{opacity:1;}',
+      '.bp-visual.bp-click-mode .bp-media.bp-media-active{transform:translate(-20%,-20%) scale(1.15);}',
       '.bp-quote{position:absolute;left:50%;transform:translate(calc(-50% - 16px),0);background:radial-gradient(ellipse at center, rgba(0,0,0,.82) 0%, rgba(0,0,0,.55) 65%, rgba(0,0,0,0) 100%);color:#fff;font-size:12px;font-weight:600;line-height:1.4;padding:8px 22px;border-radius:999px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s;}',
       '.bp-quote.show{opacity:1;}',
-      '.bp-controls{position:absolute;left:50%;top:100%;transform:translateX(-50%);display:flex;gap:6px;margin-top:6px;opacity:0;pointer-events:none;transition:opacity .15s;}',
-      '.bp-pet:hover .bp-controls,.bp-pet.bp-controls-visible .bp-controls{opacity:1;pointer-events:auto;}',
+      '.bp-controls{position:absolute;left:50%;top:100%;transform:translateX(-50%);display:flex;gap:6px;padding-top:10px;opacity:0;pointer-events:none;transition:opacity .15s;}',
+      '.bp-pet.bp-controls-visible .bp-controls{opacity:1;pointer-events:auto;}',
       '.bp-ctrl-btn{width:22px;height:22px;line-height:22px;text-align:center;border-radius:50%;background:rgba(0,0,0,.65);color:#fff;font-size:14px;font-weight:700;cursor:pointer;user-select:none;box-shadow:0 1px 4px rgba(0,0,0,.3);}',
       '.bp-ctrl-btn:hover{background:rgba(0,0,0,.85);}',
       '.bp-ctrl-btn.bp-ctrl-disabled{opacity:.35;pointer-events:none;}',
@@ -235,18 +274,27 @@
     visual.className = 'bp-visual' + (reduceMotion ? '' : (canMove ? ' bp-walk' : ' bp-idle'));
     visual.style.setProperty('--bp-scale', scale);
 
+    // 双缓冲：两个video叠在一起，谁是"当前显示"由activeMedia/inactiveMedia记录，
+    // 换动作时把新素材加载到闲置的那个上面，等它真的能播放了才淡入换上来，
+    // 播放中的画面全程不间断，不会像单video换src那样黑屏闪一下。
     var media = null;
+    var mediaA = null, mediaB = null;
+    var activeMedia = null, inactiveMedia = null;
     if (isSprite || isMultistate) {
-      media = document.createElement('video');
-      media.className = 'bp-media';
-      media.src = isMultistate ? character.media.relax : character.idleSrc;
-      media.autoplay = true;
-      media.muted = true;
-      media.loop = true;
-      media.playsInline = true;
-      media.setAttribute('playsinline', '');
-      media.setAttribute('muted', '');
-      visual.appendChild(media);
+      mediaA = document.createElement('video');
+      mediaA.className = 'bp-media';
+      mediaB = document.createElement('video');
+      mediaB.className = 'bp-media';
+      [mediaA, mediaB].forEach(function (m) {
+        m.muted = true;
+        m.playsInline = true;
+        m.setAttribute('playsinline', '');
+        m.setAttribute('muted', '');
+        visual.appendChild(m);
+      });
+      activeMedia = mediaA;
+      inactiveMedia = mediaB;
+      media = activeMedia;
     } else {
       var body = document.createElement('div');
       body.className = 'bp-body';
@@ -313,7 +361,7 @@
 
     container.appendChild(root);
 
-    if (media) media.play().catch(function () {});
+    // 一开始两个video都还没素材，真正的播放从下面的playEntranceThenStart()/swapMedia()开始
 
     function minLeftBound() { return boxW * (scale - 1) / 2; }
     function maxLeftBound() { return window.innerWidth - boxW * (scale + 1) / 2; }
@@ -368,12 +416,49 @@
     var msFacingLeft = false;
     var msTimer = null;
     var moveRafId = null;
+    var mediaSwapTimer = null;
 
-    function msSetMedia(src, loop) {
-      media.loop = !!loop;
-      media.src = src;
-      media.load();
-      media.play().catch(function () {});
+    function swapMedia(src, loop, onEnded) {
+      if (!activeMedia || !inactiveMedia) return;
+      var incoming = inactiveMedia;
+      var outgoing = activeMedia;
+      incoming.onended = null;
+      incoming.loop = !!loop;
+      incoming.src = src;
+      incoming.load();
+
+      var swapped = false;
+      var fallbackTimer;
+      function doSwap() {
+        if (swapped) return;
+        swapped = true;
+        incoming.removeEventListener('canplay', onCanPlay);
+        clearTimeout(fallbackTimer);
+        incoming.play().catch(function () {});
+        incoming.classList.add('bp-media-active');
+        outgoing.classList.remove('bp-media-active');
+        activeMedia = incoming;
+        inactiveMedia = outgoing;
+        media = activeMedia;
+        if (onEnded) {
+          incoming.onended = function () {
+            incoming.onended = null;
+            onEnded();
+          };
+        }
+        clearTimeout(mediaSwapTimer);
+        mediaSwapTimer = setTimeout(function () {
+          if (outgoing !== activeMedia) outgoing.pause();
+        }, 260);
+      }
+      function onCanPlay() { doSwap(); }
+      incoming.addEventListener('canplay', onCanPlay);
+      // 兜底：万一canplay一直不触发（网络异常之类），最多等待800ms就强制切换，避免卡死在旧动画上
+      fallbackTimer = setTimeout(doSwap, 800);
+    }
+
+    function msSetMedia(src, loop, onEnded) {
+      swapMedia(src, loop, onEnded);
     }
 
     function msEnterRelax() {
@@ -482,22 +567,14 @@
       msState = 'interact';
       clearTimeout(msTimer);
       if (moveRafId) cancelAnimationFrame(moveRafId);
-      msSetMedia(character.media.interact, false);
-      media.onended = function () {
-        media.onended = null;
-        onDone();
-      };
+      msSetMedia(character.media.interact, false, onDone);
     }
 
     function msPlaySpecial(onDone) {
       msState = 'special';
       clearTimeout(msTimer);
       if (moveRafId) cancelAnimationFrame(moveRafId);
-      msSetMedia(character.media.special, false);
-      media.onended = function () {
-        media.onended = null;
-        onDone();
-      };
+      msSetMedia(character.media.special, false, onDone);
     }
 
     var dragging = false;
@@ -638,17 +715,43 @@
       }
     }, { passive: false });
 
+    // 桌面端不再用纯CSS的:hover来控制菜单显隐——sprite和controls之间哪怕只有几像素的空隙，
+    // 鼠标斜着移动过去也很容易被判定成"离开了"，导致刚移过去菜单就消失、根本点不到。
+    // 改成JS控制 + 一个短暂的隐藏延迟：进入就显示、离开先不急着隐藏，等一小段时间
+    // 如果没有重新进入（sprite或controls任意一处）才真正隐藏，给鼠标移动留出容错时间。
     root.addEventListener('mouseenter', function () {
+      clearTimeout(controlsHideTimer);
+      root.classList.add('bp-controls-visible');
       if (manager.hasMissing()) btnAdd.classList.remove('bp-ctrl-disabled');
       else btnAdd.classList.add('bp-ctrl-disabled');
+    });
+    root.addEventListener('mouseleave', function () {
+      clearTimeout(controlsHideTimer);
+      controlsHideTimer = setTimeout(function () {
+        root.classList.remove('bp-controls-visible');
+      }, 350);
     });
 
     var revertTimer = null;
     var quoteTimer = null;
+    var lastQuoteIndex = -1;
+    function pickQuote(quotes) {
+      // 不要连续两次说同一句：候选池长度大于1时，排除上一次说过的那一条再抽
+      if (!quotes || !quotes.length) return '';
+      if (quotes.length === 1) { lastQuoteIndex = 0; return quotes[0]; }
+      var idx;
+      do {
+        idx = Math.floor(Math.random() * quotes.length);
+      } while (idx === lastQuoteIndex);
+      lastQuoteIndex = idx;
+      return quotes[idx];
+    }
     sprite.addEventListener('click', function () {
       if (moved) { moved = false; return; }
 
       if (isMultistate) {
+        // special不能被点击打断，要等它自己播完
+        if (msState === 'special') return;
         var wasResting = (msState === 'sleep' || msState === 'sit') ? msState : null;
         function msResumeAfterClick() {
           if (wasResting === 'sleep') msResumeSleep();
@@ -656,7 +759,7 @@
           else msEnterRelax();
         }
         if (character.quotes && character.quotes.length) {
-          var msLine = character.quotes[Math.floor(Math.random() * character.quotes.length)];
+          var msLine = pickQuote(character.quotes);
           quote.textContent = msLine;
           quote.classList.add('show');
           clearTimeout(quoteTimer);
@@ -672,7 +775,7 @@
         return;
       }
 
-      var line = character.quotes[Math.floor(Math.random() * character.quotes.length)];
+      var line = pickQuote(character.quotes);
       quote.textContent = line;
       quote.classList.add('show');
       clearTimeout(quoteTimer);
@@ -681,19 +784,11 @@
       }, 2600);
 
       if (isSprite && character.clickSrc) {
-        media.loop = false;
-        media.classList.add('bp-media-click');
-        media.src = character.clickSrc + (character.clickSrc.indexOf('?') > -1 ? '&' : '?') + 't=' + Date.now();
-        media.load();
-        media.play().catch(function () {});
-        media.onended = function () {
-          media.loop = true;
-          media.classList.remove('bp-media-click');
-          media.src = character.idleSrc;
-          media.load();
-          media.play().catch(function () {});
-          media.onended = null;
-        };
+        visual.classList.add('bp-click-mode');
+        swapMedia(character.clickSrc + (character.clickSrc.indexOf('?') > -1 ? '&' : '?') + 't=' + Date.now(), false, function () {
+          visual.classList.remove('bp-click-mode');
+          swapMedia(character.idleSrc, true, null);
+        });
       } else if (!reduceMotion) {
         visual.classList.remove('bp-jump');
         void visual.offsetWidth;
@@ -779,18 +874,18 @@
       var enterSrc = isMultistate ? (character.media && character.media.start) : character.enterSrc;
       if (!entered && enterSrc && media) {
         msState = 'enter';
-        media.loop = false;
-        media.src = enterSrc;
-        media.load();
-        media.play().catch(function () {});
-        media.onended = function () {
-          media.onended = null;
+        swapMedia(enterSrc, false, function () {
           entered = true;
           persist();
           startBehavior();
-        };
+        });
       } else {
         entered = true;
+        if (media) {
+          // 两个video刚创建时都还没有素材，这里把常态画面摆上去，
+          // 双缓冲本身就能兜住这次"从无到有"的展示
+          swapMedia(isMultistate ? character.media.relax : character.idleSrc, true, null);
+        }
         startBehavior();
       }
     }
@@ -804,6 +899,7 @@
       clearTimeout(controlsHideTimer);
       clearTimeout(revertTimer);
       clearTimeout(quoteTimer);
+      clearTimeout(mediaSwapTimer);
       if (moveRafId) cancelAnimationFrame(moveRafId);
       if (rafId) cancelAnimationFrame(rafId);
       document.removeEventListener('visibilitychange', onVisibilityChange);

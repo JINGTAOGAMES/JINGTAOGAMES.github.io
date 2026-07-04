@@ -48,7 +48,14 @@
         sleep: '/img/pets/Heavyrain_Sleep.webm',
         interact: '/img/pets/Heavyrain_Interact.webm',
         start: '/img/pets/Heavyrain_Start.webm'
-      }
+      },
+      quotes: [
+        'はい、私がドクターを守ります。',
+        '仰せのままに。',
+        '……私、頑張ります。',
+        '私はここに。',
+        'ええ？！'
+      ]
     },
     {
       id: 'irene',
@@ -64,7 +71,16 @@
         interact: '/img/pets/Irene_Interact.webm',
         special: '/img/pets/Irene_Special.webm',
         start: '/img/pets/Irene_Start.webm'
-      }
+      },
+      quotes: [
+        '私の灯りに付いてきてください、潮と海霧に呑まれないように。',
+        '私の灯りが見えますか？ここです。',
+        '我が灯火が邪悪を払う！',
+        '我が刃が海を斬り裂く！',
+        '我が眼差しが真実を暴く！',
+        '我が心が判決を下す。',
+        '恐魚！？ああ、あなたですか。'
+      ]
     },
     {
       id: 'kaltsit',
@@ -79,7 +95,15 @@
         sleep: "/img/pets/Kal'tsit_Sleep.webm",
         interact: "/img/pets/Kal'tsit_Interact.webm",
         start: "/img/pets/Kal'tsit_Start.webm"
-      }
+      },
+      quotes: [
+        '幸いなことに……これはもう一つの夢ではなさそうだ',
+        '問題ない。',
+        '君を信じよう。',
+        '全ての人々のための未来を我々は目にすることができるかもしれない。',
+        '私の状態を頻繫に心配する必要はない、この肉体は常人と何ら変わりないのだから。',
+        '君がそこまで気にするというのならない話しておくが、今の私は健康そのものだ。'
+      ]
     },
     {
       id: 'lancet2',
@@ -93,7 +117,13 @@
         interact: '/img/pets/Lancet-2_Interact.webm',
         special: '/img/pets/Lancet-2_Special.webm',
         start: '/img/pets/Lancet-2_Start.webm'
-      }
+      },
+      quotes: [
+        'どこか具合でも悪いのでしょうか？よろしければ私に診させていただけませんか。',
+        'こんにちは、ドクター様。私に面白いことを期待されても、特に何か話せるようなことはありません。あくまで私は、ただの医療用ロボットですから……。',
+        '医療設備の消毒、完了。充電、完了。いつでも出発可能です。',
+        'あわわ……。'
+      ]
     },
     {
       id: 'wisdel',
@@ -109,7 +139,15 @@
         interact: "/img/pets/Wis'del_Interact.webm",
         special: "/img/pets/Wis'del_Special.webm",
         start: "/img/pets/Wis'del_Start.webm"
-      }
+      },
+      quotes: [
+        '楽しい時間って、ほんとに終わらないわよねぇ。',
+        'さぁ～て今日は誰が粉々になる番かしらね？',
+        'パァン！毎回カウントするなんて誰が言ったのかしら？',
+        'あたしのネイルの色が好きかしら？何で染めてるか当ててみたら？',
+        'またあんたの顔を拝めたわね、ドクター。まったく、幸先がいいわ。',
+        'そんなに死にたいの？'
+      ]
     }
   ];
 
@@ -131,12 +169,13 @@
       '.bp-sprite{position:relative;pointer-events:auto;cursor:grab;}',
       '.bp-visual{position:absolute;left:0;top:0;width:100%;height:100%;transform-origin:50% 100%;',
         'transform:scale(calc(var(--bp-face,1) * var(--bp-scale,1)), var(--bp-scale,1));}',
-      '.bp-media{width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;}',
-      '.bp-media.bp-media-click{transform:translate(-20%,-20%) scale(1.15);}',
+      '.bp-media{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;opacity:0;transition:opacity .2s ease;}',
+      '.bp-media.bp-media-active{opacity:1;}',
+      '.bp-visual.bp-click-mode .bp-media.bp-media-active{transform:translate(-20%,-20%) scale(1.15);}',
       '.bp-quote{position:absolute;left:50%;transform:translate(calc(-50% - 16px),0);background:radial-gradient(ellipse at center, rgba(0,0,0,.82) 0%, rgba(0,0,0,.55) 65%, rgba(0,0,0,0) 100%);color:#fff;font-size:12px;font-weight:600;line-height:1.4;padding:8px 22px;border-radius:999px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s;}',
       '.bp-quote.show{opacity:1;}',
-      '.bp-controls{position:absolute;left:50%;top:100%;transform:translateX(-50%);display:flex;gap:6px;margin-top:6px;opacity:0;pointer-events:none;transition:opacity .15s;}',
-      '.bp-pet:hover .bp-controls,.bp-pet.bp-controls-visible .bp-controls{opacity:1;pointer-events:auto;}',
+      '.bp-controls{position:absolute;left:50%;top:100%;transform:translateX(-50%);display:flex;gap:6px;padding-top:10px;opacity:0;pointer-events:none;transition:opacity .15s;}',
+      '.bp-pet.bp-controls-visible .bp-controls{opacity:1;pointer-events:auto;}',
       '.bp-ctrl-btn{width:22px;height:22px;line-height:22px;text-align:center;border-radius:50%;background:rgba(0,0,0,.65);color:#fff;font-size:14px;font-weight:700;cursor:pointer;user-select:none;box-shadow:0 1px 4px rgba(0,0,0,.3);}',
       '.bp-ctrl-btn:hover{background:rgba(0,0,0,.85);}',
       '.bp-ctrl-btn.bp-ctrl-disabled{opacity:.35;pointer-events:none;}',
@@ -235,18 +274,27 @@
     visual.className = 'bp-visual' + (reduceMotion ? '' : (canMove ? ' bp-walk' : ' bp-idle'));
     visual.style.setProperty('--bp-scale', scale);
 
+    // 二重バッファ：videoを2枚重ねておき、activeMedia/inactiveMediaでどちらが表示中かを管理する。
+    // 状態が切り替わるときは新素材を待機中の方に読み込み、実際に再生できる状態になってから
+    // フェードインで入れ替える。表示中の映像が途中で途切れることはない。
     var media = null;
+    var mediaA = null, mediaB = null;
+    var activeMedia = null, inactiveMedia = null;
     if (isSprite || isMultistate) {
-      media = document.createElement('video');
-      media.className = 'bp-media';
-      media.src = isMultistate ? character.media.relax : character.idleSrc;
-      media.autoplay = true;
-      media.muted = true;
-      media.loop = true;
-      media.playsInline = true;
-      media.setAttribute('playsinline', '');
-      media.setAttribute('muted', '');
-      visual.appendChild(media);
+      mediaA = document.createElement('video');
+      mediaA.className = 'bp-media';
+      mediaB = document.createElement('video');
+      mediaB.className = 'bp-media';
+      [mediaA, mediaB].forEach(function (m) {
+        m.muted = true;
+        m.playsInline = true;
+        m.setAttribute('playsinline', '');
+        m.setAttribute('muted', '');
+        visual.appendChild(m);
+      });
+      activeMedia = mediaA;
+      inactiveMedia = mediaB;
+      media = activeMedia;
     } else {
       var body = document.createElement('div');
       body.className = 'bp-body';
@@ -313,7 +361,7 @@
 
     container.appendChild(root);
 
-    if (media) media.play().catch(function () {});
+    // この時点ではどちらのvideoにもまだ素材がない。実際の再生は下のplayEntranceThenStart()/swapMedia()から始まる
 
     function minLeftBound() { return boxW * (scale - 1) / 2; }
     function maxLeftBound() { return window.innerWidth - boxW * (scale + 1) / 2; }
@@ -368,12 +416,49 @@
     var msFacingLeft = false;
     var msTimer = null;
     var moveRafId = null;
+    var mediaSwapTimer = null;
 
-    function msSetMedia(src, loop) {
-      media.loop = !!loop;
-      media.src = src;
-      media.load();
-      media.play().catch(function () {});
+    function swapMedia(src, loop, onEnded) {
+      if (!activeMedia || !inactiveMedia) return;
+      var incoming = inactiveMedia;
+      var outgoing = activeMedia;
+      incoming.onended = null;
+      incoming.loop = !!loop;
+      incoming.src = src;
+      incoming.load();
+
+      var swapped = false;
+      var fallbackTimer;
+      function doSwap() {
+        if (swapped) return;
+        swapped = true;
+        incoming.removeEventListener('canplay', onCanPlay);
+        clearTimeout(fallbackTimer);
+        incoming.play().catch(function () {});
+        incoming.classList.add('bp-media-active');
+        outgoing.classList.remove('bp-media-active');
+        activeMedia = incoming;
+        inactiveMedia = outgoing;
+        media = activeMedia;
+        if (onEnded) {
+          incoming.onended = function () {
+            incoming.onended = null;
+            onEnded();
+          };
+        }
+        clearTimeout(mediaSwapTimer);
+        mediaSwapTimer = setTimeout(function () {
+          if (outgoing !== activeMedia) outgoing.pause();
+        }, 260);
+      }
+      function onCanPlay() { doSwap(); }
+      incoming.addEventListener('canplay', onCanPlay);
+      // 保険：canplayが発火しない場合（通信状況が悪いなど）は最大800ms待って強制的に切り替える
+      fallbackTimer = setTimeout(doSwap, 800);
+    }
+
+    function msSetMedia(src, loop, onEnded) {
+      swapMedia(src, loop, onEnded);
     }
 
     function msEnterRelax() {
@@ -482,22 +567,14 @@
       msState = 'interact';
       clearTimeout(msTimer);
       if (moveRafId) cancelAnimationFrame(moveRafId);
-      msSetMedia(character.media.interact, false);
-      media.onended = function () {
-        media.onended = null;
-        onDone();
-      };
+      msSetMedia(character.media.interact, false, onDone);
     }
 
     function msPlaySpecial(onDone) {
       msState = 'special';
       clearTimeout(msTimer);
       if (moveRafId) cancelAnimationFrame(moveRafId);
-      msSetMedia(character.media.special, false);
-      media.onended = function () {
-        media.onended = null;
-        onDone();
-      };
+      msSetMedia(character.media.special, false, onDone);
     }
 
     var dragging = false;
@@ -638,17 +715,45 @@
       }
     }, { passive: false });
 
+    // デスクトップでは純粋なCSSの:hoverでメニューの表示・非表示を切り替えるのをやめる。
+    // spriteとcontrolsの間にわずかな隙間があるだけで、斜めにマウスを動かした瞬間
+    // "離れた"と判定されてメニューが消え、クリックする前に消えてしまっていたため。
+    // 代わりにJSで管理し、短い猶予時間を設ける：入ったら即表示、離れてもすぐには隠さず、
+    // 一定時間内にspriteかcontrolsのどちらかに戻ってくれば非表示をキャンセルする。
     root.addEventListener('mouseenter', function () {
+      clearTimeout(controlsHideTimer);
+      root.classList.add('bp-controls-visible');
       if (manager.hasMissing()) btnAdd.classList.remove('bp-ctrl-disabled');
       else btnAdd.classList.add('bp-ctrl-disabled');
+    });
+    root.addEventListener('mouseleave', function () {
+      clearTimeout(controlsHideTimer);
+      controlsHideTimer = setTimeout(function () {
+        root.classList.remove('bp-controls-visible');
+      }, 350);
     });
 
     var revertTimer = null;
     var quoteTimer = null;
+    var lastQuoteIndex = -1;
+    function pickQuote(quotes) {
+      // 同じセリフを連続で言わないようにする：候補が2つ以上あるときは
+      // 前回言ったセリフと違うものが出るまで抽選し直す
+      if (!quotes || !quotes.length) return '';
+      if (quotes.length === 1) { lastQuoteIndex = 0; return quotes[0]; }
+      var idx;
+      do {
+        idx = Math.floor(Math.random() * quotes.length);
+      } while (idx === lastQuoteIndex);
+      lastQuoteIndex = idx;
+      return quotes[idx];
+    }
     sprite.addEventListener('click', function () {
       if (moved) { moved = false; return; }
 
       if (isMultistate) {
+        // specialはクリックで中断できない。自然に再生し終わるまで待つ
+        if (msState === 'special') return;
         var wasResting = (msState === 'sleep' || msState === 'sit') ? msState : null;
         function msResumeAfterClick() {
           if (wasResting === 'sleep') msResumeSleep();
@@ -656,7 +761,7 @@
           else msEnterRelax();
         }
         if (character.quotes && character.quotes.length) {
-          var msLine = character.quotes[Math.floor(Math.random() * character.quotes.length)];
+          var msLine = pickQuote(character.quotes);
           quote.textContent = msLine;
           quote.classList.add('show');
           clearTimeout(quoteTimer);
@@ -672,7 +777,7 @@
         return;
       }
 
-      var line = character.quotes[Math.floor(Math.random() * character.quotes.length)];
+      var line = pickQuote(character.quotes);
       quote.textContent = line;
       quote.classList.add('show');
       clearTimeout(quoteTimer);
@@ -681,19 +786,11 @@
       }, 2600);
 
       if (isSprite && character.clickSrc) {
-        media.loop = false;
-        media.classList.add('bp-media-click');
-        media.src = character.clickSrc + (character.clickSrc.indexOf('?') > -1 ? '&' : '?') + 't=' + Date.now();
-        media.load();
-        media.play().catch(function () {});
-        media.onended = function () {
-          media.loop = true;
-          media.classList.remove('bp-media-click');
-          media.src = character.idleSrc;
-          media.load();
-          media.play().catch(function () {});
-          media.onended = null;
-        };
+        visual.classList.add('bp-click-mode');
+        swapMedia(character.clickSrc + (character.clickSrc.indexOf('?') > -1 ? '&' : '?') + 't=' + Date.now(), false, function () {
+          visual.classList.remove('bp-click-mode');
+          swapMedia(character.idleSrc, true, null);
+        });
       } else if (!reduceMotion) {
         visual.classList.remove('bp-jump');
         void visual.offsetWidth;
@@ -779,18 +876,18 @@
       var enterSrc = isMultistate ? (character.media && character.media.start) : character.enterSrc;
       if (!entered && enterSrc && media) {
         msState = 'enter';
-        media.loop = false;
-        media.src = enterSrc;
-        media.load();
-        media.play().catch(function () {});
-        media.onended = function () {
-          media.onended = null;
+        swapMedia(enterSrc, false, function () {
           entered = true;
           persist();
           startBehavior();
-        };
+        });
       } else {
         entered = true;
+        if (media) {
+          // どちらのバッファにもまだ何も入っていないので、常態/待機の映像をここで出す。
+          // 二重バッファの仕組みがそのまま「無→有」の初回表示も受け止めてくれる
+          swapMedia(isMultistate ? character.media.relax : character.idleSrc, true, null);
+        }
         startBehavior();
       }
     }
@@ -804,6 +901,7 @@
       clearTimeout(controlsHideTimer);
       clearTimeout(revertTimer);
       clearTimeout(quoteTimer);
+      clearTimeout(mediaSwapTimer);
       if (moveRafId) cancelAnimationFrame(moveRafId);
       if (rafId) cancelAnimationFrame(rafId);
       document.removeEventListener('visibilitychange', onVisibilityChange);
