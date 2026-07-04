@@ -156,6 +156,9 @@
   var PETS_KEY = 'blogPetInstances';
   var MAX_SAVED_PETS = 10;
   var DEFAULT_SESSION_KEY = 'blogPetDefaultState';
+  // 拖拽范围基本不设限，允许拖出屏幕、拖到网页边界外一点点，只留这么多像素卡在
+  // 视口边缘，保证角色不会完全消失、之后还能重新抓回来。
+  var EDGE_KEEP_PX = 24;
 
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -165,8 +168,10 @@
     stylesInjected = true;
     var style = document.createElement('style');
     style.textContent = [
-      '.bp-pet{position:fixed;z-index:1000;}',
+      '.bp-pet{position:fixed;z-index:1000;-webkit-user-select:none;user-select:none;}',
       '.bp-sprite{position:relative;pointer-events:auto;cursor:grab;}',
+      '.bp-hitbox{position:absolute;left:50%;top:6%;bottom:14.5%;width:38%;transform:translateX(-50%);pointer-events:auto;cursor:grab;}',
+      '.bp-hitbox-jiaqiu{position:absolute;left:5%;top:3%;width:55%;height:60%;pointer-events:auto;cursor:grab;}',
       '.bp-visual{position:absolute;left:0;top:0;width:100%;height:100%;transform-origin:50% 100%;',
         'transform:scale(calc(var(--bp-face,1) * var(--bp-scale,1)), var(--bp-scale,1));}',
       '.bp-media{width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;}',
@@ -328,9 +333,40 @@
     }
     sprite.appendChild(visual);
 
+    // 明日方舟这批角色的素材是带留白的正方形画布，角色本体只占中间一小块；jiaqiu的素材
+    // 角色本体偏在左上方。拖拽/点击/滚轮缩放的判定都改成只认各自这块小热区，角色周围的
+    // 空气背景不会再被当成点在了角色身上（点在那些地方不会有任何反应）。这几个热区的
+    // 大小/位置是估个大概比例，如果偏差比较明显，之后可以再单独调整。
+    var hitTarget = sprite;
+    if (isMultistate || isSprite) {
+      hitTarget = document.createElement('div');
+      hitTarget.className = isMultistate ? 'bp-hitbox' : 'bp-hitbox-jiaqiu';
+      // 挂在visual下面而不是sprite下面：visual才是真正被--bp-scale这个transform缩放的
+      // 那一层，热区跟着放在它里面，滚轮/双指缩放的时候热区会跟着角色一起放大缩小，
+      // 不会再固定钉在原来的大小和位置上。
+      visual.appendChild(hitTarget);
+
+      // 热区之外的空白区域现在没有绑任何拖拽/点击逻辑了，但如果完全不处理这里的
+      // mousedown/dragstart，浏览器会把这块区域当成普通网页内容，出现原生的文字选取
+      // 高亮框，或者把里面的视频当图片一样拖出重影。这里单独拦一层，只吃掉默认行为，
+      // 不做任何实际的拖拽/点击逻辑（真正的逻辑都在hitTarget上）。
+      sprite.addEventListener('mousedown', function (e) { e.preventDefault(); });
+      sprite.addEventListener('dragstart', function (e) { e.preventDefault(); });
+    }
+
+    // 放大倍数越高，角色画面里头顶以上的空白区域也跟着等比例放大，如果字幕完全按
+    // boxH*scale来定位，放大后就会跟角色本体越离越远。这里只让字幕跟着scale涨一半的幅度，
+    // 放大后字幕会明显比原来更靠近角色一些。
+    function quoteBottom() {
+      // 只有明日方舟这批multistate角色的素材头顶留白比较多，才需要给字幕的涨幅打折扣；
+      // jiaqiu没有这个问题，还是用原来的boxH*scale
+      var quoteScale = isMultistate ? (1 + (scale - 1) * 0.4) : scale;
+      return (boxH * quoteScale + 8) + 'px';
+    }
+
     var quote = document.createElement('div');
     quote.className = 'bp-quote';
-    quote.style.bottom = (boxH * scale + 8) + 'px';
+    quote.style.bottom = quoteBottom();
     sprite.appendChild(quote);
 
     root.appendChild(sprite);
@@ -381,10 +417,10 @@
     // 真正的播放从下面的playEntranceThenStart()/swapMedia()开始
     if (isSprite && media) media.play().catch(function () {});
 
-    function minLeftBound() { return boxW * (scale - 1) / 2; }
-    function maxLeftBound() { return window.innerWidth - boxW * (scale + 1) / 2; }
-    function minTopBound() { return boxH * (scale - 1); }
-    function maxTopBound() { return window.innerHeight - boxH; }
+    function minLeftBound() { return -boxW * scale + EDGE_KEEP_PX; }
+    function maxLeftBound() { return window.innerWidth - EDGE_KEEP_PX; }
+    function minTopBound() { return -boxH * scale + EDGE_KEEP_PX; }
+    function maxTopBound() { return window.innerHeight - EDGE_KEEP_PX; }
 
     var left, top;
     if (typeof opts.left === 'number' && typeof opts.top === 'number') {
@@ -399,10 +435,18 @@
     }
 
     function clampPosition() {
-      var minLeft = minLeftBound();
-      var maxLeft = Math.max(maxLeftBound(), minLeft);
-      var minTop = minTopBound();
-      var maxTop = Math.max(maxTopBound(), minTop);
+      // 正常情况下minXxxBound()本来就该小于等于maxXxxBound()；但角色本身比视口还大
+      // （放大倍数很高、或者视口本身比较小）的时候，这两个理论边界会反过来。这时候不管
+      // 谁大谁小，直接把它们当成一个区间的两端（小的当下限、大的当上限），保证永远有
+      // 一段真实可以拖动的范围，不会被钉死在同一个点上出不来。
+      var leftBoundA = minLeftBound();
+      var leftBoundB = maxLeftBound();
+      var minLeft = Math.min(leftBoundA, leftBoundB);
+      var maxLeft = Math.max(leftBoundA, leftBoundB);
+      var topBoundA = minTopBound();
+      var topBoundB = maxTopBound();
+      var minTop = Math.min(topBoundA, topBoundB);
+      var maxTop = Math.max(topBoundA, topBoundB);
       left = Math.min(Math.max(left, minLeft), maxLeft);
       top = Math.min(Math.max(top, minTop), maxTop);
     }
@@ -419,12 +463,12 @@
       if (opts.onChange) opts.onChange();
     }
 
-    sprite.addEventListener('wheel', function (e) {
+    hitTarget.addEventListener('wheel', function (e) {
       e.preventDefault();
       var delta = e.deltaY < 0 ? SCALE_STEP : -SCALE_STEP;
       scale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, Math.round((scale + delta) * 100) / 100));
       visual.style.setProperty('--bp-scale', scale);
-      quote.style.bottom = (boxH * scale + 8) + 'px';
+      quote.style.bottom = quoteBottom();
       clampPosition();
       applyPosition();
       persist();
@@ -612,7 +656,7 @@
       } else {
         running = false;
       }
-      sprite.style.cursor = 'grabbing';
+      hitTarget.style.cursor = 'grabbing';
     }
 
     function dragMove(clientX, clientY) {
@@ -629,7 +673,7 @@
     function dragEnd() {
       if (!dragging) return;
       dragging = false;
-      sprite.style.cursor = 'grab';
+      hitTarget.style.cursor = 'grab';
       persist();
       if (isMultistate) {
         if (msState !== 'interact' && msState !== 'special') {
@@ -641,7 +685,10 @@
       }
     }
 
-    sprite.addEventListener('mousedown', function (e) {
+    // 具体这次按下该由哪只pet响应，交给manager在容器上统一判断（角色多了容易重叠，
+    // 判断规则见manager里的"离热区中心最近的那只"逻辑），这里只负责真正开始拖拽之后
+    // 的处理，manager找到目标后会调用这个函数。
+    function handleHitMouseDown(e) {
       e.preventDefault();
       dragStart(e.clientX, e.clientY);
       function onMove(ev) { dragMove(ev.clientX, ev.clientY); }
@@ -649,12 +696,17 @@
         dragEnd();
         document.removeEventListener('mousemove', onMove);
         document.removeEventListener('mouseup', onUp);
+        // 松开时如果全程没怎么移动，就当成一次点击处理——直接判断这次按下的同一只pet，
+        // 不依赖浏览器原生click事件（原生click是松开时鼠标下面正对着哪只就算哪只，
+        // 跟重叠判断的"按下时选中的是哪只"可能对不上，容易点错）
+        if (!moved) handleHitClick();
       }
       document.addEventListener('mousemove', onMove);
       document.addEventListener('mouseup', onUp);
-    });
+    }
 
     var pinching = false;
+    var didPinch = false; // 这次触摸手势里有没有出现过双指缩放，出现过的话松开时就不算点击
     var pinchStartDist = 0;
     var pinchStartScale = 1;
     var touchActive = false;
@@ -673,7 +725,7 @@
         var ratio = dist / pinchStartDist;
         scale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, Math.round(pinchStartScale * ratio * 100) / 100));
         visual.style.setProperty('--bp-scale', scale);
-        quote.style.bottom = (boxH * scale + 8) + 'px';
+        quote.style.bottom = quoteBottom();
         clampPosition();
         applyPosition();
       } else if (dragging && ev.touches.length === 1) {
@@ -686,6 +738,7 @@
     function onTouchEnd(ev) {
       if (ev.touches.length >= 2) {
         pinching = true;
+        didPinch = true;
         pinchStartDist = touchDistance(ev.touches[0], ev.touches[1]);
         pinchStartScale = scale;
         return;
@@ -700,6 +753,9 @@
       }
       if (ev.touches.length === 0) {
         dragEnd();
+        // 松开时如果全程没有明显移动、也没有出现过双指缩放，就当成一次点击（tap）处理，
+        // 直接判断这次触摸开始时选中的同一只pet，不依赖浏览器合成的click事件
+        if (!moved && !didPinch) handleHitClick();
         touchActive = false;
         document.removeEventListener('touchmove', onTouchMove);
         document.removeEventListener('touchend', onTouchEnd);
@@ -707,7 +763,9 @@
       }
     }
 
-    sprite.addEventListener('touchstart', function (e) {
+    // 同样交给manager统一判断由哪只pet响应，这里只负责实际的触摸开始逻辑
+    function handleHitTouchStart(e) {
+      if (!touchActive) didPinch = false; // 新的一轮触摸手势开始，重置标记
       root.classList.add('bp-controls-visible');
       clearTimeout(controlsHideTimer);
       controlsHideTimer = setTimeout(function () {
@@ -717,6 +775,7 @@
       if (e.touches.length >= 2) {
         dragging = false;
         pinching = true;
+        didPinch = true;
         pinchStartDist = touchDistance(e.touches[0], e.touches[1]);
         pinchStartScale = scale;
         running = false;
@@ -731,7 +790,7 @@
         document.addEventListener('touchend', onTouchEnd);
         document.addEventListener('touchcancel', onTouchEnd);
       }
-    }, { passive: false });
+    }
 
     // 桌面端不再用纯CSS的:hover来控制菜单显隐——sprite和controls之间哪怕只有几像素的空隙，
     // 鼠标斜着移动过去也很容易被判定成"离开了"，导致刚移过去菜单就消失、根本点不到。
@@ -764,7 +823,8 @@
       lastQuoteIndex = idx;
       return quotes[idx];
     }
-    sprite.addEventListener('click', function () {
+    // 同样交给manager统一判断由哪只pet响应
+    function handleHitClick() {
       if (moved) { moved = false; return; }
 
       if (isMultistate) {
@@ -820,7 +880,7 @@
         void visual.offsetWidth;
         visual.classList.add('bp-jump');
       }
-    });
+    }
 
     var running = false;
     var rafId;
@@ -960,7 +1020,12 @@
 
     return {
       getState: function () { return { left: left, top: top, scale: scale }; },
-      destroy: destroy
+      destroy: destroy,
+      // 下面几个是给manager统一做"重叠时选离热区中心最近的那只"判断用的
+      hitRect: function () { return hitTarget.getBoundingClientRect(); },
+      hitMouseDown: handleHitMouseDown,
+      hitTouchStart: handleHitTouchStart,
+      hitClick: handleHitClick
     };
   }
 
@@ -975,6 +1040,7 @@
       this.container = document.createElement('div');
       this.container.id = 'blog-pet-container';
       document.body.appendChild(this.container);
+      this.setupHitDispatch();
 
       var saved = this.loadSaved();
       if (saved && saved.length) {
@@ -997,6 +1063,45 @@
       } else {
         this.spawnDefault();
       }
+    },
+
+    // pet多了容易叠在一起，鼠标/触摸按下的时候具体算按到了哪一只，统一在这里判断：
+    // 只看热区确实包含了这个坐标点的那些pet，在它们里面选热区中心离落点最近的一个。
+    // 这样不管DOM层叠顺序（谁盖着谁）是什么样，永远是"离得最近的那只"响应，而不是
+    // "占了这个位置最上面的那只"。
+    findClosestInstance: function (x, y) {
+      var best = null;
+      var bestDist = Infinity;
+      for (var i = 0; i < this.instances.length; i++) {
+        var handle = this.instances[i].handle;
+        if (!handle.hitRect) continue;
+        var r = handle.hitRect();
+        if (x < r.left || x > r.right || y < r.top || y > r.bottom) continue;
+        var cx = r.left + r.width / 2;
+        var cy = r.top + r.height / 2;
+        var dx = x - cx;
+        var dy = y - cy;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < bestDist) {
+          bestDist = dist;
+          best = this.instances[i];
+        }
+      }
+      return best;
+    },
+
+    setupHitDispatch: function () {
+      var self = this;
+      this.container.addEventListener('mousedown', function (e) {
+        var winner = self.findClosestInstance(e.clientX, e.clientY);
+        if (winner && winner.handle.hitMouseDown) winner.handle.hitMouseDown(e);
+      });
+      this.container.addEventListener('touchstart', function (e) {
+        if (!e.touches || !e.touches.length) return;
+        var t = e.touches[0];
+        var winner = self.findClosestInstance(t.clientX, t.clientY);
+        if (winner && winner.handle.hitTouchStart) winner.handle.hitTouchStart(e);
+      }, { passive: false });
     },
 
     spawnDefault: function () {

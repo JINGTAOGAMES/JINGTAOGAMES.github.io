@@ -156,6 +156,10 @@
   var PETS_KEY = 'blogPetInstances';
   var MAX_SAVED_PETS = 10;
   var DEFAULT_SESSION_KEY = 'blogPetDefaultState';
+  // ドラッグ範囲はほぼ無制限にする：画面外・ページの端の外側にはみ出してもよい。
+  // これだけのピクセルだけ画面内に残して、完全に見えなくならず後でつかみ直せる
+  // ようにする。
+  var EDGE_KEEP_PX = 24;
 
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -165,8 +169,10 @@
     stylesInjected = true;
     var style = document.createElement('style');
     style.textContent = [
-      '.bp-pet{position:fixed;z-index:1000;}',
+      '.bp-pet{position:fixed;z-index:1000;-webkit-user-select:none;user-select:none;}',
       '.bp-sprite{position:relative;pointer-events:auto;cursor:grab;}',
+      '.bp-hitbox{position:absolute;left:50%;top:6%;bottom:14.5%;width:38%;transform:translateX(-50%);pointer-events:auto;cursor:grab;}',
+      '.bp-hitbox-jiaqiu{position:absolute;left:5%;top:3%;width:55%;height:60%;pointer-events:auto;cursor:grab;}',
       '.bp-visual{position:absolute;left:0;top:0;width:100%;height:100%;transform-origin:50% 100%;',
         'transform:scale(calc(var(--bp-face,1) * var(--bp-scale,1)), var(--bp-scale,1));}',
       '.bp-media{width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;}',
@@ -329,9 +335,42 @@
     }
     sprite.appendChild(visual);
 
+    // 明日方舟系キャラの素材は余白のある正方形キャンバスで、キャラ本体は中央のごく一部しか
+    // 占めていない。ドラッグ・クリック・ホイールでの拡大縮小の判定を、この中央の小さい
+    // ホットスポットだけに反応するようにする。キャラ周りの余白部分をクリック・ドラッグしても
+    // 何も起きなくなる。サイズはあくまで目安なので、キャラによってズレが大きければ
+    // 後で個別に調整できる。
+    var hitTarget = sprite;
+    if (isMultistate || isSprite) {
+      hitTarget = document.createElement('div');
+      hitTarget.className = isMultistate ? 'bp-hitbox' : 'bp-hitbox-jiaqiu';
+      // spriteではなくvisualの下にぶら下げる：--bp-scaleのtransformで実際に拡大縮小されるのは
+      // visual側なので、ホットスポットもその中に入れておけば、キャラと一緒にズームに
+      // 追従するようになる（元のサイズ・位置に固定されたままにならない）。
+      visual.appendChild(hitTarget);
+
+      // ホットスポットの外側の余白部分にはもうドラッグ・クリックの処理が何も付いていないが、
+      // ここでmousedown/dragstartを吸収しておかないと、ブラウザが普通のページコンテンツと
+      // 判断してネイティブのテキスト選択ハイライトが出たり、中の動画を画像のようにドラッグして
+      // 残像が出たりしてしまう。ここではデフォルト動作を潰すだけで、実際のドラッグ・クリック
+      // 処理は全部hitTarget側にある。
+      sprite.addEventListener('mousedown', function (e) { e.preventDefault(); });
+      sprite.addEventListener('dragstart', function (e) { e.preventDefault(); });
+    }
+
+    // 拡大率が上がるほど、映像内でキャラの頭より上にある余白部分も同じ倍率で広がってしまい、
+    // 字幕がboxH*scaleにそのまま追従するとキャラ本体からどんどん離れていく。
+    // scaleの伸び幅の40%だけ字幕の位置に反映させることで、拡大後もキャラに近い位置を保つ。
+    function quoteBottom() {
+      // 頭上の余白が大きいのは明日方舟系のmultistateキャラだけなので、字幕の伸びを
+      // 抑えるのもそちらだけにする。jiaqiuはこの問題がないので元のboxH*scaleのまま
+      var quoteScale = isMultistate ? (1 + (scale - 1) * 0.4) : scale;
+      return (boxH * quoteScale + 8) + 'px';
+    }
+
     var quote = document.createElement('div');
     quote.className = 'bp-quote';
-    quote.style.bottom = (boxH * scale + 8) + 'px';
+    quote.style.bottom = quoteBottom();
     sprite.appendChild(quote);
 
     root.appendChild(sprite);
@@ -382,10 +421,10 @@
     // 実際の再生は下のplayEntranceThenStart()/swapMedia()から始まる
     if (isSprite && media) media.play().catch(function () {});
 
-    function minLeftBound() { return boxW * (scale - 1) / 2; }
-    function maxLeftBound() { return window.innerWidth - boxW * (scale + 1) / 2; }
-    function minTopBound() { return boxH * (scale - 1); }
-    function maxTopBound() { return window.innerHeight - boxH; }
+    function minLeftBound() { return -boxW * scale + EDGE_KEEP_PX; }
+    function maxLeftBound() { return window.innerWidth - EDGE_KEEP_PX; }
+    function minTopBound() { return -boxH * scale + EDGE_KEEP_PX; }
+    function maxTopBound() { return window.innerHeight - EDGE_KEEP_PX; }
 
     var left, top;
     if (typeof opts.left === 'number' && typeof opts.top === 'number') {
@@ -400,10 +439,19 @@
     }
 
     function clampPosition() {
-      var minLeft = minLeftBound();
-      var maxLeft = Math.max(maxLeftBound(), minLeft);
-      var minTop = minTopBound();
-      var maxTop = Math.max(maxTopBound(), minTop);
+      // 通常はminXxxBound()がmaxXxxBound()以下になるはずだが、キャラ自体がビューポートより
+      // 大きい場合（拡大率が高い、またはビューポートが小さい）、この2つの理論上の境界が
+      // 逆転することがある。その場合はどちらが大きいかに関係なく、単純に区間の両端として
+      // 扱う（小さい方を下限、大きい方を上限に）。これで常に実際にドラッグできる範囲が
+      // 残り、1点に固定されて動かせなくなることがなくなる。
+      var leftBoundA = minLeftBound();
+      var leftBoundB = maxLeftBound();
+      var minLeft = Math.min(leftBoundA, leftBoundB);
+      var maxLeft = Math.max(leftBoundA, leftBoundB);
+      var topBoundA = minTopBound();
+      var topBoundB = maxTopBound();
+      var minTop = Math.min(topBoundA, topBoundB);
+      var maxTop = Math.max(topBoundA, topBoundB);
       left = Math.min(Math.max(left, minLeft), maxLeft);
       top = Math.min(Math.max(top, minTop), maxTop);
     }
@@ -420,12 +468,12 @@
       if (opts.onChange) opts.onChange();
     }
 
-    sprite.addEventListener('wheel', function (e) {
+    hitTarget.addEventListener('wheel', function (e) {
       e.preventDefault();
       var delta = e.deltaY < 0 ? SCALE_STEP : -SCALE_STEP;
       scale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, Math.round((scale + delta) * 100) / 100));
       visual.style.setProperty('--bp-scale', scale);
-      quote.style.bottom = (boxH * scale + 8) + 'px';
+      quote.style.bottom = quoteBottom();
       clampPosition();
       applyPosition();
       persist();
@@ -613,7 +661,7 @@
       } else {
         running = false;
       }
-      sprite.style.cursor = 'grabbing';
+      hitTarget.style.cursor = 'grabbing';
     }
 
     function dragMove(clientX, clientY) {
@@ -630,7 +678,7 @@
     function dragEnd() {
       if (!dragging) return;
       dragging = false;
-      sprite.style.cursor = 'grab';
+      hitTarget.style.cursor = 'grab';
       persist();
       if (isMultistate) {
         if (msState !== 'interact' && msState !== 'special') {
@@ -642,7 +690,10 @@
       }
     }
 
-    sprite.addEventListener('mousedown', function (e) {
+    // どの押下がどのpetに対応するかはmanagerがコンテナ側で一括判定する
+    // （「ホットスポットの中心が一番近いもの」ロジックは manager 側参照）。
+    // ここでは実際にドラッグが始まった後の処理だけを持ち、managerが勝者に対してこれを呼ぶ。
+    function handleHitMouseDown(e) {
       e.preventDefault();
       dragStart(e.clientX, e.clientY);
       function onMove(ev) { dragMove(ev.clientX, ev.clientY); }
@@ -650,12 +701,17 @@
         dragEnd();
         document.removeEventListener('mousemove', onMove);
         document.removeEventListener('mouseup', onUp);
+        // ほとんど動いていなければクリックとして扱う。ブラウザのネイティブclickイベント
+        // （離した瞬間にカーソル直下にいる方を対象にする）には頼らない——重なっている場合、
+        // 押した瞬間に選ばれたpetと食い違うことがあるため
+        if (!moved) handleHitClick();
       }
       document.addEventListener('mousemove', onMove);
       document.addEventListener('mouseup', onUp);
-    });
+    }
 
     var pinching = false;
+    var didPinch = false; // この一連のタッチ操作中にピンチズームが発生したか。発生していたら指を離してもクリック扱いにしない
     var pinchStartDist = 0;
     var pinchStartScale = 1;
     var touchActive = false;
@@ -674,7 +730,7 @@
         var ratio = dist / pinchStartDist;
         scale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, Math.round(pinchStartScale * ratio * 100) / 100));
         visual.style.setProperty('--bp-scale', scale);
-        quote.style.bottom = (boxH * scale + 8) + 'px';
+        quote.style.bottom = quoteBottom();
         clampPosition();
         applyPosition();
       } else if (dragging && ev.touches.length === 1) {
@@ -687,6 +743,7 @@
     function onTouchEnd(ev) {
       if (ev.touches.length >= 2) {
         pinching = true;
+        didPinch = true;
         pinchStartDist = touchDistance(ev.touches[0], ev.touches[1]);
         pinchStartScale = scale;
         return;
@@ -701,6 +758,9 @@
       }
       if (ev.touches.length === 0) {
         dragEnd();
+        // 大きく動いておらず、ピンチも発生していなければタップ扱いにする。
+        // ブラウザが合成するclickイベントには頼らない
+        if (!moved && !didPinch) handleHitClick();
         touchActive = false;
         document.removeEventListener('touchmove', onTouchMove);
         document.removeEventListener('touchend', onTouchEnd);
@@ -708,7 +768,9 @@
       }
     }
 
-    sprite.addEventListener('touchstart', function (e) {
+    // これもmanagerが一括判定する。ここでは実際のタッチ開始処理のみ
+    function handleHitTouchStart(e) {
+      if (!touchActive) didPinch = false; // 新しいジェスチャーの開始なのでリセット
       root.classList.add('bp-controls-visible');
       clearTimeout(controlsHideTimer);
       controlsHideTimer = setTimeout(function () {
@@ -718,6 +780,7 @@
       if (e.touches.length >= 2) {
         dragging = false;
         pinching = true;
+        didPinch = true;
         pinchStartDist = touchDistance(e.touches[0], e.touches[1]);
         pinchStartScale = scale;
         running = false;
@@ -732,7 +795,7 @@
         document.addEventListener('touchend', onTouchEnd);
         document.addEventListener('touchcancel', onTouchEnd);
       }
-    }, { passive: false });
+    }
 
     // デスクトップでは純粋なCSSの:hoverでメニューの表示・非表示を切り替えるのをやめる。
     // spriteとcontrolsの間にわずかな隙間があるだけで、斜めにマウスを動かした瞬間
@@ -767,7 +830,8 @@
       lastQuoteIndex = idx;
       return quotes[idx];
     }
-    sprite.addEventListener('click', function () {
+    // これもmanagerが一括判定する
+    function handleHitClick() {
       if (moved) { moved = false; return; }
 
       if (isMultistate) {
@@ -823,7 +887,7 @@
         void visual.offsetWidth;
         visual.classList.add('bp-jump');
       }
-    });
+    }
 
     var running = false;
     var rafId;
@@ -963,7 +1027,12 @@
 
     return {
       getState: function () { return { left: left, top: top, scale: scale }; },
-      destroy: destroy
+      destroy: destroy,
+      // manager側の「重なっている時はホットスポット中心が一番近いものを選ぶ」判定で使う
+      hitRect: function () { return hitTarget.getBoundingClientRect(); },
+      hitMouseDown: handleHitMouseDown,
+      hitTouchStart: handleHitTouchStart,
+      hitClick: handleHitClick
     };
   }
 
@@ -978,6 +1047,7 @@
       this.container = document.createElement('div');
       this.container.id = 'blog-pet-container';
       document.body.appendChild(this.container);
+      this.setupHitDispatch();
 
       var saved = this.loadSaved();
       if (saved && saved.length) {
@@ -1000,6 +1070,45 @@
       } else {
         this.spawnDefault();
       }
+    },
+
+    // ペットが増えると重なりやすくなる。押した/タップした瞬間にどのpetに対応するかを
+    // ここで一括判定する：その座標を実際にホットスポットが含んでいるpetだけを対象に、
+    // その中でホットスポットの中心が一番近いものを選ぶ。DOMの重なり順（誰が一番上に
+    // 描画されているか）に関係なく、常に「一番近いもの」が反応するようになる。
+    findClosestInstance: function (x, y) {
+      var best = null;
+      var bestDist = Infinity;
+      for (var i = 0; i < this.instances.length; i++) {
+        var handle = this.instances[i].handle;
+        if (!handle.hitRect) continue;
+        var r = handle.hitRect();
+        if (x < r.left || x > r.right || y < r.top || y > r.bottom) continue;
+        var cx = r.left + r.width / 2;
+        var cy = r.top + r.height / 2;
+        var dx = x - cx;
+        var dy = y - cy;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < bestDist) {
+          bestDist = dist;
+          best = this.instances[i];
+        }
+      }
+      return best;
+    },
+
+    setupHitDispatch: function () {
+      var self = this;
+      this.container.addEventListener('mousedown', function (e) {
+        var winner = self.findClosestInstance(e.clientX, e.clientY);
+        if (winner && winner.handle.hitMouseDown) winner.handle.hitMouseDown(e);
+      });
+      this.container.addEventListener('touchstart', function (e) {
+        if (!e.touches || !e.touches.length) return;
+        var t = e.touches[0];
+        var winner = self.findClosestInstance(t.clientX, t.clientY);
+        if (winner && winner.handle.hitTouchStart) winner.handle.hitTouchStart(e);
+      }, { passive: false });
     },
 
     spawnDefault: function () {

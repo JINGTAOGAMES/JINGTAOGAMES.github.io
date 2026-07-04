@@ -148,6 +148,10 @@
   var PETS_KEY = 'blogPetInstances';
   var MAX_SAVED_PETS = 10;
   var DEFAULT_SESSION_KEY = 'blogPetDefaultState';
+  // Dragging is basically unrestricted now: the pet can go past the edge of the
+  // viewport/page. We only keep this many pixels on-screen so it never fully
+  // disappears and can always be grabbed back.
+  var EDGE_KEEP_PX = 24;
 
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -157,8 +161,10 @@
     stylesInjected = true;
     var style = document.createElement('style');
     style.textContent = [
-      '.bp-pet{position:fixed;z-index:1000;}',
+      '.bp-pet{position:fixed;z-index:1000;-webkit-user-select:none;user-select:none;}',
       '.bp-sprite{position:relative;pointer-events:auto;cursor:grab;}',
+      '.bp-hitbox{position:absolute;left:50%;top:6%;bottom:14.5%;width:38%;transform:translateX(-50%);pointer-events:auto;cursor:grab;}',
+      '.bp-hitbox-jiaqiu{position:absolute;left:5%;top:3%;width:55%;height:60%;pointer-events:auto;cursor:grab;}',
       '.bp-visual{position:absolute;left:0;top:0;width:100%;height:100%;transform-origin:50% 100%;',
         'transform:scale(calc(var(--bp-face,1) * var(--bp-scale,1)), var(--bp-scale,1));}',
       '.bp-media{width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;}',
@@ -321,9 +327,44 @@
     }
     sprite.appendChild(visual);
 
+    // The Arknights-style clips are square canvases with a lot of padding — the character itself
+    // only occupies a small area in the middle. Drag/click/wheel-zoom detection now only responds
+    // within this smaller centered hotspot; clicking or dragging on the empty space around the
+    // character no longer does anything. The hotspot size is an approximation; individual
+    // characters can be tuned further later if some are noticeably off.
+    var hitTarget = sprite;
+    if (isMultistate || isSprite) {
+      hitTarget = document.createElement('div');
+      hitTarget.className = isMultistate ? 'bp-hitbox' : 'bp-hitbox-jiaqiu';
+      // Attached to visual, not sprite: visual is the layer actually scaled by the --bp-scale
+      // transform, so putting the hotspot inside it means the hotspot zooms in/out together with
+      // the character instead of staying pinned at its original size and position.
+      visual.appendChild(hitTarget);
+
+      // The empty area outside the hotspot has no drag/click logic attached anymore, but if we
+      // don't also swallow mousedown/dragstart there, the browser treats it like ordinary page
+      // content — triggering a native text-selection highlight box, or dragging the video like
+      // an image ghost. This just eats the default behavior; the actual drag/click logic all
+      // lives on hitTarget.
+      sprite.addEventListener('mousedown', function (e) { e.preventDefault(); });
+      sprite.addEventListener('dragstart', function (e) { e.preventDefault(); });
+    }
+
+    // The higher the zoom, the more the empty headroom above the character in the clip also
+    // scales up — if the quote tracked boxH*scale exactly, it would drift further from the
+    // character as it grows. Only apply 40% of the scale growth to the quote's offset so it
+    // stays noticeably closer to the character after zooming in.
+    function quoteBottom() {
+      // Only the Arknights-style multistate characters' clips have a lot of headroom above the
+      // character, so only they need the quote's growth dampened; jiaqiu doesn't have this issue
+      // and keeps the original boxH*scale.
+      var quoteScale = isMultistate ? (1 + (scale - 1) * 0.4) : scale;
+      return (boxH * quoteScale + 8) + 'px';
+    }
+
     var quote = document.createElement('div');
     quote.className = 'bp-quote';
-    quote.style.bottom = (boxH * scale + 8) + 'px';
+    quote.style.bottom = quoteBottom();
     sprite.appendChild(quote);
 
     root.appendChild(sprite);
@@ -374,10 +415,10 @@
     // double buffer has no content yet — real playback starts in playEntranceThenStart()/swapMedia() below
     if (isSprite && media) media.play().catch(function () {});
 
-    function minLeftBound() { return boxW * (scale - 1) / 2; }
-    function maxLeftBound() { return window.innerWidth - boxW * (scale + 1) / 2; }
-    function minTopBound() { return boxH * (scale - 1); }
-    function maxTopBound() { return window.innerHeight - boxH; }
+    function minLeftBound() { return -boxW * scale + EDGE_KEEP_PX; }
+    function maxLeftBound() { return window.innerWidth - EDGE_KEEP_PX; }
+    function minTopBound() { return -boxH * scale + EDGE_KEEP_PX; }
+    function maxTopBound() { return window.innerHeight - EDGE_KEEP_PX; }
 
     var left, top;
     if (typeof opts.left === 'number' && typeof opts.top === 'number') {
@@ -392,10 +433,19 @@
     }
 
     function clampPosition() {
-      var minLeft = minLeftBound();
-      var maxLeft = Math.max(maxLeftBound(), minLeft);
-      var minTop = minTopBound();
-      var maxTop = Math.max(maxTopBound(), minTop);
+      // Normally minXxxBound() should already be <= maxXxxBound(); but when the character itself
+      // is bigger than the viewport (very high zoom, or a small viewport), these two theoretical
+      // bounds flip. Regardless of which is numerically larger, just treat them as the two ends of
+      // an interval (smaller one = lower bound, larger one = upper bound), so there's always a real
+      // draggable range instead of collapsing to a single frozen point.
+      var leftBoundA = minLeftBound();
+      var leftBoundB = maxLeftBound();
+      var minLeft = Math.min(leftBoundA, leftBoundB);
+      var maxLeft = Math.max(leftBoundA, leftBoundB);
+      var topBoundA = minTopBound();
+      var topBoundB = maxTopBound();
+      var minTop = Math.min(topBoundA, topBoundB);
+      var maxTop = Math.max(topBoundA, topBoundB);
       left = Math.min(Math.max(left, minLeft), maxLeft);
       top = Math.min(Math.max(top, minTop), maxTop);
     }
@@ -412,12 +462,12 @@
       if (opts.onChange) opts.onChange();
     }
 
-    sprite.addEventListener('wheel', function (e) {
+    hitTarget.addEventListener('wheel', function (e) {
       e.preventDefault();
       var delta = e.deltaY < 0 ? SCALE_STEP : -SCALE_STEP;
       scale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, Math.round((scale + delta) * 100) / 100));
       visual.style.setProperty('--bp-scale', scale);
-      quote.style.bottom = (boxH * scale + 8) + 'px';
+      quote.style.bottom = quoteBottom();
       clampPosition();
       applyPosition();
       persist();
@@ -606,7 +656,7 @@
       } else {
         running = false;
       }
-      sprite.style.cursor = 'grabbing';
+      hitTarget.style.cursor = 'grabbing';
     }
 
     function dragMove(clientX, clientY) {
@@ -623,7 +673,7 @@
     function dragEnd() {
       if (!dragging) return;
       dragging = false;
-      sprite.style.cursor = 'grab';
+      hitTarget.style.cursor = 'grab';
       persist();
       if (isMultistate) {
         if (msState !== 'interact' && msState !== 'special') {
@@ -635,7 +685,10 @@
       }
     }
 
-    sprite.addEventListener('mousedown', function (e) {
+    // Which pet actually responds to a given press is decided centrally by the manager on the
+    // shared container (see the "closest hotspot center wins" logic there) — this function only
+    // handles what happens once dragging actually starts, and the manager calls it on the winner.
+    function handleHitMouseDown(e) {
       e.preventDefault();
       dragStart(e.clientX, e.clientY);
       function onMove(ev) { dragMove(ev.clientX, ev.clientY); }
@@ -643,12 +696,18 @@
         dragEnd();
         document.removeEventListener('mousemove', onMove);
         document.removeEventListener('mouseup', onUp);
+        // If there was no meaningful movement, treat this as a click on this same pet instead of
+        // relying on the browser's native click event (which fires on whatever happens to be
+        // under the cursor at release — that can disagree with which pet "won" the press when
+        // hotspots overlap).
+        if (!moved) handleHitClick();
       }
       document.addEventListener('mousemove', onMove);
       document.addEventListener('mouseup', onUp);
-    });
+    }
 
     var pinching = false;
+    var didPinch = false; // whether a pinch-zoom happened during this touch gesture — if so, don't treat release as a click
     var pinchStartDist = 0;
     var pinchStartScale = 1;
     var touchActive = false;
@@ -667,7 +726,7 @@
         var ratio = dist / pinchStartDist;
         scale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, Math.round(pinchStartScale * ratio * 100) / 100));
         visual.style.setProperty('--bp-scale', scale);
-        quote.style.bottom = (boxH * scale + 8) + 'px';
+        quote.style.bottom = quoteBottom();
         clampPosition();
         applyPosition();
       } else if (dragging && ev.touches.length === 1) {
@@ -680,6 +739,7 @@
     function onTouchEnd(ev) {
       if (ev.touches.length >= 2) {
         pinching = true;
+        didPinch = true;
         pinchStartDist = touchDistance(ev.touches[0], ev.touches[1]);
         pinchStartScale = scale;
         return;
@@ -694,6 +754,9 @@
       }
       if (ev.touches.length === 0) {
         dragEnd();
+        // If there was no meaningful movement and no pinch happened during this gesture,
+        // treat the release as a tap on this same pet, without relying on a synthesized click event.
+        if (!moved && !didPinch) handleHitClick();
         touchActive = false;
         document.removeEventListener('touchmove', onTouchMove);
         document.removeEventListener('touchend', onTouchEnd);
@@ -701,7 +764,9 @@
       }
     }
 
-    sprite.addEventListener('touchstart', function (e) {
+    // Again, the manager decides which pet this touch belongs to; this just handles the actual start
+    function handleHitTouchStart(e) {
+      if (!touchActive) didPinch = false; // fresh gesture starting, reset the flag
       root.classList.add('bp-controls-visible');
       clearTimeout(controlsHideTimer);
       controlsHideTimer = setTimeout(function () {
@@ -711,6 +776,7 @@
       if (e.touches.length >= 2) {
         dragging = false;
         pinching = true;
+        didPinch = true;
         pinchStartDist = touchDistance(e.touches[0], e.touches[1]);
         pinchStartScale = scale;
         running = false;
@@ -725,7 +791,7 @@
         document.addEventListener('touchend', onTouchEnd);
         document.addEventListener('touchcancel', onTouchEnd);
       }
-    }, { passive: false });
+    }
 
     // Desktop no longer relies on pure CSS :hover to show/hide the control menu — the small gap
     // between the sprite and the controls below it made the menu vanish the instant the cursor
@@ -760,7 +826,8 @@
       lastQuoteIndex = idx;
       return quotes[idx];
     }
-    sprite.addEventListener('click', function () {
+    // Again decided by the manager
+    function handleHitClick() {
       if (moved) { moved = false; return; }
 
       if (isMultistate) {
@@ -816,7 +883,7 @@
         void visual.offsetWidth;
         visual.classList.add('bp-jump');
       }
-    });
+    }
 
     var running = false;
     var rafId;
@@ -956,7 +1023,12 @@
 
     return {
       getState: function () { return { left: left, top: top, scale: scale }; },
-      destroy: destroy
+      destroy: destroy,
+      // Used by the manager's "closest hotspot center wins" overlap resolution
+      hitRect: function () { return hitTarget.getBoundingClientRect(); },
+      hitMouseDown: handleHitMouseDown,
+      hitTouchStart: handleHitTouchStart,
+      hitClick: handleHitClick
     };
   }
 
@@ -971,6 +1043,7 @@
       this.container = document.createElement('div');
       this.container.id = 'blog-pet-container';
       document.body.appendChild(this.container);
+      this.setupHitDispatch();
 
       var saved = this.loadSaved();
       if (saved && saved.length) {
@@ -993,6 +1066,45 @@
       } else {
         this.spawnDefault();
       }
+    },
+
+    // With more pets around they tend to overlap; when a press/tap happens, decide here which
+    // pet it actually belongs to: only consider pets whose hotspot actually contains that point,
+    // then pick whichever one's hotspot center is closest to it. This way it's always "whichever
+    // is nearest" that responds, regardless of DOM stacking order (who happens to be painted on top).
+    findClosestInstance: function (x, y) {
+      var best = null;
+      var bestDist = Infinity;
+      for (var i = 0; i < this.instances.length; i++) {
+        var handle = this.instances[i].handle;
+        if (!handle.hitRect) continue;
+        var r = handle.hitRect();
+        if (x < r.left || x > r.right || y < r.top || y > r.bottom) continue;
+        var cx = r.left + r.width / 2;
+        var cy = r.top + r.height / 2;
+        var dx = x - cx;
+        var dy = y - cy;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < bestDist) {
+          bestDist = dist;
+          best = this.instances[i];
+        }
+      }
+      return best;
+    },
+
+    setupHitDispatch: function () {
+      var self = this;
+      this.container.addEventListener('mousedown', function (e) {
+        var winner = self.findClosestInstance(e.clientX, e.clientY);
+        if (winner && winner.handle.hitMouseDown) winner.handle.hitMouseDown(e);
+      });
+      this.container.addEventListener('touchstart', function (e) {
+        if (!e.touches || !e.touches.length) return;
+        var t = e.touches[0];
+        var winner = self.findClosestInstance(t.clientX, t.clientY);
+        if (winner && winner.handle.hitTouchStart) winner.handle.hitTouchStart(e);
+      }, { passive: false });
     },
 
     spawnDefault: function () {
