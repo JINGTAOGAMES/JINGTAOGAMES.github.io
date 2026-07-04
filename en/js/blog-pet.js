@@ -5,8 +5,8 @@
     {
       id: 'jiaqiu',
       type: 'sprite',
-      idleSrc: '/en/img/pets/jiaqiu-idle.webm',
-      clickSrc: '/en/img/pets/jiaqiu-click.webm',
+      idleSrc: '/img/pets/jiaqiu-idle.webm',
+      clickSrc: '/img/pets/jiaqiu-click.webm',
       width: 110,
       height: 100,
       canMove: false,
@@ -19,11 +19,13 @@
       height: 75,
       canMove: true,
       media: {
-        move: '/en/img/pets/exusiaiMove-x1.webm',
-        interact: '/en/img/pets/exusiaiInteract-x1.webm',
-        sleep: '/en/img/pets/exusiaiSleep-x1.webm',
-        relax: '/en/img/pets/exusiaiRelax-x1.webm',
-        special: '/en/img/pets/exusiaiSpecial-x1.webm'
+        relax: '/img/pets/Exusiai_Relax.webm',
+        move: '/img/pets/Exusiai_Move.webm',
+        sit: '/img/pets/Exusiai_Sit.webm',
+        sleep: '/img/pets/Exusiai_Sleep.webm',
+        interact: '/img/pets/Exusiai_Interact.webm',
+        special: '/img/pets/Exusiai_Special.webm',
+        start: '/img/pets/Exusiai_Start.webm'
       },
       quotes: [
         'Lord, please bless the Leader with a long and wonderful dream, and let that dream... come true some day.',
@@ -32,21 +34,100 @@
         'Apple pie, with char siu!',
         'An apple a day means seven apples a week, yay!'
       ]
+    },
+    {
+      id: 'heavyrain',
+      type: 'multistate',
+      width: 75,
+      height: 75,
+      canMove: true,
+      media: {
+        relax: '/img/pets/Heavyrain_Relax.webm',
+        move: '/img/pets/Heavyrain_Move.webm',
+        sit: '/img/pets/Heavyrain_Sit.webm',
+        sleep: '/img/pets/Heavyrain_Sleep.webm',
+        interact: '/img/pets/Heavyrain_Interact.webm',
+        start: '/img/pets/Heavyrain_Start.webm'
+      }
+    },
+    {
+      id: 'irene',
+      type: 'multistate',
+      width: 75,
+      height: 75,
+      canMove: true,
+      media: {
+        relax: '/img/pets/Irene_Relax.webm',
+        move: '/img/pets/Irene_Move.webm',
+        sit: '/img/pets/Irene_Sit.webm',
+        sleep: '/img/pets/Irene_Sleep.webm',
+        interact: '/img/pets/Irene_Interact.webm',
+        special: '/img/pets/Irene_Special.webm',
+        start: '/img/pets/Irene_Start.webm'
+      }
+    },
+    {
+      id: 'kaltsit',
+      type: 'multistate',
+      width: 75,
+      height: 75,
+      canMove: true,
+      media: {
+        relax: "/img/pets/Kal'tsit_Relax.webm",
+        move: "/img/pets/Kal'tsit_Move.webm",
+        sit: "/img/pets/Kal'tsit_Sit.webm",
+        sleep: "/img/pets/Kal'tsit_Sleep.webm",
+        interact: "/img/pets/Kal'tsit_Interact.webm",
+        start: "/img/pets/Kal'tsit_Start.webm"
+      }
+    },
+    {
+      id: 'lancet2',
+      type: 'multistate',
+      width: 75,
+      height: 75,
+      canMove: true,
+      media: {
+        relax: '/img/pets/Lancet-2_Relax.webm',
+        move: '/img/pets/Lancet-2_Move.webm',
+        interact: '/img/pets/Lancet-2_Interact.webm',
+        special: '/img/pets/Lancet-2_Special.webm',
+        start: '/img/pets/Lancet-2_Start.webm'
+      }
+    },
+    {
+      id: 'wisdel',
+      type: 'multistate',
+      width: 75,
+      height: 75,
+      canMove: true,
+      media: {
+        relax: "/img/pets/Wis'del_Relax.webm",
+        move: "/img/pets/Wis'del_Move.webm",
+        sit: "/img/pets/Wis'del_Sit.webm",
+        sleep: "/img/pets/Wis'del_Sleep.webm",
+        interact: "/img/pets/Wis'del_Interact.webm",
+        special: "/img/pets/Wis'del_Special.webm",
+        start: "/img/pets/Wis'del_Start.webm"
+      }
     }
   ];
 
   var MIN_SCALE = 0.5, MAX_SCALE = 4, SCALE_STEP = 0.1;
-  var SCALE_KEY = 'blogPetScale';
-  var POS_KEY = 'blogPetPos';
-  var CHAR_KEY = 'blogPetCharId';
   var DRAG_THRESHOLD = 5;
+  var PETS_KEY = 'blogPetInstances';
+  var MAX_SAVED_PETS = 10;
+  var DEFAULT_SESSION_KEY = 'blogPetDefaultState';
 
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  var stylesInjected = false;
   function buildStyle() {
+    if (stylesInjected) return;
+    stylesInjected = true;
     var style = document.createElement('style');
     style.textContent = [
-      '#blog-pet-root{position:fixed;z-index:1000;}',
+      '.bp-pet{position:fixed;z-index:1000;}',
       '.bp-sprite{position:relative;pointer-events:auto;cursor:grab;}',
       '.bp-visual{position:absolute;left:0;top:0;width:100%;height:100%;transform-origin:50% 100%;',
         'transform:scale(calc(var(--bp-face,1) * var(--bp-scale,1)), var(--bp-scale,1));}',
@@ -54,6 +135,11 @@
       '.bp-media.bp-media-click{transform:translate(-20%,-20%) scale(1.15);}',
       '.bp-quote{position:absolute;left:50%;transform:translate(calc(-50% - 16px),0);background:radial-gradient(ellipse at center, rgba(0,0,0,.82) 0%, rgba(0,0,0,.55) 65%, rgba(0,0,0,0) 100%);color:#fff;font-size:12px;font-weight:600;line-height:1.4;padding:8px 22px;border-radius:999px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s;}',
       '.bp-quote.show{opacity:1;}',
+      '.bp-controls{position:absolute;left:50%;top:100%;transform:translateX(-50%);display:flex;gap:6px;margin-top:6px;opacity:0;pointer-events:none;transition:opacity .15s;}',
+      '.bp-pet:hover .bp-controls,.bp-pet.bp-controls-visible .bp-controls{opacity:1;pointer-events:auto;}',
+      '.bp-ctrl-btn{width:22px;height:22px;line-height:22px;text-align:center;border-radius:50%;background:rgba(0,0,0,.65);color:#fff;font-size:14px;font-weight:700;cursor:pointer;user-select:none;box-shadow:0 1px 4px rgba(0,0,0,.3);}',
+      '.bp-ctrl-btn:hover{background:rgba(0,0,0,.85);}',
+      '.bp-ctrl-btn.bp-ctrl-disabled{opacity:.35;pointer-events:none;}',
       '.bp-body{position:absolute;left:6px;top:8px;width:24px;height:20px;border-radius:6px 6px 3px 3px;box-shadow:0 3px 0 rgba(0,0,0,.15) inset;}',
       '.bp-eye{position:absolute;top:14px;width:4px;height:4px;background:#222;border-radius:50%;}',
       '.bp-eye.l{left:11px;} .bp-eye.r{left:21px;}',
@@ -78,38 +164,6 @@
     document.head.appendChild(style);
   }
 
-  function loadScale() {
-    var raw = null;
-    try { raw = localStorage.getItem(SCALE_KEY); } catch (e) {}
-    if (raw === null) return (window.innerWidth < 600) ? 0.8 : 1;
-    var s = parseFloat(raw);
-    if (isNaN(s)) return 1;
-    return Math.min(MAX_SCALE, Math.max(MIN_SCALE, s));
-  }
-
-  function saveScale(s) {
-    try { localStorage.setItem(SCALE_KEY, String(s)); } catch (e) {}
-  }
-
-  function loadPos() {
-    try {
-      var raw = localStorage.getItem(POS_KEY);
-      if (!raw) return null;
-      var p = JSON.parse(raw);
-      if (typeof p.left === 'number' && typeof p.top === 'number') return p;
-    } catch (e) {}
-    return null;
-  }
-
-  function savePos(left, top) {
-    try { localStorage.setItem(POS_KEY, JSON.stringify({ left: left, top: top })); } catch (e) {}
-  }
-
-  // Use the performance API to tell whether this page load is a manual reload:
-  // if so, re-roll a random pet; otherwise (clicking a link to another page)
-  // keep the same one, carrying the choice across navigations within the same
-  // tab via sessionStorage. sessionStorage clears when the tab/browser closes,
-  // so a fresh visit naturally re-rolls again.
   function isReloadNavigation() {
     try {
       if (performance && performance.getEntriesByType) {
@@ -125,39 +179,52 @@
     return false;
   }
 
-  function pickCharacter() {
-    var savedId = null;
-    if (isReloadNavigation()) {
-      try { sessionStorage.removeItem(CHAR_KEY); } catch (e) {}
-    } else {
-      try { savedId = sessionStorage.getItem(CHAR_KEY); } catch (e) {}
-    }
-    var found = null;
-    if (savedId) {
-      for (var i = 0; i < CHARACTERS.length; i++) {
-        if (CHARACTERS[i].id === savedId) { found = CHARACTERS[i]; break; }
+  var preloadedCharIds = {};
+  var preloadedMedia = [];
+  function preloadCharacterMedia(character) {
+    if (preloadedCharIds[character.id]) return;
+    preloadedCharIds[character.id] = true;
+    var urls = [];
+    if (character.type === 'sprite') {
+      if (character.idleSrc) urls.push(character.idleSrc);
+      if (character.clickSrc) urls.push(character.clickSrc);
+      if (character.enterSrc) urls.push(character.enterSrc);
+    } else if (character.type === 'multistate' && character.media) {
+      for (var key in character.media) {
+        if (character.media.hasOwnProperty(key) && character.media[key]) urls.push(character.media[key]);
       }
     }
-    var chosen = found || CHARACTERS[Math.floor(Math.random() * CHARACTERS.length)];
-    try { sessionStorage.setItem(CHAR_KEY, chosen.id); } catch (e) {}
-    return chosen;
+    urls.forEach(function (url) {
+      var v = document.createElement('video');
+      v.preload = 'auto';
+      v.muted = true;
+      v.src = url;
+      v.load();
+      preloadedMedia.push(v);
+    });
   }
 
-  function init() {
-    if (document.getElementById('blog-pet-root')) return;
+  function findCharacter(id) {
+    for (var i = 0; i < CHARACTERS.length; i++) {
+      if (CHARACTERS[i].id === id) return CHARACTERS[i];
+    }
+    return null;
+  }
 
-    var character = pickCharacter();
+  function createPet(container, character, opts) {
+    opts = opts || {};
     var isSprite = character.type === 'sprite';
     var isMultistate = character.type === 'multistate';
     var canMove = character.canMove !== false;
     var boxW = character.width || 36;
     var boxH = character.height || 36;
-    var scale = loadScale();
-
-    buildStyle();
+    var scale = (typeof opts.scale === 'number')
+      ? Math.min(MAX_SCALE, Math.max(MIN_SCALE, opts.scale))
+      : (window.innerWidth < 600 ? 0.8 : 1);
+    var entered = !!opts.entered;
 
     var root = document.createElement('div');
-    root.id = 'blog-pet-root';
+    root.className = 'bp-pet';
 
     var sprite = document.createElement('div');
     sprite.className = 'bp-sprite';
@@ -204,25 +271,59 @@
 
     root.appendChild(sprite);
 
-    if (media) {
-      media.play().catch(function () {});
-    }
+    var controls = document.createElement('div');
+    controls.className = 'bp-controls';
+    var btnAdd = document.createElement('div');
+    btnAdd.className = 'bp-ctrl-btn';
+    btnAdd.textContent = '+';
+    btnAdd.title = 'Add a pet you don\'t have yet';
+    var btnDel = document.createElement('div');
+    btnDel.className = 'bp-ctrl-btn';
+    btnDel.textContent = '−';
+    btnDel.title = 'Remove this pet';
+    var btnDup = document.createElement('div');
+    btnDup.className = 'bp-ctrl-btn';
+    btnDup.textContent = '⧉';
+    btnDup.title = 'Duplicate this pet';
+    controls.appendChild(btnAdd);
+    controls.appendChild(btnDel);
+    controls.appendChild(btnDup);
+    root.appendChild(controls);
 
-    // ---------- position: drop point / remembered position ----------
-    // Scale is anchored at the visual's bottom-center (transform-origin:50% 100%),
-    // so extra size grows upward and outward from that point, symmetrically only
-    // in the horizontal direction; the feet position stays fixed. Bounds must
-    // reflect the actual rendered box, not a naive boxW*scale/boxH*scale.
+    function stopBubble(e) { e.stopPropagation(); }
+    controls.addEventListener('click', stopBubble);
+    controls.addEventListener('mousedown', stopBubble);
+    controls.addEventListener('touchstart', stopBubble);
+
+    btnAdd.addEventListener('click', function (e) {
+      stopBubble(e);
+      if (!manager.addMissing()) {
+        btnAdd.classList.add('bp-ctrl-disabled');
+        setTimeout(function () { btnAdd.classList.remove('bp-ctrl-disabled'); }, 400);
+      }
+    });
+    btnDel.addEventListener('click', function (e) {
+      stopBubble(e);
+      manager.removeByUid(opts.uid);
+    });
+    btnDup.addEventListener('click', function (e) {
+      stopBubble(e);
+      manager.duplicate(opts.uid);
+    });
+
+    container.appendChild(root);
+
+    if (media) media.play().catch(function () {});
+
     function minLeftBound() { return boxW * (scale - 1) / 2; }
     function maxLeftBound() { return window.innerWidth - boxW * (scale + 1) / 2; }
     function minTopBound() { return boxH * (scale - 1); }
     function maxTopBound() { return window.innerHeight - boxH; }
 
-    var savedPos = loadPos();
     var left, top;
-    if (savedPos) {
-      left = savedPos.left;
-      top = savedPos.top;
+    if (typeof opts.left === 'number' && typeof opts.top === 'number') {
+      left = opts.left;
+      top = opts.top;
     } else {
       var bottomGap = window.innerWidth < 600 ? 70 : 24;
       var initMinLeft = minLeftBound();
@@ -247,9 +348,11 @@
 
     clampPosition();
     applyPosition();
-    document.body.appendChild(root);
 
-    // ---------- zoom: mouse wheel ----------
+    function persist() {
+      if (opts.onChange) opts.onChange();
+    }
+
     sprite.addEventListener('wheel', function (e) {
       e.preventDefault();
       var delta = e.deltaY < 0 ? SCALE_STEP : -SCALE_STEP;
@@ -258,11 +361,9 @@
       quote.style.bottom = (boxH * scale + 8) + 'px';
       clampPosition();
       applyPosition();
-      saveScale(scale);
-      savePos(left, top);
+      persist();
     }, { passive: false });
 
-    // ---------- multi-state creature behavior (e.g. exusiai: defaultX/move/interact/sleep/relax/special) ----------
     var msState = 'relax';
     var msFacingLeft = false;
     var msTimer = null;
@@ -281,7 +382,12 @@
       clearTimeout(msTimer);
       var delay = 2000 + Math.random() * 3000;
       msTimer = setTimeout(function () {
-        if (Math.random() < 0.3) msEnterSleep();
+        var options = ['move'];
+        if (character.media.sleep) options.push('sleep');
+        if (character.media.sit) options.push('sit');
+        var pick = options[Math.floor(Math.random() * options.length)];
+        if (pick === 'sleep') msEnterSleep();
+        else if (pick === 'sit') msEnterSit();
         else msEnterMove();
       }, delay);
     }
@@ -291,9 +397,9 @@
       msSetMedia(character.media.move, true);
 
       var moveSpeed = 0.5;
-      var minDurationMs = 1000; // walk one direction for at least 1s to avoid rapid flip-flopping
+      var minDurationMs = 1000;
       var maxDurationMs = 3500;
-      var estFrameMs = 16.7;    // approx per-frame time at ~60fps, used to estimate required room
+      var estFrameMs = 16.7;
       var minDist = moveSpeed * (minDurationMs / estFrameMs);
 
       var boundMinLeft = minLeftBound();
@@ -311,7 +417,6 @@
       } else if (canLeft) {
         dir = -1;
       } else {
-        // neither side has enough room for a full 1s walk (viewport too narrow); pick the larger side
         dir = roomRight >= roomLeft ? 1 : -1;
       }
 
@@ -332,7 +437,7 @@
         if (dir > 0 && left >= curMaxLeft) { left = curMaxLeft; hitWall = true; }
         applyPosition();
         if (hitWall || now - startTime >= duration) {
-          savePos(left, top);
+          persist();
           msEnterRelax();
         } else {
           moveRafId = requestAnimationFrame(step);
@@ -343,7 +448,6 @@
 
     function msEnterSleep() {
       msState = 'sleep';
-      // facing stays as it was while moving; don't touch --bp-face here
       msSetMedia(character.media.sleep, true);
       clearTimeout(msTimer);
       var duration = 6000 + Math.random() * 8000;
@@ -353,6 +457,22 @@
     function msResumeSleep() {
       msState = 'sleep';
       msSetMedia(character.media.sleep, true);
+      clearTimeout(msTimer);
+      var duration = 6000 + Math.random() * 8000;
+      msTimer = setTimeout(function () { msEnterRelax(); }, duration);
+    }
+
+    function msEnterSit() {
+      msState = 'sit';
+      msSetMedia(character.media.sit, true);
+      clearTimeout(msTimer);
+      var duration = 6000 + Math.random() * 8000;
+      msTimer = setTimeout(function () { msEnterRelax(); }, duration);
+    }
+
+    function msResumeSit() {
+      msState = 'sit';
+      msSetMedia(character.media.sit, true);
       clearTimeout(msTimer);
       var duration = 6000 + Math.random() * 8000;
       msTimer = setTimeout(function () { msEnterRelax(); }, duration);
@@ -380,7 +500,6 @@
       };
     }
 
-    // ---------- drag: mouse + touch ----------
     var dragging = false;
     var moved = false;
     var startClientX, startClientY, startLeft, startTop;
@@ -416,7 +535,7 @@
       if (!dragging) return;
       dragging = false;
       sprite.style.cursor = 'grab';
-      savePos(left, top);
+      persist();
       if (isMultistate) {
         if (msState !== 'interact' && msState !== 'special') {
           msEnterRelax();
@@ -440,11 +559,11 @@
       document.addEventListener('mouseup', onUp);
     });
 
-    // ---------- zoom: two-finger pinch (mobile) ----------
     var pinching = false;
     var pinchStartDist = 0;
     var pinchStartScale = 1;
     var touchActive = false;
+    var controlsHideTimer = null;
 
     function touchDistance(t1, t2) {
       var dx = t2.clientX - t1.clientX;
@@ -478,8 +597,7 @@
       }
       if (pinching) {
         pinching = false;
-        saveScale(scale);
-        savePos(left, top);
+        persist();
         if (!isMultistate && canMove && !reduceMotion) {
           running = true;
           rafId = requestAnimationFrame(tick);
@@ -495,6 +613,12 @@
     }
 
     sprite.addEventListener('touchstart', function (e) {
+      root.classList.add('bp-controls-visible');
+      clearTimeout(controlsHideTimer);
+      controlsHideTimer = setTimeout(function () {
+        root.classList.remove('bp-controls-visible');
+      }, 4000);
+
       if (e.touches.length >= 2) {
         dragging = false;
         pinching = true;
@@ -514,17 +638,21 @@
       }
     }, { passive: false });
 
-    // ---------- click interaction: hop / play special animation + show text ----------
+    root.addEventListener('mouseenter', function () {
+      if (manager.hasMissing()) btnAdd.classList.remove('bp-ctrl-disabled');
+      else btnAdd.classList.add('bp-ctrl-disabled');
+    });
+
     var revertTimer = null;
     var quoteTimer = null;
     sprite.addEventListener('click', function () {
       if (moved) { moved = false; return; }
 
       if (isMultistate) {
-        if (msState === 'special') return; // non-interruptible, ignore clicks
-        var wasSleep = msState === 'sleep';
+        var wasResting = (msState === 'sleep' || msState === 'sit') ? msState : null;
         function msResumeAfterClick() {
-          if (wasSleep) msResumeSleep();
+          if (wasResting === 'sleep') msResumeSleep();
+          else if (wasResting === 'sit') msResumeSit();
           else msEnterRelax();
         }
         if (character.quotes && character.quotes.length) {
@@ -536,8 +664,7 @@
             quote.classList.remove('show');
           }, 2600);
         }
-        // the player can trigger interact at any time; it has a chance to become special instead
-        if (Math.random() < 0.3) {
+        if (character.media.special && Math.random() < 0.3) {
           msPlaySpecial(msResumeAfterClick);
         } else {
           msPlayInteract(msResumeAfterClick);
@@ -574,7 +701,6 @@
       }
     });
 
-    // ---------- walking ----------
     var running = false;
     var rafId;
     var direction = Math.random() < 0.5 ? -1 : 1;
@@ -616,14 +742,16 @@
       rafId = requestAnimationFrame(tick);
     }
 
-    if (isMultistate) {
-      if (!reduceMotion) msEnterRelax();
-    } else if (!reduceMotion && canMove) {
-      running = true;
-      rafId = requestAnimationFrame(tick);
+    function startBehavior() {
+      if (isMultistate) {
+        if (!reduceMotion) msEnterRelax();
+      } else if (!reduceMotion && canMove) {
+        running = true;
+        rafId = requestAnimationFrame(tick);
+      }
     }
 
-    document.addEventListener('visibilitychange', function () {
+    function onVisibilityChange() {
       if (reduceMotion) return;
       if (isMultistate) {
         if (document.hidden) {
@@ -638,17 +766,216 @@
       running = !document.hidden && !dragging;
       if (running) rafId = requestAnimationFrame(tick);
       else cancelAnimationFrame(rafId);
-    });
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange);
 
-    window.addEventListener('resize', function () {
+    function onResize() {
       clampPosition();
       applyPosition();
-    });
+    }
+    window.addEventListener('resize', onResize);
+
+    function playEntranceThenStart() {
+      var enterSrc = isMultistate ? (character.media && character.media.start) : character.enterSrc;
+      if (!entered && enterSrc && media) {
+        msState = 'enter';
+        media.loop = false;
+        media.src = enterSrc;
+        media.load();
+        media.play().catch(function () {});
+        media.onended = function () {
+          media.onended = null;
+          entered = true;
+          persist();
+          startBehavior();
+        };
+      } else {
+        entered = true;
+        startBehavior();
+      }
+    }
+    playEntranceThenStart();
+
+    var destroyed = false;
+    function destroy() {
+      if (destroyed) return;
+      destroyed = true;
+      clearTimeout(msTimer);
+      clearTimeout(controlsHideTimer);
+      clearTimeout(revertTimer);
+      clearTimeout(quoteTimer);
+      if (moveRafId) cancelAnimationFrame(moveRafId);
+      if (rafId) cancelAnimationFrame(rafId);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+      window.removeEventListener('resize', onResize);
+      if (touchActive) {
+        document.removeEventListener('touchmove', onTouchMove);
+        document.removeEventListener('touchend', onTouchEnd);
+        document.removeEventListener('touchcancel', onTouchEnd);
+      }
+      if (root.parentNode) root.parentNode.removeChild(root);
+    }
+
+    return {
+      getState: function () { return { left: left, top: top, scale: scale }; },
+      destroy: destroy
+    };
+  }
+
+  var manager = {
+    container: null,
+    instances: [],
+    uidCounter: 1,
+
+    init: function () {
+      if (document.getElementById('blog-pet-container')) return;
+      buildStyle();
+      this.container = document.createElement('div');
+      this.container.id = 'blog-pet-container';
+      document.body.appendChild(this.container);
+
+      var saved = this.loadSaved();
+      if (saved && saved.length) {
+        if (saved.length > MAX_SAVED_PETS) saved = saved.slice(0, MAX_SAVED_PETS);
+        for (var i = 0; i < saved.length; i++) {
+          var ch = findCharacter(saved[i].charId);
+          if (!ch) continue;
+          this.spawn(ch, {
+            left: saved[i].left,
+            top: saved[i].top,
+            scale: saved[i].scale,
+            entered: true
+          });
+        }
+        if (this.instances.length === 0) {
+          this.spawnDefault();
+        } else {
+          this.save();
+        }
+      } else {
+        this.spawnDefault();
+      }
+    },
+
+    spawnDefault: function () {
+      var saved = null;
+      if (isReloadNavigation()) {
+        try { sessionStorage.removeItem(DEFAULT_SESSION_KEY); } catch (e) {}
+      } else {
+        try {
+          var raw = sessionStorage.getItem(DEFAULT_SESSION_KEY);
+          if (raw) saved = JSON.parse(raw);
+        } catch (e) {}
+      }
+      var character = (saved && findCharacter(saved.charId)) || CHARACTERS[Math.floor(Math.random() * CHARACTERS.length)];
+      var entered = !!(saved && saved.charId === character.id && saved.entered);
+      try {
+        sessionStorage.setItem(DEFAULT_SESSION_KEY, JSON.stringify({ charId: character.id, entered: true }));
+      } catch (e) {}
+      // persist:false — an untouched default pet is not written to localStorage,
+      // so every fresh load without customization still follows the sessionStorage-based
+      // "reroll on reload / keep on navigation" logic. As soon as the user drags, resizes,
+      // adds, removes, or duplicates a pet, a real save happens and it's locked in from then on.
+      this.spawn(character, { entered: entered, persist: false });
+    },
+
+    spawn: function (character, opts) {
+      opts = opts || {};
+      var self = this;
+      var uid = 'p' + (this.uidCounter++);
+      var handle = createPet(this.container, character, {
+        left: opts.left,
+        top: opts.top,
+        scale: opts.scale,
+        entered: opts.entered,
+        uid: uid,
+        onChange: function () { self.save(); }
+      });
+      this.instances.push({ uid: uid, character: character, handle: handle });
+      preloadCharacterMedia(character);
+      if (opts.persist !== false) this.save();
+      return handle;
+    },
+
+    removeByUid: function (uid) {
+      for (var i = 0; i < this.instances.length; i++) {
+        if (this.instances[i].uid === uid) {
+          this.instances[i].handle.destroy();
+          this.instances.splice(i, 1);
+          break;
+        }
+      }
+      if (this.instances.length === 0) {
+        this.spawnDefault();
+      } else {
+        this.save();
+      }
+    },
+
+    duplicate: function (uid) {
+      for (var i = 0; i < this.instances.length; i++) {
+        if (this.instances[i].uid === uid) {
+          var src = this.instances[i].handle.getState();
+          this.spawn(this.instances[i].character, {
+            left: src.left + 24,
+            top: src.top + 12,
+            scale: src.scale,
+            entered: false
+          });
+          break;
+        }
+      }
+    },
+
+    addMissing: function () {
+      var present = {};
+      for (var i = 0; i < this.instances.length; i++) present[this.instances[i].character.id] = true;
+      var missing = null;
+      for (var j = 0; j < CHARACTERS.length; j++) {
+        if (!present[CHARACTERS[j].id]) { missing = CHARACTERS[j]; break; }
+      }
+      if (!missing) return false;
+      this.spawn(missing, { entered: false });
+      return true;
+    },
+
+    hasMissing: function () {
+      var present = {};
+      for (var i = 0; i < this.instances.length; i++) present[this.instances[i].character.id] = true;
+      for (var j = 0; j < CHARACTERS.length; j++) {
+        if (!present[CHARACTERS[j].id]) return true;
+      }
+      return false;
+    },
+
+    save: function () {
+      try {
+        var list = this.instances.map(function (inst) {
+          var s = inst.handle.getState();
+          return { charId: inst.character.id, left: s.left, top: s.top, scale: s.scale };
+        });
+        localStorage.setItem(PETS_KEY, JSON.stringify(list));
+      } catch (e) {}
+    },
+
+    loadSaved: function () {
+      try {
+        var raw = localStorage.getItem(PETS_KEY);
+        if (!raw) return null;
+        var arr = JSON.parse(raw);
+        if (Array.isArray(arr)) return arr;
+      } catch (e) {}
+      return null;
+    }
+  };
+
+  function boot() {
+    manager.init();
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', boot);
   } else {
-    init();
+    boot();
   }
 })();
