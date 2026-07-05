@@ -139,6 +139,9 @@
       // 实现，不影响角色框本身的尺寸/热区，播完切回其它状态会自动还原。
       // specialFxRate：skill2的方向性特效（specialFx）放慢到这个倍速播放，
       // 见spawnSkillFx，只影响这个特效本身，不影响skill2角色动画本体的播放速度。
+      // specialFxDelay：skill2动作本身触发后，隔这么多毫秒才真正播放specialFx特效，
+      // 让特效跟角色动作的节奏对上（比如动作前摇之后才是特效该出现的时机），
+      // 见msPlaySpecial。
       id: 'recoleta',
       type: 'multistate',
       width: 112.5,
@@ -146,9 +149,10 @@
       canMove: true,
       facesLeftByDefault: true,
       fxScale: 2,
-      quoteBoost: 3,
-      special2Scale: 1.5,
+      quoteBoost: 2.1,
+      special2Scale: 1.25,
       specialFxRate: 0.8,
+      specialFxDelay: 500,
       media: {
         relax: '/img/pets/Recoletaui-idle.webm',
         move: '/img/pets/Recoletaui-walk.webm',
@@ -766,6 +770,7 @@
     // 退场动画播放期间不响应任何拖拽/点击/缩放，避免动画播到一半又被重新互动打断
     var dying = false;
     var mediaSwapTimer = null;
+    var specialFxTimer = null;
 
     // scaleFactor可选：给这次要切进来的画面临时加一个CSS transform:scale（比如某个
     // 技能播放时想让角色本体看起来更大一点），不传或传1就是正常大小。因为每次调用
@@ -972,7 +977,17 @@
       msState = 'special';
       clearTimeout(msTimer);
       if (moveRafId) cancelAnimationFrame(moveRafId);
-      if (character.media.specialFx) spawnSkillFx(character.media.specialFx);
+      if (character.media.specialFx) {
+        // specialFxDelay：不是一点进技能就立刻放特效，等这么多毫秒再放，跟角色动作
+        // 本身的节奏对上（没配就是0，跟以前一样立即播放）。用定时器延后触发，所以
+        // 要留意这段时间内角色可能被拖走/删除/切到别的状态——真正触发前重新检查一遍
+        // destroyed和msState，避免特效凭空冒出来或者操作已经销毁的DOM。
+        clearTimeout(specialFxTimer);
+        specialFxTimer = setTimeout(function () {
+          if (destroyed || msState !== 'special') return;
+          spawnSkillFx(character.media.specialFx);
+        }, character.specialFxDelay || 0);
+      }
       msSetMedia(character.media.special, false, onDone);
     }
 
@@ -1377,6 +1392,7 @@
       if (destroyed) return;
       destroyed = true;
       clearTimeout(msTimer);
+      clearTimeout(specialFxTimer);
       clearTimeout(controlsHideTimer);
       clearTimeout(revertTimer);
       clearTimeout(quoteTimer);
