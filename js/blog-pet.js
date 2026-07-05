@@ -127,10 +127,18 @@
       // 三个语言站都会显示这只宠物；目前只有中文台词（QUOTES.zh.recoleta），英文/日文
       // 台词还没配，attachQuotes()里"没配就是null"的兜底逻辑会让她在en/ja站互动时
       // 不出字幕气泡，但角色本身、动作、技能都正常，不受影响。
-      // 角色本体缩小到其他方舟角色的一半（width/height从225减到112.5），但技能特效
-      // 和头顶字幕气泡的定位都要保持原来的绝对大小/位置不跟着缩——这两处的CSS尺寸/
-      // 偏移都是按角色框的百分比算的，框缩小一半，百分比就要翻倍才能不跟着走样，
-      // 具体倍数见fxScale（等于225/112.5=2），spawnSkillFx和quoteBottom()都会用到它。
+      // 角色本体缩小到其他方舟角色的一半（width/height从225减到112.5），技能特效
+      // 的定位要保持原来的绝对大小不跟着缩——CSS尺寸是按角色框的百分比算的，框缩小
+      // 一半，百分比就要翻倍才能不跟着走样，具体倍数见fxScale（等于225/112.5=2），
+      // spawnSkillFx会用到它。
+      // quoteBoost是专门给头顶字幕气泡调的，跟fxScale分开：光把boxH按fxScale换算回
+      // 标准尺寸，字幕还是会压到头，因为Recoleta素材本身头顶留白比明日方舟那批角色少，
+      // 需要再单独往上顶一截，这个数值是估的，效果不对可以再调。
+      // special2Scale：skill3（普通互动之外触发概率更低的第二技能）播放时把角色本身
+      // 的画面额外放大这么多倍——见swapMedia的scaleFactor参数，用CSS transform:scale
+      // 实现，不影响角色框本身的尺寸/热区，播完切回其它状态会自动还原。
+      // specialFxRate：skill2的方向性特效（specialFx）放慢到这个倍速播放，
+      // 见spawnSkillFx，只影响这个特效本身，不影响skill2角色动画本体的播放速度。
       id: 'recoleta',
       type: 'multistate',
       width: 112.5,
@@ -138,6 +146,9 @@
       canMove: true,
       facesLeftByDefault: true,
       fxScale: 2,
+      quoteBoost: 3,
+      special2Scale: 1.5,
+      specialFxRate: 0.8,
       media: {
         relax: '/img/pets/Recoletaui-idle.webm',
         move: '/img/pets/Recoletaui-walk.webm',
@@ -429,7 +440,7 @@
         'transform:scale(calc(var(--bp-face,1) * var(--bp-scale,1)), var(--bp-scale,1));}',
       '.bp-media{width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;}',
       '.bp-media.bp-media-click{transform:translate(-20%,-20%) scale(1.15);}',
-      '.bp-media-buffered{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;opacity:0;transition:opacity .2s ease;}',
+      '.bp-media-buffered{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;opacity:0;transition:opacity .2s ease;transform-origin:50% 100%;}',
       '.bp-media-buffered.bp-media-active{opacity:1;}',
       '.bp-skill-fx{position:absolute;left:100%;top:-37.5%;width:175%;height:175%;object-fit:contain;pointer-events:none;}',
       '.bp-skill-fx-left{left:auto;right:100%;}',
@@ -616,12 +627,15 @@
       // 只有明日方舟这批multistate角色头顶留白比较多，才需要给字幕的涨幅打折扣；
       // jiaqiu没有这个问题，还是用原来的boxH*scale
       var quoteScale = isMultistate ? (1 + (scale - 1) * 0.4) : scale;
-      // 这个公式本来是按boxH=225这个"标准尺寸"调出来的。像Recoleta这种把boxH
-      // 主动缩小了的角色（缩小到112.5），如果还是直接乘boxH，算出来的偏移量会跟着
-      // 等比缩小；但字幕本身字号、内边距都是固定像素，不会跟着缩小，放大倍数一高就会
-      // 相对显得偏低、盖到头。这里复用fxScale（角色框"缩小前/缩小后"的倍数）把boxH
-      // 换算回标准尺寸再算偏移，跟标准角色的字幕表现保持一致。
-      var boxCompensation = character.fxScale || 1;
+      // 这个公式本来是按boxH=225这个"标准尺寸"、以及明日方舟角色素材头顶留白的比例
+      // 调出来的。像Recoleta这种把boxH主动缩小了的角色（缩小到112.5），如果还是直接
+      // 乘boxH，算出来的偏移量会跟着等比缩小；但字幕本身字号、内边距都是固定像素，
+      // 不会跟着缩小，放大倍数一高就会相对显得偏低、盖到头。这里用quoteBoost把boxH
+      // 换算回一个更合适的参考尺寸——单独给字幕定制、不跟fxScale（特效缩放用的倍数）
+      // 混用，因为Recoleta素材本身头顶留白就比明日方舟那批角色少，光把boxH换算回
+      // 标准尺寸（等于fxScale）还是不够，需要单独再调大一些。没配quoteBoost的角色
+      // 直接落回fxScale，没配fxScale的落回1，行为不变。
+      var boxCompensation = character.quoteBoost || character.fxScale || 1;
       return (boxH * boxCompensation * quoteScale + 8) + 'px';
     }
 
@@ -753,13 +767,18 @@
     var dying = false;
     var mediaSwapTimer = null;
 
-    function swapMedia(src, loop, onEnded) {
+    // scaleFactor可选：给这次要切进来的画面临时加一个CSS transform:scale（比如某个
+    // 技能播放时想让角色本体看起来更大一点），不传或传1就是正常大小。因为每次调用
+    // swapMedia都会显式设置incoming的transform（没有就清空成''），mediaA/mediaB
+    // 两个video轮流复用时不会把上一次的放大效果遗留到下一个状态上，自动就会还原。
+    function swapMedia(src, loop, onEnded, scaleFactor) {
       if (!activeMedia || !inactiveMedia) return;
       var incoming = inactiveMedia;
       var outgoing = activeMedia;
       incoming.onended = null;
       incoming.loop = !!loop;
       incoming.src = src;
+      incoming.style.transform = (scaleFactor && scaleFactor !== 1) ? ('scale(' + scaleFactor + ')') : '';
       incoming.load();
 
       var swapped = false;
@@ -792,8 +811,8 @@
       fallbackTimer = setTimeout(doSwap, 800);
     }
 
-    function msSetMedia(src, loop, onEnded) {
-      swapMedia(src, loop, onEnded);
+    function msSetMedia(src, loop, onEnded, scaleFactor) {
+      swapMedia(src, loop, onEnded, scaleFactor);
     }
 
     function msEnterRelax() {
@@ -932,6 +951,11 @@
       fx.setAttribute('muted', '');
       fx.loop = false;
       fx.src = fxSrc;
+      // specialFxRate：特效的播放速度倍率，没配就是1（正常速度）。小于1会放慢播放，
+      // 实际播完的时间也会跟着变长，所以下面的兜底清理超时要按同样的倍率放宽，
+      // 不然放慢后的特效可能还没播完就被兜底逻辑提前摘掉了。
+      var fxRate = character.specialFxRate || 1;
+      fx.playbackRate = fxRate;
       visual.appendChild(fx);
       fx.play().catch(function () {});
       var cleaned = false;
@@ -941,7 +965,7 @@
         if (fx.parentNode) fx.parentNode.removeChild(fx);
       }
       fx.onended = cleanup;
-      setTimeout(cleanup, 3000);
+      setTimeout(cleanup, 3000 / fxRate);
     }
 
     function msPlaySpecial(onDone) {
@@ -953,12 +977,14 @@
     }
 
     // 第二个技能：跟special共用"点击不能打断"的规则（同样把msState设成'special'），
-    // 但触发概率更低，也没有专属特效。
+    // 但触发概率更低，也没有专属特效。character.special2Scale可选，配了的话播放期间
+    // 会把画面整体放大这么多倍（比如Recoleta配的1.5，即150%），播完切回其它状态时
+    // swapMedia会自动把transform清空还原，不用额外收尾。
     function msPlaySpecial2(onDone) {
       msState = 'special';
       clearTimeout(msTimer);
       if (moveRafId) cancelAnimationFrame(moveRafId);
-      msSetMedia(character.media.special2, false, onDone);
+      msSetMedia(character.media.special2, false, onDone, character.special2Scale);
     }
 
     var dragging = false;
