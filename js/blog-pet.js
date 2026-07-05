@@ -150,7 +150,7 @@
       facesLeftByDefault: true,
       fxScale: 2,
       quoteBoost: 2.1,
-      special2Scale: 1.25,
+      special2Scale: 1.2,
       specialFxRate: 0.8,
       specialFxDelay: 500,
       media: {
