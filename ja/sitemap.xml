@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://jingtaogames.github.io/ja/shuoshuo/index.html</loc>
+    
+    <lastmod>2026-07-05</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://jingtaogames.github.io/ja/2026/05/31/2026MayCN/</loc>
     
     <lastmod>2026-06-25</lastmod>
@@ -21,15 +30,6 @@
   
   <url>
     <loc>https://jingtaogames.github.io/ja/about/index.html</loc>
-    
-    <lastmod>2026-05-05</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://jingtaogames.github.io/ja/shuoshuo/index.html</loc>
     
     <lastmod>2026-05-05</lastmod>
     
