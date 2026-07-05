@@ -5,7 +5,11 @@
   // 三个语言站点这份文件应该是逐字节相同的，改动只需要改一份再原样复制到
   // source-zh/source-en/source-ja三个目录。台词、按钮文案这些语言相关的内容
   // 全部收在下面的QUOTES/UI_STRINGS里，不要往CHARACTERS里塞跟语言绑定的字段。
-  var CHARACTERS = [
+  // 这里放的是"全部角色"，如果以后有某个角色只在部分语言站上线，可以给它配一个
+  // locales数组（比如locales:['zh']），下面会按当前LOCALE过滤成实际使用的
+  // CHARACTERS；没配locales的角色（目前所有角色都是这样，包括Recoleta）默认三个
+  // 语言站都会显示。
+  var ALL_CHARACTERS = [
     {
       id: 'jiaqiu',
       type: 'sprite',
@@ -28,7 +32,8 @@
         sleep: '/img/pets/Exusiai_Sleep.webm',
         interact: '/img/pets/Exusiai_Interact.webm',
         special: '/img/pets/Exusiai_Special.webm',
-        start: '/img/pets/Exusiai_Start.webm'
+        start: '/img/pets/Exusiai_Start.webm',
+        die: '/img/pets/Exusiai_Die.webm'
       }
     },
     {
@@ -43,7 +48,8 @@
         sit: '/img/pets/Heavyrain_Sit.webm',
         sleep: '/img/pets/Heavyrain_Sleep.webm',
         interact: '/img/pets/Heavyrain_Interact.webm',
-        start: '/img/pets/Heavyrain_Start.webm'
+        start: '/img/pets/Heavyrain_Start.webm',
+        die: '/img/pets/Heavyrain_Die.webm'
       }
     },
     {
@@ -59,7 +65,8 @@
         sleep: '/img/pets/Irene_Sleep.webm',
         interact: '/img/pets/Irene_Interact.webm',
         special: '/img/pets/Irene_Special.webm',
-        start: '/img/pets/Irene_Start.webm'
+        start: '/img/pets/Irene_Start.webm',
+        die: '/img/pets/Irene_Die.webm'
       }
     },
     {
@@ -74,7 +81,8 @@
         sit: "/img/pets/Kal'tsit_Sit.webm",
         sleep: "/img/pets/Kal'tsit_Sleep.webm",
         interact: "/img/pets/Kal'tsit_Interact.webm",
-        start: "/img/pets/Kal'tsit_Start.webm"
+        start: "/img/pets/Kal'tsit_Start.webm",
+        die: "/img/pets/Kal'tsit_Die.webm"
       }
     },
     {
@@ -88,7 +96,8 @@
         move: '/img/pets/Lancet-2_Move.webm',
         interact: '/img/pets/Lancet-2_Interact.webm',
         special: '/img/pets/Lancet-2_Special.webm',
-        start: '/img/pets/Lancet-2_Start.webm'
+        start: '/img/pets/Lancet-2_Start.webm',
+        die: '/img/pets/Lancet-2_Die.webm'
       }
     },
     {
@@ -104,7 +113,41 @@
         sleep: "/img/pets/Wis'del_Sleep.webm",
         interact: "/img/pets/Wis'del_Interact.webm",
         special: "/img/pets/Wis'del_Special.webm",
-        start: "/img/pets/Wis'del_Start.webm"
+        start: "/img/pets/Wis'del_Start.webm",
+        die: "/img/pets/Wis'del_Die.webm"
+      }
+    },
+    {
+      // Recoleta没有sit素材，relax后只会在move/sleep之间随机，逻辑本身已经支持这种缺省。
+      // die是退场动画：删除/被清空时会先播这个再真正消失，见createPet里的requestRemove。
+      // special是skill2，带一个方向性特效specialFx（打在角色当前朝向的那一侧，会自动
+      // 跟着--bp-face镜像，不用单独判断朝向）；special2是skill3，触发概率更低、没有特效。
+      // facesLeftByDefault：Recoleta素材本身画的就是朝左的姿势（跟其他角色素材默认朝右
+      // 相反），setFacing()里会按这个标记把镜像方向反过来，不然移动和放技能会一直朝反方向。
+      // 三个语言站都会显示这只宠物；目前只有中文台词（QUOTES.zh.recoleta），英文/日文
+      // 台词还没配，attachQuotes()里"没配就是null"的兜底逻辑会让她在en/ja站互动时
+      // 不出字幕气泡，但角色本身、动作、技能都正常，不受影响。
+      // 角色本体缩小到其他方舟角色的一半（width/height从225减到112.5），但技能特效
+      // 要保持原来的绝对大小不跟着缩——specialFx的CSS尺寸是按角色框的百分比算的，
+      // 框缩小一半，百分比就要翻倍才能让特效实际像素大小不变，具体倍数见
+      // spawnSkillFx里的fxScale（等于225/112.5=2）。
+      id: 'recoleta',
+      type: 'multistate',
+      width: 112.5,
+      height: 112.5,
+      canMove: true,
+      facesLeftByDefault: true,
+      fxScale: 2,
+      media: {
+        relax: '/img/pets/Recoletaui-idle.webm',
+        move: '/img/pets/Recoletaui-walk.webm',
+        sleep: '/img/pets/Recoletaui-sleep.webm',
+        start: '/img/pets/Recoletaui-born.webm',
+        die: '/img/pets/Recoletafight-die.webm',
+        interact: '/img/pets/Recoletaroom-interact.webm',
+        special: '/img/pets/Recoletafight-skill2.webm',
+        specialFx: '/img/pets/Recoletafight-skill2_1.webm',
+        special2: '/img/pets/Recoletafight-skill3.webm'
       }
     }
   ];
@@ -158,7 +201,26 @@
         '喜欢我指甲的颜色嘛，猜猜看是用什么染的？',
         '又看到你这张脸了呢，博士，真是个好的开始。',
         '终于活腻味了？'
-      ]
+      ],
+      // Recoleta的台词按点击结果分了三档：general是普通互动，special对应skill2
+      // （释放神秘术Ⅰ），special2对应skill3（释放神秘术Ⅱ）。另外还有一句"召唤至终的
+      // 仪式/在一往无前的狂热里"暂时没放进任何一档——它看起来是究极技的台词，
+      // 目前没做第三个技能，先不擅自归类，等确认后再加。
+      recoleta: {
+        general: [
+          '好极了，一场光荣、愚蠢、激动人心的即兴创作！',
+          '很明显——这是发生在黑白格子间的常见隐喻！',
+          '由巧合与一瞬灵光构成的天才隐喻！我该围绕这个巨大的对局写一个故事，然后投给出版社……'
+        ],
+        special: [
+          '向你与我的窘迫效忠。',
+          '以真实和荒诞之名决斗！'
+        ],
+        special2: [
+          '从此听任美德差遣。',
+          '他人的嘲笑为我授勋！'
+        ]
+      }
     },
     en: {
       jiaqiu: ['The Lord of Hongyuan marches to war.', 'I will not pretend ignorance before understanding.', 'Pretense of understanding may not have been a wise decision.'],
@@ -198,7 +260,22 @@
         'Do you like my nails? Guess what I used to paint them.',
         "Oh joy, there's your face again, Doctor. What a great start for the day.",
         'Finally ready to die?'
-      ]
+      ],
+      recoleta: {
+        general: [
+          'Bravo! A gloriously silly and thrilling act of improvisation!',
+          'Oh, I see it clear as day—a metaphor seamlessly woven into the check!',
+          'Ah, what a victory! And what a metaphor! I have to put quill to paper and send this off to the publishers ...'
+        ],
+        special: [
+          'I pledge my loyalty—to you and my folly.',
+          'Duel lunacy with a dream in your heart!'
+        ],
+        special2: [
+          'Henceforth, virtue alone shall be my guide.',
+          'If laughter is their weapon, then let them strike!'
+        ]
+      }
     },
     ja: {
       jiaqiu: ['君主自ら出ようじゃないか。', '知っていることに知らぬ振りは出来ないからな。', '知らぬことを知っていると言ってはならなかったか。'],
@@ -246,7 +323,22 @@
         'あたしのネイルの色が好きかしら？何で染めてるか当ててみたら？',
         'またあんたの顔を拝めたわね、ドクター。まったく、幸先がいいわ。',
         'そんなに死にたいの？'
-      ]
+      ],
+      recoleta: {
+        general: [
+          '素晴らしい！　誇らしくて愚かな、胸が高鳴る即興創作だ！',
+          'わかりきってる──これは白と黒のマスによく見られる隠喩メタファーだよ！',
+          '偶然と一瞬のひらめきから構成される天才的な隠喩メタファーだね！この壮大な対決を題材に一編書いて、出版社に投稿しよう…'
+        ],
+        special: [
+          'あなたとわたしの苦境に忠誠を誓い。',
+          '真実と滑稽の名のもとに決闘を！'
+        ],
+        special2: [
+          'これより美徳の命ずるままに。',
+          '他者の嘲笑を己の功勲に替え！'
+        ]
+      }
     }
   };
 
@@ -284,13 +376,31 @@
   var LOCALE = detectLocale();
   var STR = UI_STRINGS[LOCALE] || UI_STRINGS.zh;
 
+  // 按当前语言过滤出这个站点实际可用的角色列表。没配locales的角色（绝大部分）
+  // 三个语言站都会出现；配了locales的角色（目前只有Recoleta）只在列出的语言站生效——
+  // 不会被随机抽为默认宠物、"+"按钮加不出来，findCharacter也找不到它。
+  var CHARACTERS = ALL_CHARACTERS.filter(function (c) {
+    return !c.locales || c.locales.indexOf(LOCALE) > -1;
+  });
+
   // 把当前语言对应的台词表塞回CHARACTERS上。找不到台词的角色（比如英文站还没配
   // 台词的凯尔希）拿到的是null，后面所有用到character.quotes的地方本来就有
   // "没有就跳过"的判断，不需要额外处理。
+  // 台词表里每个角色可以是两种形状：
+  //   1) 纯数组——老格式，不管点击后触发的是普通互动还是技能，都从这一个池子里抽。
+  //   2) {general, special, special2}——新格式，按点击结果分开抽，没配的档位会自动
+  //      落回general（见handleHitClick里的pickQuotePool）。
   (function attachQuotes() {
     var table = QUOTES[LOCALE] || QUOTES.zh;
     for (var i = 0; i < CHARACTERS.length; i++) {
-      CHARACTERS[i].quotes = table[CHARACTERS[i].id] || null;
+      var entry = table[CHARACTERS[i].id] || null;
+      if (entry && !Array.isArray(entry)) {
+        CHARACTERS[i].quotes = entry.general || null;
+        CHARACTERS[i].specialQuotes = entry.special || null;
+        CHARACTERS[i].special2Quotes = entry.special2 || null;
+      } else {
+        CHARACTERS[i].quotes = entry;
+      }
     }
   })();
 
@@ -321,6 +431,8 @@
       '.bp-media.bp-media-click{transform:translate(-20%,-20%) scale(1.15);}',
       '.bp-media-buffered{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;opacity:0;transition:opacity .2s ease;}',
       '.bp-media-buffered.bp-media-active{opacity:1;}',
+      '.bp-skill-fx{position:absolute;left:100%;top:-50%;width:200%;height:200%;object-fit:contain;pointer-events:none;}',
+      '.bp-skill-fx-left{left:auto;right:100%;}',
       '.bp-quote{position:absolute;left:50%;transform:translate(calc(-50% - 16px),0);background:radial-gradient(ellipse at center, rgba(0,0,0,.82) 0%, rgba(0,0,0,.55) 65%, rgba(0,0,0,0) 100%);color:#fff;font-size:12px;font-weight:600;line-height:1.4;padding:8px 22px;border-radius:999px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s;}',
       '.bp-quote.show{opacity:1;}',
       '.bp-controls{position:absolute;left:50%;top:100%;transform:translateX(-50%);display:flex;gap:6px;padding-top:10px;opacity:0;pointer-events:none;transition:opacity .15s;}',
@@ -617,6 +729,7 @@
 
     hitTarget.addEventListener('wheel', function (e) {
       e.preventDefault();
+      if (dying) return;
       var delta = e.deltaY < 0 ? SCALE_STEP : -SCALE_STEP;
       scale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, Math.round((scale + delta) * 100) / 100));
       visual.style.setProperty('--bp-scale', scale);
@@ -630,6 +743,8 @@
     var msFacingLeft = false;
     var msTimer = null;
     var moveRafId = null;
+    // 退场动画播放期间不响应任何拖拽/点击/缩放，避免动画播到一半又被重新互动打断
+    var dying = false;
     var mediaSwapTimer = null;
 
     function swapMedia(src, loop, onEnded) {
@@ -784,11 +899,58 @@
       msSetMedia(character.media.interact, false, onDone);
     }
 
+    // 技能特效：贴在visual下面，摆在角色"未镜像时朝向的那一侧"，角色转向时靠visual
+    // 自带的--bp-face镜像整体带过去，不用在这里单独判断当前朝向。
+    // 但"未镜像时朝向哪一侧"跟角色素材本身的默认朝向有关：普通角色素材默认朝右，
+    // 所以特效默认锚在右侧（.bp-skill-fx的left:100%）；Recoleta这类facesLeftByDefault
+    // 的角色素材默认朝左，特效就需要用.bp-skill-fx-left锚在左侧，不然镜像后方向会反。
+    // 特效素材本身没有循环，播完/兜底超时就把这个临时video元素摘掉。
+    function spawnSkillFx(fxSrc) {
+      var fx = document.createElement('video');
+      fx.className = 'bp-skill-fx' + (character.facesLeftByDefault ? ' bp-skill-fx-left' : '');
+      // fxScale：特效的CSS尺寸是相对角色框的百分比，角色框如果被特意缩小了（比如
+      // Recoleta缩到了一半），特效会跟着等比缩小。fxScale用来抵消这个效果，让特效
+      // 保持它"设计时"的绝对大小，不随角色框缩放走样。数值等于"角色框缩小前/缩小后"
+      // 的倍数，没配就是1（不用特殊处理，直接吃CSS里.bp-skill-fx的默认200%/-50%）。
+      var fxScale = character.fxScale || 1;
+      if (fxScale !== 1) {
+        fx.style.width = (200 * fxScale) + '%';
+        fx.style.height = (200 * fxScale) + '%';
+        fx.style.top = (50 - 100 * fxScale) + '%';
+      }
+      fx.muted = true;
+      fx.playsInline = true;
+      fx.setAttribute('playsinline', '');
+      fx.setAttribute('muted', '');
+      fx.loop = false;
+      fx.src = fxSrc;
+      visual.appendChild(fx);
+      fx.play().catch(function () {});
+      var cleaned = false;
+      function cleanup() {
+        if (cleaned) return;
+        cleaned = true;
+        if (fx.parentNode) fx.parentNode.removeChild(fx);
+      }
+      fx.onended = cleanup;
+      setTimeout(cleanup, 3000);
+    }
+
     function msPlaySpecial(onDone) {
       msState = 'special';
       clearTimeout(msTimer);
       if (moveRafId) cancelAnimationFrame(moveRafId);
+      if (character.media.specialFx) spawnSkillFx(character.media.specialFx);
       msSetMedia(character.media.special, false, onDone);
+    }
+
+    // 第二个技能：跟special共用"点击不能打断"的规则（同样把msState设成'special'），
+    // 但触发概率更低，也没有专属特效。
+    function msPlaySpecial2(onDone) {
+      msState = 'special';
+      clearTimeout(msTimer);
+      if (moveRafId) cancelAnimationFrame(moveRafId);
+      msSetMedia(character.media.special2, false, onDone);
     }
 
     var dragging = false;
@@ -841,6 +1003,7 @@
     // 判断规则见manager里的"离热区中心最近的那只"逻辑），这里只负责真正开始拖拽之后
     // 的处理，manager找到目标后会调用这个函数。
     function handleHitMouseDown(e) {
+      if (dying) return;
       e.preventDefault();
       dragStart(e.clientX, e.clientY);
       function onMove(ev) { dragMove(ev.clientX, ev.clientY); }
@@ -917,6 +1080,7 @@
 
     // 同样交给manager统一判断由哪只pet响应，这里只负责实际的触摸开始逻辑
     function handleHitTouchStart(e) {
+      if (dying) return;
       if (!touchActive) didPinch = false; // 新的一轮触摸手势开始，重置标记
       root.classList.add('bp-controls-visible');
       clearTimeout(controlsHideTimer);
@@ -977,6 +1141,7 @@
     }
     // 同样交给manager统一判断由哪只pet响应
     function handleHitClick() {
+      if (dying) return;
       if (moved) { moved = false; return; }
 
       if (isMultistate) {
@@ -988,8 +1153,24 @@
           else if (wasResting === 'sit') msResumeSit();
           else msEnterRelax();
         }
-        if (character.quotes && character.quotes.length) {
-          var msLine = pickQuote(character.quotes);
+        // 先判小概率的第二技能，没抽中再判第一技能，都没抽中就是普通互动。
+        // 两次独立判定，概率是估的，之后可以再调。先定下这次点击的结果，再根据结果
+        // 挑对应的台词池——这样像Recoleta这种配了技能专属台词的角色，放技能时喊的
+        // 就是技能台词而不是随便一句日常互动词。
+        var outcome = 'interact';
+        if (character.media.special2 && Math.random() < 0.08) {
+          outcome = 'special2';
+        } else if (character.media.special && Math.random() < 0.3) {
+          outcome = 'special';
+        }
+        var quotePool = character.quotes;
+        if (outcome === 'special' && character.specialQuotes && character.specialQuotes.length) {
+          quotePool = character.specialQuotes;
+        } else if (outcome === 'special2' && character.special2Quotes && character.special2Quotes.length) {
+          quotePool = character.special2Quotes;
+        }
+        if (quotePool && quotePool.length) {
+          var msLine = pickQuote(quotePool);
           quote.textContent = msLine;
           quote.classList.add('show');
           clearTimeout(quoteTimer);
@@ -997,7 +1178,9 @@
             quote.classList.remove('show');
           }, 2600);
         }
-        if (character.media.special && Math.random() < 0.3) {
+        if (outcome === 'special2') {
+          msPlaySpecial2(msResumeAfterClick);
+        } else if (outcome === 'special') {
           msPlaySpecial(msResumeAfterClick);
         } else {
           msPlayInteract(msResumeAfterClick);
@@ -1042,8 +1225,12 @@
     var speed = 0.6;
     var pauseUntil = 0;
 
+    // faceLeft表示"这次希望角色视觉上朝左"。默认素材是朝右的，所以朝左需要镜像（-1）；
+    // 但Recoleta这类facesLeftByDefault的角色素材本身就画的朝左，这时候反而是"朝右"才
+    // 需要镜像，直接把faceLeft取反再套用同一套逻辑即可。
     function setFacing(faceLeft) {
-      visual.style.setProperty('--bp-face', faceLeft ? -1 : 1);
+      var needMirror = character.facesLeftByDefault ? !faceLeft : faceLeft;
+      visual.style.setProperty('--bp-face', needMirror ? -1 : 1);
     }
     if (!isMultistate) setFacing(canMove && direction < 0);
 
@@ -1082,314 +1269,4 @@
         if (!reduceMotion) msEnterRelax();
       } else if (!reduceMotion && canMove) {
         running = true;
-        rafId = requestAnimationFrame(tick);
-      }
-    }
-
-    function onVisibilityChange() {
-      if (reduceMotion) return;
-      if (isMultistate) {
-        if (document.hidden) {
-          clearTimeout(msTimer);
-          if (moveRafId) cancelAnimationFrame(moveRafId);
-        } else if (!dragging && msState !== 'interact' && msState !== 'special') {
-          msEnterRelax();
-        }
-        return;
-      }
-      if (!canMove) return;
-      running = !document.hidden && !dragging;
-      if (running) rafId = requestAnimationFrame(tick);
-      else cancelAnimationFrame(rafId);
-    }
-    document.addEventListener('visibilitychange', onVisibilityChange);
-
-    function onResize() {
-      clampPosition();
-      applyPosition();
-    }
-    window.addEventListener('resize', onResize);
-
-    function playEntranceThenStart() {
-      if (isMultistate) {
-        var enterSrc = character.media && character.media.start;
-        if (!entered && enterSrc && media) {
-          msState = 'enter';
-          swapMedia(enterSrc, false, function () {
-            entered = true;
-            persist();
-            startBehavior();
-          });
-        } else {
-          entered = true;
-          if (media) {
-            // 两个video刚创建时都还没有素材，这里把常态画面摆上去，
-            // 双缓冲本身就能兜住这次"从无到有"的展示
-            swapMedia(character.media.relax, true, null);
-          }
-          startBehavior();
-        }
-        return;
-      }
-      // sprite角色（比如jiaqiu）不用双缓冲，跟原来一样直接处理
-      var spriteEnterSrc = character.enterSrc;
-      if (!entered && spriteEnterSrc && media) {
-        media.loop = false;
-        media.src = spriteEnterSrc;
-        media.load();
-        media.play().catch(function () {});
-        media.onended = function () {
-          media.onended = null;
-          entered = true;
-          persist();
-          startBehavior();
-        };
-      } else {
-        entered = true;
-        startBehavior();
-      }
-    }
-    playEntranceThenStart();
-
-    var destroyed = false;
-    function destroy() {
-      if (destroyed) return;
-      destroyed = true;
-      clearTimeout(msTimer);
-      clearTimeout(controlsHideTimer);
-      clearTimeout(revertTimer);
-      clearTimeout(quoteTimer);
-      clearTimeout(mediaSwapTimer);
-      if (moveRafId) cancelAnimationFrame(moveRafId);
-      if (rafId) cancelAnimationFrame(rafId);
-      document.removeEventListener('visibilitychange', onVisibilityChange);
-      window.removeEventListener('resize', onResize);
-      if (touchActive) {
-        document.removeEventListener('touchmove', onTouchMove);
-        document.removeEventListener('touchend', onTouchEnd);
-        document.removeEventListener('touchcancel', onTouchEnd);
-      }
-      if (root.parentNode) root.parentNode.removeChild(root);
-    }
-
-    return {
-      getState: function () { return { left: left, top: top, scale: scale }; },
-      destroy: destroy,
-      // 下面几个是给manager统一做"重叠时选离热区中心最近的那只"判断用的
-      hitRect: function () { return hitTarget.getBoundingClientRect(); },
-      hitMouseDown: handleHitMouseDown,
-      hitTouchStart: handleHitTouchStart,
-      hitClick: handleHitClick
-    };
-  }
-
-  var manager = {
-    container: null,
-    instances: [],
-    uidCounter: 1,
-
-    init: function () {
-      if (document.getElementById('blog-pet-container')) return;
-      buildStyle();
-      this.container = document.createElement('div');
-      this.container.id = 'blog-pet-container';
-      document.body.appendChild(this.container);
-      this.setupHitDispatch();
-
-      var saved = this.loadSaved();
-      if (saved && saved.length) {
-        if (saved.length > MAX_SAVED_PETS) saved = saved.slice(0, MAX_SAVED_PETS);
-        for (var i = 0; i < saved.length; i++) {
-          var ch = findCharacter(saved[i].charId);
-          if (!ch) continue;
-          this.spawn(ch, {
-            left: saved[i].left,
-            top: saved[i].top,
-            scale: saved[i].scale,
-            entered: true
-          });
-        }
-        if (this.instances.length === 0) {
-          this.spawnDefault();
-        } else {
-          this.save();
-        }
-      } else {
-        this.spawnDefault();
-      }
-    },
-
-    // pet多了容易叠在一起，鼠标/触摸按下的时候具体算按到了哪一只，统一在这里判断：
-    // 只看热区确实包含了这个坐标点的那些pet，在它们里面选热区中心离落点最近的一个。
-    // 这样不管DOM层叠顺序（谁盖着谁）是什么样，永远是"离得最近的那只"响应，而不是
-    // "占了这个位置最上面的那只"。
-    findClosestInstance: function (x, y) {
-      var best = null;
-      var bestDist = Infinity;
-      for (var i = 0; i < this.instances.length; i++) {
-        var handle = this.instances[i].handle;
-        if (!handle.hitRect) continue;
-        var r = handle.hitRect();
-        if (x < r.left || x > r.right || y < r.top || y > r.bottom) continue;
-        var cx = r.left + r.width / 2;
-        var cy = r.top + r.height / 2;
-        var dx = x - cx;
-        var dy = y - cy;
-        var dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < bestDist) {
-          bestDist = dist;
-          best = this.instances[i];
-        }
-      }
-      return best;
-    },
-
-    setupHitDispatch: function () {
-      var self = this;
-      this.container.addEventListener('mousedown', function (e) {
-        var winner = self.findClosestInstance(e.clientX, e.clientY);
-        if (winner && winner.handle.hitMouseDown) winner.handle.hitMouseDown(e);
-      });
-      this.container.addEventListener('touchstart', function (e) {
-        if (!e.touches || !e.touches.length) return;
-        var t = e.touches[0];
-        var winner = self.findClosestInstance(t.clientX, t.clientY);
-        if (winner && winner.handle.hitTouchStart) winner.handle.hitTouchStart(e);
-      }, { passive: false });
-    },
-
-    spawnDefault: function () {
-      var saved = null;
-      if (isReloadNavigation()) {
-        try { sessionStorage.removeItem(DEFAULT_SESSION_KEY); } catch (e) {}
-      } else {
-        try {
-          var raw = sessionStorage.getItem(DEFAULT_SESSION_KEY);
-          if (raw) saved = JSON.parse(raw);
-        } catch (e) {}
-      }
-      var character = (saved && findCharacter(saved.charId)) || CHARACTERS[Math.floor(Math.random() * CHARACTERS.length)];
-      var entered = !!(saved && saved.charId === character.id && saved.entered);
-      try {
-        sessionStorage.setItem(DEFAULT_SESSION_KEY, JSON.stringify({ charId: character.id, entered: true }));
-      } catch (e) {}
-      // persist:false —— 还没被用户碰过的默认宠物不写入localStorage，
-      // 这样每次没有自定义配置时都会走sessionStorage的"刷新重随机/跳转保持"逻辑；
-      // 一旦用户拖动/缩放/加减/复制过，会通过onChange或spawn的正常持久化落盘，
-      // 之后就固定下来，刷新也不会再变。
-      this.spawn(character, { entered: entered, persist: false });
-    },
-
-    spawn: function (character, opts) {
-      opts = opts || {};
-      var self = this;
-      var uid = 'p' + (this.uidCounter++);
-      var handle = createPet(this.container, character, {
-        left: opts.left,
-        top: opts.top,
-        scale: opts.scale,
-        entered: opts.entered,
-        uid: uid,
-        onChange: function () { self.save(); }
-      });
-      this.instances.push({ uid: uid, character: character, handle: handle });
-      preloadCharacterMedia(character);
-      if (opts.persist !== false) this.save();
-      return handle;
-    },
-
-    removeByUid: function (uid) {
-      for (var i = 0; i < this.instances.length; i++) {
-        if (this.instances[i].uid === uid) {
-          this.instances[i].handle.destroy();
-          this.instances.splice(i, 1);
-          break;
-        }
-      }
-      if (this.instances.length === 0) {
-        this.spawnDefault();
-      } else {
-        this.save();
-      }
-    },
-
-    removeAllExcept: function (uid) {
-      for (var i = this.instances.length - 1; i >= 0; i--) {
-        if (this.instances[i].uid !== uid) {
-          this.instances[i].handle.destroy();
-          this.instances.splice(i, 1);
-        }
-      }
-      this.save();
-    },
-
-    duplicate: function (uid) {
-      for (var i = 0; i < this.instances.length; i++) {
-        if (this.instances[i].uid === uid) {
-          var src = this.instances[i].handle.getState();
-          // 只在横向上随机落点：左右随机挑一边，距离300~700px，纵坐标跟原来的一样
-          var dir = Math.random() < 0.5 ? -1 : 1;
-          var dist = 300 + Math.random() * 400;
-          this.spawn(this.instances[i].character, {
-            left: src.left + dir * dist,
-            top: src.top,
-            scale: src.scale,
-            entered: false
-          });
-          break;
-        }
-      }
-    },
-
-    addMissing: function () {
-      var present = {};
-      for (var i = 0; i < this.instances.length; i++) present[this.instances[i].character.id] = true;
-      var missing = null;
-      for (var j = 0; j < CHARACTERS.length; j++) {
-        if (!present[CHARACTERS[j].id]) { missing = CHARACTERS[j]; break; }
-      }
-      if (!missing) return false;
-      this.spawn(missing, { entered: false });
-      return true;
-    },
-
-    hasMissing: function () {
-      var present = {};
-      for (var i = 0; i < this.instances.length; i++) present[this.instances[i].character.id] = true;
-      for (var j = 0; j < CHARACTERS.length; j++) {
-        if (!present[CHARACTERS[j].id]) return true;
-      }
-      return false;
-    },
-
-    save: function () {
-      try {
-        var list = this.instances.map(function (inst) {
-          var s = inst.handle.getState();
-          return { charId: inst.character.id, left: s.left, top: s.top, scale: s.scale };
-        });
-        localStorage.setItem(PETS_KEY, JSON.stringify(list));
-      } catch (e) {}
-    },
-
-    loadSaved: function () {
-      try {
-        var raw = localStorage.getItem(PETS_KEY);
-        if (!raw) return null;
-        var arr = JSON.parse(raw);
-        if (Array.isArray(arr)) return arr;
-      } catch (e) {}
-      return null;
-    }
-  };
-
-  function boot() {
-    manager.init();
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot);
-  } else {
-    boot();
-  }
-})();
+     
