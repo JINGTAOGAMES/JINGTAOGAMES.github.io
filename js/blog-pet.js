@@ -1,6 +1,10 @@
 (function () {
   'use strict';
 
+  // ===== 角色定义：跟语言无关的引擎数据（素材路径、体型、能不能动这些）=====
+  // 三个语言站点这份文件应该是逐字节相同的，改动只需要改一份再原样复制到
+  // source-zh/source-en/source-ja三个目录。台词、按钮文案这些语言相关的内容
+  // 全部收在下面的QUOTES/UI_STRINGS里，不要往CHARACTERS里塞跟语言绑定的字段。
   var CHARACTERS = [
     {
       id: 'jiaqiu',
@@ -9,8 +13,7 @@
       clickSrc: '/img/pets/jiaqiu-click.webm',
       width: 110,
       height: 100,
-      canMove: false,
-      quotes: ['君主御驾亲征。', '勿以知之为不知。', '勿以不知为知之，是知也。']
+      canMove: false
     },
     {
       id: 'exusiai',
@@ -26,14 +29,7 @@
         interact: '/img/pets/Exusiai_Interact.webm',
         special: '/img/pets/Exusiai_Special.webm',
         start: '/img/pets/Exusiai_Start.webm'
-      },
-      quotes: [
-        '主啊，希望你能让老板做个长长的美梦，希望那个美梦......终有一日能成真。',
-        '我再确认下，美好人世间和地狱全景房，你到底想选哪一个啊？',
-        '正宗天意！',
-        '叉烧苹果派！',
-        '一天一苹果，一周七苹果！'
-      ]
+      }
     },
     {
       id: 'heavyrain',
@@ -48,14 +44,7 @@
         sleep: '/img/pets/Heavyrain_Sleep.webm',
         interact: '/img/pets/Heavyrain_Interact.webm',
         start: '/img/pets/Heavyrain_Start.webm'
-      },
-      quotes: [
-        '嗯，我来保护博士。',
-        '遵命。',
-        '......我会尽力。',
-        '我在。',
-        '欸欸？！'
-      ]
+      }
     },
     {
       id: 'irene',
@@ -71,16 +60,7 @@
         interact: '/img/pets/Irene_Interact.webm',
         special: '/img/pets/Irene_Special.webm',
         start: '/img/pets/Irene_Start.webm'
-      },
-      quotes: [
-        '跟着我的灯光走，小心潮水和海雾。',
-        '看到我的灯了吗？我在这里。',
-        '我的灯将净化邪恶！',
-        '我的剑将劈开海潮！',
-        '我的眼将找出真相！',
-        '我的心会作出判决。',
-        '恐鱼？！哦，是你啊。'
-      ]
+      }
     },
     {
       id: 'kaltsit',
@@ -95,15 +75,7 @@
         sleep: "/img/pets/Kal'tsit_Sleep.webm",
         interact: "/img/pets/Kal'tsit_Interact.webm",
         start: "/img/pets/Kal'tsit_Start.webm"
-      },
-      quotes: [
-        '所幸......这并不是另一个梦。',
-        '没有问题。',
-        '我相信你。',
-        '也许我们能够看到那个属于所有人的未来。',
-        '不必频繁确认我的状态，这副躯体与常人无异。',
-        '如果你的确很在意的话，我现在很好。'
-      ]
+      }
     },
     {
       id: 'lancet2',
@@ -117,13 +89,7 @@
         interact: '/img/pets/Lancet-2_Interact.webm',
         special: '/img/pets/Lancet-2_Special.webm',
         start: '/img/pets/Lancet-2_Start.webm'
-      },
-      quotes: [
-        '感觉什么地方不舒服？请让我来帮你看一看吧。',
-        '嗨，你好，博士。你在期待我能对你多说些什么，但我不能，毕竟我只是一台医疗机器人......',
-        '医疗设备消毒，ok。电力，ok。随时可以出发。',
-        '啊啊啊......'
-      ]
+      }
     },
     {
       id: 'wisdel',
@@ -139,8 +105,53 @@
         interact: "/img/pets/Wis'del_Interact.webm",
         special: "/img/pets/Wis'del_Special.webm",
         start: "/img/pets/Wis'del_Start.webm"
-      },
-      quotes: [
+      }
+    }
+  ];
+
+  // ===== 各角色的台词，按语言分组。缺了某个角色的key就代表那个语言暂时没有台词
+  // （比如英文站的凯尔希），点击时会自动跳过冒泡，不会报错。=====
+  var QUOTES = {
+    zh: {
+      jiaqiu: ['君主御驾亲征。', '勿以知之为不知。', '勿以不知为知之，是知也。'],
+      exusiai: [
+        '主啊，希望你能让老板做个长长的美梦，希望那个美梦......终有一日能成真。',
+        '我再确认下，美好人世间和地狱全景房，你到底想选哪一个啊？',
+        '正宗天意！',
+        '叉烧苹果派！',
+        '一天一苹果，一周七苹果！'
+      ],
+      heavyrain: [
+        '嗯，我来保护博士。',
+        '遵命。',
+        '......我会尽力。',
+        '我在。',
+        '欸欸？！'
+      ],
+      irene: [
+        '跟着我的灯光走，小心潮水和海雾。',
+        '看到我的灯了吗？我在这里。',
+        '我的灯将净化邪恶！',
+        '我的剑将劈开海潮！',
+        '我的眼将找出真相！',
+        '我的心会作出判决。',
+        '恐鱼？！哦，是你啊。'
+      ],
+      kaltsit: [
+        '所幸......这并不是另一个梦。',
+        '没有问题。',
+        '我相信你。',
+        '也许我们能够看到那个属于所有人的未来。',
+        '不必频繁确认我的状态，这副躯体与常人无异。',
+        '如果你的确很在意的话，我现在很好。'
+      ],
+      lancet2: [
+        '感觉什么地方不舒服？请让我来帮你看一看吧。',
+        '嗨，你好，博士。你在期待我能对你多说些什么，但我不能，毕竟我只是一台医疗机器人......',
+        '医疗设备消毒，ok。电力，ok。随时可以出发。',
+        '啊啊啊......'
+      ],
+      wisdel: [
         '美好的日子真是怎么过都过不完啊。',
         '今天又轮到谁粉身碎骨了呢？',
         '砰！是谁告诉你，我每次都会倒数的？',
@@ -148,8 +159,140 @@
         '又看到你这张脸了呢，博士，真是个好的开始。',
         '终于活腻味了？'
       ]
+    },
+    en: {
+      jiaqiu: ['The Lord of Hongyuan marches to war.', 'I will not pretend ignorance before understanding.', 'Pretense of understanding may not have been a wise decision.'],
+      exusiai: [
+        'Lord, please bless the Leader with a long and wonderful dream, and let that dream... come true some day.',
+        'Real estate question: this wonderful realm or a panoramic view of hell—which did you want again?',
+        'Divine judgment, traditional!',
+        'Apple pie, with char siu!',
+        'An apple a day means seven apples a week, yay!'
+      ],
+      heavyrain: [
+        "Yes, I'll protect the Doctor.",
+        'By your command.',
+        "I'll do my best.",
+        "I'm here.",
+        'Ehhh?!'
+      ],
+      irene: [
+        'Follow my light. Watch out for the tides and mist.',
+        "See the light of my lantern? I'm right here.",
+        'My light will purge the vice!',
+        'My blade will cleave the tides!',
+        'My eyes will find the truth!',
+        'My heart will be the judge.',
+        "Sea Terror?! Oh, it's you."
+      ],
+      lancet2: [
+        'Are you feeling unwell? I could give you a medical examination, if you wish.',
+        "Hi, nice to meet you, Doctor. I understand that you want me to say something more interesting, but I'm afraid I cannot do so. Because I'm just a medical robot…",
+        'Medical supplies: confirmed. Battery charge: confirmed. Ready for deployment.',
+        'Ahhh...'
+      ],
+      wisdel: [
+        'Aw. These wonderful days just never end.',
+        'Whose turn is it to get blown to bits today?',
+        "Boom! Who says there's always a countdown?",
+        'Do you like my nails? Guess what I used to paint them.',
+        "Oh joy, there's your face again, Doctor. What a great start for the day.",
+        'Finally ready to die?'
+      ]
+    },
+    ja: {
+      jiaqiu: ['君主自ら出ようじゃないか。', '知っていることに知らぬ振りは出来ないからな。', '知らぬことを知っていると言ってはならなかったか。'],
+      exusiai: [
+        '主よ、リーダーに長く幸せな夢を見せ給え。願わくはその夢が……いつの日か実現せんことを。',
+        '念のためもっかい聞くけど、美しき人の世と地獄のパノラマビューはどっちにしたいんだっけ？',
+        'ヴェルス・ディオ・ヴォーレント！',
+        'チャーシュー・アップルパイ！',
+        '一日一リンゴ、一週間七リンゴ！'
+      ],
+      heavyrain: [
+        'はい、私がドクターを守ります。',
+        '仰せのままに。',
+        '……私、頑張ります。',
+        '私はここに。',
+        'ええ？！'
+      ],
+      irene: [
+        '私の灯りに付いてきてください、潮と海霧に呑まれないように。',
+        '私の灯りが見えますか？ここです。',
+        '我が灯火が邪悪を払う！',
+        '我が刃が海を斬り裂く！',
+        '我が眼差しが真実を暴く！',
+        '我が心が判決を下す。',
+        '恐魚！？ああ、あなたですか。'
+      ],
+      kaltsit: [
+        '幸いなことに……これはもう一つの夢ではなさそうだ',
+        '問題ない。',
+        '君を信じよう。',
+        '全ての人々のための未来を我々は目にすることができるかもしれない。',
+        '私の状態を頻繫に心配する必要はない、この肉体は常人と何ら変わりないのだから。',
+        '君がそこまで気にするというのならない話しておくが、今の私は健康そのものだ。'
+      ],
+      lancet2: [
+        'どこか具合でも悪いのでしょうか？よろしければ私に診させていただけませんか。',
+        'こんにちは、ドクター様。私に面白いことを期待されても、特に何か話せるようなことはありません。あくまで私は、ただの医療用ロボットですから……。',
+        '医療設備の消毒、完了。充電、完了。いつでも出発可能です。',
+        'あわわ……。'
+      ],
+      wisdel: [
+        '楽しい時間って、ほんとに終わらないわよねぇ。',
+        'さぁ～て今日は誰が粉々になる番かしらね？',
+        'パァン！毎回カウントするなんて誰が言ったのかしら？',
+        'あたしのネイルの色が好きかしら？何で染めてるか当ててみたら？',
+        'またあんたの顔を拝めたわね、ドクター。まったく、幸先がいいわ。',
+        'そんなに死にたいの？'
+      ]
     }
-  ];
+  };
+
+  // ===== 控件按钮的title文案，按语言分组 =====
+  var UI_STRINGS = {
+    zh: {
+      add: '添加一只还没有的宠物',
+      del: '删除这只宠物',
+      dup: '复制这只宠物',
+      clear: '删除除这只以外的所有宠物'
+    },
+    en: {
+      add: 'Add a pet you don\'t have yet',
+      del: 'Remove this pet',
+      dup: 'Duplicate this pet',
+      clear: 'Remove every pet except this one'
+    },
+    ja: {
+      add: 'まだいないペットを追加',
+      del: 'このペットを削除',
+      dup: 'このペットを複製',
+      clear: 'これ以外のペットを全部削除'
+    }
+  };
+
+  // 根据当前页面路径判断语言：hexo-multiple-language-generate把中文站生成在根目录，
+  // 英文站在/en/下面，日文站在/ja/下面（见hexo-multiple-language.yml），
+  // 所以直接看路径前缀就能判断，不用额外读配置。
+  function detectLocale() {
+    var path = (window.location && window.location.pathname) || '/';
+    if (/^\/en(\/|$)/.test(path)) return 'en';
+    if (/^\/ja(\/|$)/.test(path)) return 'ja';
+    return 'zh';
+  }
+  var LOCALE = detectLocale();
+  var STR = UI_STRINGS[LOCALE] || UI_STRINGS.zh;
+
+  // 把当前语言对应的台词表塞回CHARACTERS上。找不到台词的角色（比如英文站还没配
+  // 台词的凯尔希）拿到的是null，后面所有用到character.quotes的地方本来就有
+  // "没有就跳过"的判断，不需要额外处理。
+  (function attachQuotes() {
+    var table = QUOTES[LOCALE] || QUOTES.zh;
+    for (var i = 0; i < CHARACTERS.length; i++) {
+      CHARACTERS[i].quotes = table[CHARACTERS[i].id] || null;
+    }
+  })();
 
   var MIN_SCALE = 0.5, MAX_SCALE = 4, SCALE_STEP = 0.1;
   var DRAG_THRESHOLD = 5;
@@ -358,7 +501,7 @@
     // boxH*scale来定位，放大后就会跟角色本体越离越远。这里只让字幕跟着scale涨一半的幅度，
     // 放大后字幕会明显比原来更靠近角色一些。
     function quoteBottom() {
-      // 只有明日方舟这批multistate角色的素材头顶留白比较多，才需要给字幕的涨幅打折扣；
+      // 只有明日方舟这批multistate角色头顶留白比较多，才需要给字幕的涨幅打折扣；
       // jiaqiu没有这个问题，还是用原来的boxH*scale
       var quoteScale = isMultistate ? (1 + (scale - 1) * 0.4) : scale;
       return (boxH * quoteScale + 8) + 'px';
@@ -376,19 +519,19 @@
     var btnAdd = document.createElement('div');
     btnAdd.className = 'bp-ctrl-btn';
     btnAdd.textContent = '+';
-    btnAdd.title = '添加一只还没有的宠物';
+    btnAdd.title = STR.add;
     var btnDel = document.createElement('div');
     btnDel.className = 'bp-ctrl-btn';
     btnDel.textContent = '−';
-    btnDel.title = '删除这只宠物';
+    btnDel.title = STR.del;
     var btnDup = document.createElement('div');
     btnDup.className = 'bp-ctrl-btn';
     btnDup.textContent = '⧉';
-    btnDup.title = '复制这只宠物';
+    btnDup.title = STR.dup;
     var btnClear = document.createElement('div');
     btnClear.className = 'bp-ctrl-btn';
     btnClear.textContent = '×';
-    btnClear.title = '删除除这只以外的所有宠物';
+    btnClear.title = STR.clear;
     controls.appendChild(btnAdd);
     controls.appendChild(btnDel);
     controls.appendChild(btnDup);
@@ -862,13 +1005,15 @@
         return;
       }
 
-      var line = pickQuote(character.quotes);
-      quote.textContent = line;
-      quote.classList.add('show');
-      clearTimeout(quoteTimer);
-      quoteTimer = setTimeout(function () {
-        quote.classList.remove('show');
-      }, 2600);
+      if (character.quotes && character.quotes.length) {
+        var line = pickQuote(character.quotes);
+        quote.textContent = line;
+        quote.classList.add('show');
+        clearTimeout(quoteTimer);
+        quoteTimer = setTimeout(function () {
+          quote.classList.remove('show');
+        }, 2600);
+      }
 
       if (isSprite && character.clickSrc) {
         media.loop = false;

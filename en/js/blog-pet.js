@@ -1,6 +1,10 @@
 (function () {
   'use strict';
 
+  // ===== 角色定义：跟语言无关的引擎数据（素材路径、体型、能不能动这些）=====
+  // 三个语言站点这份文件应该是逐字节相同的，改动只需要改一份再原样复制到
+  // source-zh/source-en/source-ja三个目录。台词、按钮文案这些语言相关的内容
+  // 全部收在下面的QUOTES/UI_STRINGS里，不要往CHARACTERS里塞跟语言绑定的字段。
   var CHARACTERS = [
     {
       id: 'jiaqiu',
@@ -9,8 +13,7 @@
       clickSrc: '/img/pets/jiaqiu-click.webm',
       width: 110,
       height: 100,
-      canMove: false,
-      quotes: ['The Lord of Hongyuan marches to war.', 'I will not pretend ignorance before understanding.', 'Pretense of understanding may not have been a wise decision.']
+      canMove: false
     },
     {
       id: 'exusiai',
@@ -26,14 +29,7 @@
         interact: '/img/pets/Exusiai_Interact.webm',
         special: '/img/pets/Exusiai_Special.webm',
         start: '/img/pets/Exusiai_Start.webm'
-      },
-      quotes: [
-        'Lord, please bless the Leader with a long and wonderful dream, and let that dream... come true some day.',
-        'Real estate question: this wonderful realm or a panoramic view of hell—which did you want again?',
-        'Divine judgment, traditional!',
-        'Apple pie, with char siu!',
-        'An apple a day means seven apples a week, yay!'
-      ]
+      }
     },
     {
       id: 'heavyrain',
@@ -48,14 +44,7 @@
         sleep: '/img/pets/Heavyrain_Sleep.webm',
         interact: '/img/pets/Heavyrain_Interact.webm',
         start: '/img/pets/Heavyrain_Start.webm'
-      },
-      quotes: [
-        "Yes, I'll protect the Doctor.",
-        'By your command.',
-        "I'll do my best.",
-        "I'm here.",
-        'Ehhh?!'
-      ]
+      }
     },
     {
       id: 'irene',
@@ -71,16 +60,7 @@
         interact: '/img/pets/Irene_Interact.webm',
         special: '/img/pets/Irene_Special.webm',
         start: '/img/pets/Irene_Start.webm'
-      },
-      quotes: [
-        'Follow my light. Watch out for the tides and mist.',
-        "See the light of my lantern? I'm right here.",
-        'My light will purge the vice!',
-        'My blade will cleave the tides!',
-        'My eyes will find the truth!',
-        'My heart will be the judge.',
-        "Sea Terror?! Oh, it's you."
-      ]
+      }
     },
     {
       id: 'kaltsit',
@@ -109,13 +89,7 @@
         interact: '/img/pets/Lancet-2_Interact.webm',
         special: '/img/pets/Lancet-2_Special.webm',
         start: '/img/pets/Lancet-2_Start.webm'
-      },
-      quotes: [
-        'Are you feeling unwell? I could give you a medical examination, if you wish.',
-        "Hi, nice to meet you, Doctor. I understand that you want me to say something more interesting, but I'm afraid I cannot do so. Because I'm just a medical robot…",
-        'Medical supplies: confirmed. Battery charge: confirmed. Ready for deployment.',
-        'Ahhh...'
-      ]
+      }
     },
     {
       id: 'wisdel',
@@ -131,8 +105,93 @@
         interact: "/img/pets/Wis'del_Interact.webm",
         special: "/img/pets/Wis'del_Special.webm",
         start: "/img/pets/Wis'del_Start.webm"
-      },
-      quotes: [
+      }
+    }
+  ];
+
+  // ===== 各角色的台词，按语言分组。缺了某个角色的key就代表那个语言暂时没有台词
+  // （比如英文站的凯尔希），点击时会自动跳过冒泡，不会报错。=====
+  var QUOTES = {
+    zh: {
+      jiaqiu: ['君主御驾亲征。', '勿以知之为不知。', '勿以不知为知之，是知也。'],
+      exusiai: [
+        '主啊，希望你能让老板做个长长的美梦，希望那个美梦......终有一日能成真。',
+        '我再确认下，美好人世间和地狱全景房，你到底想选哪一个啊？',
+        '正宗天意！',
+        '叉烧苹果派！',
+        '一天一苹果，一周七苹果！'
+      ],
+      heavyrain: [
+        '嗯，我来保护博士。',
+        '遵命。',
+        '......我会尽力。',
+        '我在。',
+        '欸欸？！'
+      ],
+      irene: [
+        '跟着我的灯光走，小心潮水和海雾。',
+        '看到我的灯了吗？我在这里。',
+        '我的灯将净化邪恶！',
+        '我的剑将劈开海潮！',
+        '我的眼将找出真相！',
+        '我的心会作出判决。',
+        '恐鱼？！哦，是你啊。'
+      ],
+      kaltsit: [
+        '所幸......这并不是另一个梦。',
+        '没有问题。',
+        '我相信你。',
+        '也许我们能够看到那个属于所有人的未来。',
+        '不必频繁确认我的状态，这副躯体与常人无异。',
+        '如果你的确很在意的话，我现在很好。'
+      ],
+      lancet2: [
+        '感觉什么地方不舒服？请让我来帮你看一看吧。',
+        '嗨，你好，博士。你在期待我能对你多说些什么，但我不能，毕竟我只是一台医疗机器人......',
+        '医疗设备消毒，ok。电力，ok。随时可以出发。',
+        '啊啊啊......'
+      ],
+      wisdel: [
+        '美好的日子真是怎么过都过不完啊。',
+        '今天又轮到谁粉身碎骨了呢？',
+        '砰！是谁告诉你，我每次都会倒数的？',
+        '喜欢我指甲的颜色嘛，猜猜看是用什么染的？',
+        '又看到你这张脸了呢，博士，真是个好的开始。',
+        '终于活腻味了？'
+      ]
+    },
+    en: {
+      jiaqiu: ['The Lord of Hongyuan marches to war.', 'I will not pretend ignorance before understanding.', 'Pretense of understanding may not have been a wise decision.'],
+      exusiai: [
+        'Lord, please bless the Leader with a long and wonderful dream, and let that dream... come true some day.',
+        'Real estate question: this wonderful realm or a panoramic view of hell—which did you want again?',
+        'Divine judgment, traditional!',
+        'Apple pie, with char siu!',
+        'An apple a day means seven apples a week, yay!'
+      ],
+      heavyrain: [
+        "Yes, I'll protect the Doctor.",
+        'By your command.',
+        "I'll do my best.",
+        "I'm here.",
+        'Ehhh?!'
+      ],
+      irene: [
+        'Follow my light. Watch out for the tides and mist.',
+        "See the light of my lantern? I'm right here.",
+        'My light will purge the vice!',
+        'My blade will cleave the tides!',
+        'My eyes will find the truth!',
+        'My heart will be the judge.',
+        "Sea Terror?! Oh, it's you."
+      ],
+      lancet2: [
+        'Are you feeling unwell? I could give you a medical examination, if you wish.',
+        "Hi, nice to meet you, Doctor. I understand that you want me to say something more interesting, but I'm afraid I cannot do so. Because I'm just a medical robot…",
+        'Medical supplies: confirmed. Battery charge: confirmed. Ready for deployment.',
+        'Ahhh...'
+      ],
+      wisdel: [
         'Aw. These wonderful days just never end.',
         'Whose turn is it to get blown to bits today?',
         "Boom! Who says there's always a countdown?",
@@ -140,17 +199,108 @@
         "Oh joy, there's your face again, Doctor. What a great start for the day.",
         'Finally ready to die?'
       ]
+    },
+    ja: {
+      jiaqiu: ['君主自ら出ようじゃないか。', '知っていることに知らぬ振りは出来ないからな。', '知らぬことを知っていると言ってはならなかったか。'],
+      exusiai: [
+        '主よ、リーダーに長く幸せな夢を見せ給え。願わくはその夢が……いつの日か実現せんことを。',
+        '念のためもっかい聞くけど、美しき人の世と地獄のパノラマビューはどっちにしたいんだっけ？',
+        'ヴェルス・ディオ・ヴォーレント！',
+        'チャーシュー・アップルパイ！',
+        '一日一リンゴ、一週間七リンゴ！'
+      ],
+      heavyrain: [
+        'はい、私がドクターを守ります。',
+        '仰せのままに。',
+        '……私、頑張ります。',
+        '私はここに。',
+        'ええ？！'
+      ],
+      irene: [
+        '私の灯りに付いてきてください、潮と海霧に呑まれないように。',
+        '私の灯りが見えますか？ここです。',
+        '我が灯火が邪悪を払う！',
+        '我が刃が海を斬り裂く！',
+        '我が眼差しが真実を暴く！',
+        '我が心が判決を下す。',
+        '恐魚！？ああ、あなたですか。'
+      ],
+      kaltsit: [
+        '幸いなことに……これはもう一つの夢ではなさそうだ',
+        '問題ない。',
+        '君を信じよう。',
+        '全ての人々のための未来を我々は目にすることができるかもしれない。',
+        '私の状態を頻繫に心配する必要はない、この肉体は常人と何ら変わりないのだから。',
+        '君がそこまで気にするというのならない話しておくが、今の私は健康そのものだ。'
+      ],
+      lancet2: [
+        'どこか具合でも悪いのでしょうか？よろしければ私に診させていただけませんか。',
+        'こんにちは、ドクター様。私に面白いことを期待されても、特に何か話せるようなことはありません。あくまで私は、ただの医療用ロボットですから……。',
+        '医療設備の消毒、完了。充電、完了。いつでも出発可能です。',
+        'あわわ……。'
+      ],
+      wisdel: [
+        '楽しい時間って、ほんとに終わらないわよねぇ。',
+        'さぁ～て今日は誰が粉々になる番かしらね？',
+        'パァン！毎回カウントするなんて誰が言ったのかしら？',
+        'あたしのネイルの色が好きかしら？何で染めてるか当ててみたら？',
+        'またあんたの顔を拝めたわね、ドクター。まったく、幸先がいいわ。',
+        'そんなに死にたいの？'
+      ]
     }
-  ];
+  };
+
+  // ===== 控件按钮的title文案，按语言分组 =====
+  var UI_STRINGS = {
+    zh: {
+      add: '添加一只还没有的宠物',
+      del: '删除这只宠物',
+      dup: '复制这只宠物',
+      clear: '删除除这只以外的所有宠物'
+    },
+    en: {
+      add: 'Add a pet you don\'t have yet',
+      del: 'Remove this pet',
+      dup: 'Duplicate this pet',
+      clear: 'Remove every pet except this one'
+    },
+    ja: {
+      add: 'まだいないペットを追加',
+      del: 'このペットを削除',
+      dup: 'このペットを複製',
+      clear: 'これ以外のペットを全部削除'
+    }
+  };
+
+  // 根据当前页面路径判断语言：hexo-multiple-language-generate把中文站生成在根目录，
+  // 英文站在/en/下面，日文站在/ja/下面（见hexo-multiple-language.yml），
+  // 所以直接看路径前缀就能判断，不用额外读配置。
+  function detectLocale() {
+    var path = (window.location && window.location.pathname) || '/';
+    if (/^\/en(\/|$)/.test(path)) return 'en';
+    if (/^\/ja(\/|$)/.test(path)) return 'ja';
+    return 'zh';
+  }
+  var LOCALE = detectLocale();
+  var STR = UI_STRINGS[LOCALE] || UI_STRINGS.zh;
+
+  // 把当前语言对应的台词表塞回CHARACTERS上。找不到台词的角色（比如英文站还没配
+  // 台词的凯尔希）拿到的是null，后面所有用到character.quotes的地方本来就有
+  // "没有就跳过"的判断，不需要额外处理。
+  (function attachQuotes() {
+    var table = QUOTES[LOCALE] || QUOTES.zh;
+    for (var i = 0; i < CHARACTERS.length; i++) {
+      CHARACTERS[i].quotes = table[CHARACTERS[i].id] || null;
+    }
+  })();
 
   var MIN_SCALE = 0.5, MAX_SCALE = 4, SCALE_STEP = 0.1;
   var DRAG_THRESHOLD = 5;
   var PETS_KEY = 'blogPetInstances';
   var MAX_SAVED_PETS = 10;
   var DEFAULT_SESSION_KEY = 'blogPetDefaultState';
-  // Dragging is basically unrestricted now: the pet can go past the edge of the
-  // viewport/page. We only keep this many pixels on-screen so it never fully
-  // disappears and can always be grabbed back.
+  // 拖拽范围基本不设限，允许拖出屏幕、拖到网页边界外一点点，只留这么多像素卡在
+  // 视口边缘，保证角色不会完全消失、之后还能重新抓回来。
   var EDGE_KEEP_PX = 24;
 
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -273,11 +423,10 @@
     visual.className = 'bp-visual' + (reduceMotion ? '' : (canMove ? ' bp-walk' : ' bp-idle'));
     visual.style.setProperty('--bp-scale', scale);
 
-    // Sprite characters (jiaqiu) only have idle/click clips and simple swap logic, so they keep
-    // the original single-video src-swap approach — the click animation's offset/scale was tuned
-    // against this exact single-video setup, and double buffering caused the outgoing clip to
-    // briefly match the same transform during the crossfade, throwing the position off.
-    // Double buffering is only used for multistate characters (exusiai and the rest).
+    // jiaqiu这类sprite角色只有idle/click两种素材，逻辑简单，直接沿用原来单video换src的方式，
+    // 不用双缓冲——之前调过的点击动画偏移/缩放是针对这个单video结构调的，双缓冲会导致
+    // 交叉淡入淡出期间旧素材短暂也命中同一套变换样式，位置就跟着乱了。
+    // 双缓冲只用在multistate角色（exusiai等一堆有很多动作的角色）上。
     var media = null;
     var mediaA = null, mediaB = null;
     var activeMedia = null, inactiveMedia = null;
@@ -293,9 +442,9 @@
       media.setAttribute('muted', '');
       visual.appendChild(media);
     } else if (isMultistate) {
-      // Double buffering: two stacked video elements. activeMedia/inactiveMedia track which
-      // one is currently shown; on a state change the new clip loads into the idle one and only
-      // fades in once it's actually ready to play, so playback is never interrupted mid-transition.
+      // 双缓冲：两个video叠在一起，谁是"当前显示"由activeMedia/inactiveMedia记录，
+      // 换动作时把新素材加载到闲置的那个上面，等它真的能播放了才淡入换上来，
+      // 播放中的画面全程不间断，不会像单video换src那样黑屏闪一下。
       mediaA = document.createElement('video');
       mediaA.className = 'bp-media-buffered';
       mediaB = document.createElement('video');
@@ -327,37 +476,33 @@
     }
     sprite.appendChild(visual);
 
-    // The Arknights-style clips are square canvases with a lot of padding — the character itself
-    // only occupies a small area in the middle. Drag/click/wheel-zoom detection now only responds
-    // within this smaller centered hotspot; clicking or dragging on the empty space around the
-    // character no longer does anything. The hotspot size is an approximation; individual
-    // characters can be tuned further later if some are noticeably off.
+    // 明日方舟这批角色的素材是带留白的正方形画布，角色本体只占中间一小块；jiaqiu的素材
+    // 角色本体偏在左上方。拖拽/点击/滚轮缩放的判定都改成只认各自这块小热区，角色周围的
+    // 空气背景不会再被当成点在了角色身上（点在那些地方不会有任何反应）。这几个热区的
+    // 大小/位置是估个大概比例，如果偏差比较明显，之后可以再单独调整。
     var hitTarget = sprite;
     if (isMultistate || isSprite) {
       hitTarget = document.createElement('div');
       hitTarget.className = isMultistate ? 'bp-hitbox' : 'bp-hitbox-jiaqiu';
-      // Attached to visual, not sprite: visual is the layer actually scaled by the --bp-scale
-      // transform, so putting the hotspot inside it means the hotspot zooms in/out together with
-      // the character instead of staying pinned at its original size and position.
+      // 挂在visual下面而不是sprite下面：visual才是真正被--bp-scale这个transform缩放的
+      // 那一层，热区跟着放在它里面，滚轮/双指缩放的时候热区会跟着角色一起放大缩小，
+      // 不会再固定钉在原来的大小和位置上。
       visual.appendChild(hitTarget);
 
-      // The empty area outside the hotspot has no drag/click logic attached anymore, but if we
-      // don't also swallow mousedown/dragstart there, the browser treats it like ordinary page
-      // content — triggering a native text-selection highlight box, or dragging the video like
-      // an image ghost. This just eats the default behavior; the actual drag/click logic all
-      // lives on hitTarget.
+      // 热区之外的空白区域现在没有绑任何拖拽/点击逻辑了，但如果完全不处理这里的
+      // mousedown/dragstart，浏览器会把这块区域当成普通网页内容，出现原生的文字选取
+      // 高亮框，或者把里面的视频当图片一样拖出重影。这里单独拦一层，只吃掉默认行为，
+      // 不做任何实际的拖拽/点击逻辑（真正的逻辑都在hitTarget上）。
       sprite.addEventListener('mousedown', function (e) { e.preventDefault(); });
       sprite.addEventListener('dragstart', function (e) { e.preventDefault(); });
     }
 
-    // The higher the zoom, the more the empty headroom above the character in the clip also
-    // scales up — if the quote tracked boxH*scale exactly, it would drift further from the
-    // character as it grows. Only apply 40% of the scale growth to the quote's offset so it
-    // stays noticeably closer to the character after zooming in.
+    // 放大倍数越高，角色画面里头顶以上的空白区域也跟着等比例放大，如果字幕完全按
+    // boxH*scale来定位，放大后就会跟角色本体越离越远。这里只让字幕跟着scale涨一半的幅度，
+    // 放大后字幕会明显比原来更靠近角色一些。
     function quoteBottom() {
-      // Only the Arknights-style multistate characters' clips have a lot of headroom above the
-      // character, so only they need the quote's growth dampened; jiaqiu doesn't have this issue
-      // and keeps the original boxH*scale.
+      // 只有明日方舟这批multistate角色头顶留白比较多，才需要给字幕的涨幅打折扣；
+      // jiaqiu没有这个问题，还是用原来的boxH*scale
       var quoteScale = isMultistate ? (1 + (scale - 1) * 0.4) : scale;
       return (boxH * quoteScale + 8) + 'px';
     }
@@ -374,19 +519,19 @@
     var btnAdd = document.createElement('div');
     btnAdd.className = 'bp-ctrl-btn';
     btnAdd.textContent = '+';
-    btnAdd.title = 'Add a pet you don\'t have yet';
+    btnAdd.title = STR.add;
     var btnDel = document.createElement('div');
     btnDel.className = 'bp-ctrl-btn';
     btnDel.textContent = '−';
-    btnDel.title = 'Remove this pet';
+    btnDel.title = STR.del;
     var btnDup = document.createElement('div');
     btnDup.className = 'bp-ctrl-btn';
     btnDup.textContent = '⧉';
-    btnDup.title = 'Duplicate this pet';
+    btnDup.title = STR.dup;
     var btnClear = document.createElement('div');
     btnClear.className = 'bp-ctrl-btn';
     btnClear.textContent = '×';
-    btnClear.title = 'Remove every pet except this one';
+    btnClear.title = STR.clear;
     controls.appendChild(btnAdd);
     controls.appendChild(btnDel);
     controls.appendChild(btnDup);
@@ -420,8 +565,8 @@
 
     container.appendChild(root);
 
-    // Sprite characters' idle video starts playing right here (same as before); multistate's
-    // double buffer has no content yet — real playback starts in playEntranceThenStart()/swapMedia() below
+    // sprite角色的idle视频这里就直接播放（跟原来一样）；multistate的双缓冲还没素材，
+    // 真正的播放从下面的playEntranceThenStart()/swapMedia()开始
     if (isSprite && media) media.play().catch(function () {});
 
     function minLeftBound() { return -boxW * scale + EDGE_KEEP_PX; }
@@ -442,11 +587,10 @@
     }
 
     function clampPosition() {
-      // Normally minXxxBound() should already be <= maxXxxBound(); but when the character itself
-      // is bigger than the viewport (very high zoom, or a small viewport), these two theoretical
-      // bounds flip. Regardless of which is numerically larger, just treat them as the two ends of
-      // an interval (smaller one = lower bound, larger one = upper bound), so there's always a real
-      // draggable range instead of collapsing to a single frozen point.
+      // 正常情况下minXxxBound()本来就该小于等于maxXxxBound()；但角色本身比视口还大
+      // （放大倍数很高、或者视口本身比较小）的时候，这两个理论边界会反过来。这时候不管
+      // 谁大谁小，直接把它们当成一个区间的两端（小的当下限、大的当上限），保证永远有
+      // 一段真实可以拖动的范围，不会被钉死在同一个点上出不来。
       var leftBoundA = minLeftBound();
       var leftBoundB = maxLeftBound();
       var minLeft = Math.min(leftBoundA, leftBoundB);
@@ -523,8 +667,7 @@
       }
       function onCanPlay() { doSwap(); }
       incoming.addEventListener('canplay', onCanPlay);
-      // Fallback: if canplay never fires (e.g. network hiccup), force the swap after 800ms
-      // so we don't get stuck on the old animation forever.
+      // 兜底：万一canplay一直不触发（网络异常之类），最多等待800ms就强制切换，避免卡死在旧动画上
       fallbackTimer = setTimeout(doSwap, 800);
     }
 
@@ -694,9 +837,9 @@
       }
     }
 
-    // Which pet actually responds to a given press is decided centrally by the manager on the
-    // shared container (see the "closest hotspot center wins" logic there) — this function only
-    // handles what happens once dragging actually starts, and the manager calls it on the winner.
+    // 具体这次按下该由哪只pet响应，交给manager在容器上统一判断（角色多了容易重叠，
+    // 判断规则见manager里的"离热区中心最近的那只"逻辑），这里只负责真正开始拖拽之后
+    // 的处理，manager找到目标后会调用这个函数。
     function handleHitMouseDown(e) {
       e.preventDefault();
       dragStart(e.clientX, e.clientY);
@@ -705,10 +848,9 @@
         dragEnd();
         document.removeEventListener('mousemove', onMove);
         document.removeEventListener('mouseup', onUp);
-        // If there was no meaningful movement, treat this as a click on this same pet instead of
-        // relying on the browser's native click event (which fires on whatever happens to be
-        // under the cursor at release — that can disagree with which pet "won" the press when
-        // hotspots overlap).
+        // 松开时如果全程没怎么移动，就当成一次点击处理——直接判断这次按下的同一只pet，
+        // 不依赖浏览器原生click事件（原生click是松开时鼠标下面正对着哪只就算哪只，
+        // 跟重叠判断的"按下时选中的是哪只"可能对不上，容易点错）
         if (!moved) handleHitClick();
       }
       document.addEventListener('mousemove', onMove);
@@ -716,7 +858,7 @@
     }
 
     var pinching = false;
-    var didPinch = false; // whether a pinch-zoom happened during this touch gesture — if so, don't treat release as a click
+    var didPinch = false; // 这次触摸手势里有没有出现过双指缩放，出现过的话松开时就不算点击
     var pinchStartDist = 0;
     var pinchStartScale = 1;
     var touchActive = false;
@@ -763,8 +905,8 @@
       }
       if (ev.touches.length === 0) {
         dragEnd();
-        // If there was no meaningful movement and no pinch happened during this gesture,
-        // treat the release as a tap on this same pet, without relying on a synthesized click event.
+        // 松开时如果全程没有明显移动、也没有出现过双指缩放，就当成一次点击（tap）处理，
+        // 直接判断这次触摸开始时选中的同一只pet，不依赖浏览器合成的click事件
         if (!moved && !didPinch) handleHitClick();
         touchActive = false;
         document.removeEventListener('touchmove', onTouchMove);
@@ -773,9 +915,9 @@
       }
     }
 
-    // Again, the manager decides which pet this touch belongs to; this just handles the actual start
+    // 同样交给manager统一判断由哪只pet响应，这里只负责实际的触摸开始逻辑
     function handleHitTouchStart(e) {
-      if (!touchActive) didPinch = false; // fresh gesture starting, reset the flag
+      if (!touchActive) didPinch = false; // 新的一轮触摸手势开始，重置标记
       root.classList.add('bp-controls-visible');
       clearTimeout(controlsHideTimer);
       controlsHideTimer = setTimeout(function () {
@@ -802,11 +944,10 @@
       }
     }
 
-    // Desktop no longer relies on pure CSS :hover to show/hide the control menu — the small gap
-    // between the sprite and the controls below it made the menu vanish the instant the cursor
-    // moved diagonally toward it, before it could ever be clicked. Instead we manage visibility
-    // in JS with a short hide delay: show immediately on enter, and only hide after a brief grace
-    // period on leave (canceled if the cursor re-enters the sprite or the controls in time).
+    // 桌面端不再用纯CSS的:hover来控制菜单显隐——sprite和controls之间哪怕只有几像素的空隙，
+    // 鼠标斜着移动过去也很容易被判定成"离开了"，导致刚移过去菜单就消失、根本点不到。
+    // 改成JS控制 + 一个短暂的隐藏延迟：进入就显示、离开先不急着隐藏，等一小段时间
+    // 如果没有重新进入（sprite或controls任意一处）才真正隐藏，给鼠标移动留出容错时间。
     root.addEventListener('mouseenter', function () {
       clearTimeout(controlsHideTimer);
       root.classList.add('bp-controls-visible');
@@ -824,8 +965,7 @@
     var quoteTimer = null;
     var lastQuoteIndex = -1;
     function pickQuote(quotes) {
-      // Never say the same line twice in a row: if there's more than one candidate,
-      // re-roll until we get something other than the last line shown.
+      // 不要连续两次说同一句：候选池长度大于1时，排除上一次说过的那一条再抽
       if (!quotes || !quotes.length) return '';
       if (quotes.length === 1) { lastQuoteIndex = 0; return quotes[0]; }
       var idx;
@@ -835,12 +975,12 @@
       lastQuoteIndex = idx;
       return quotes[idx];
     }
-    // Again decided by the manager
+    // 同样交给manager统一判断由哪只pet响应
     function handleHitClick() {
       if (moved) { moved = false; return; }
 
       if (isMultistate) {
-        // special can't be interrupted by a click — it has to finish playing on its own
+        // special不能被点击打断，要等它自己播完
         if (msState === 'special') return;
         var wasResting = (msState === 'sleep' || msState === 'sit') ? msState : null;
         function msResumeAfterClick() {
@@ -865,13 +1005,15 @@
         return;
       }
 
-      var line = pickQuote(character.quotes);
-      quote.textContent = line;
-      quote.classList.add('show');
-      clearTimeout(quoteTimer);
-      quoteTimer = setTimeout(function () {
-        quote.classList.remove('show');
-      }, 2600);
+      if (character.quotes && character.quotes.length) {
+        var line = pickQuote(character.quotes);
+        quote.textContent = line;
+        quote.classList.add('show');
+        clearTimeout(quoteTimer);
+        quoteTimer = setTimeout(function () {
+          quote.classList.remove('show');
+        }, 2600);
+      }
 
       if (isSprite && character.clickSrc) {
         media.loop = false;
@@ -981,15 +1123,15 @@
         } else {
           entered = true;
           if (media) {
-            // Neither buffer has anything loaded yet — put the relax clip up now;
-            // the double-buffer mechanism itself handles this first "nothing to something" reveal.
+            // 两个video刚创建时都还没有素材，这里把常态画面摆上去，
+            // 双缓冲本身就能兜住这次"从无到有"的展示
             swapMedia(character.media.relax, true, null);
           }
           startBehavior();
         }
         return;
       }
-      // Sprite characters (jiaqiu) don't use double buffering — same as before
+      // sprite角色（比如jiaqiu）不用双缓冲，跟原来一样直接处理
       var spriteEnterSrc = character.enterSrc;
       if (!entered && spriteEnterSrc && media) {
         media.loop = false;
@@ -1033,7 +1175,7 @@
     return {
       getState: function () { return { left: left, top: top, scale: scale }; },
       destroy: destroy,
-      // Used by the manager's "closest hotspot center wins" overlap resolution
+      // 下面几个是给manager统一做"重叠时选离热区中心最近的那只"判断用的
       hitRect: function () { return hitTarget.getBoundingClientRect(); },
       hitMouseDown: handleHitMouseDown,
       hitTouchStart: handleHitTouchStart,
@@ -1077,10 +1219,10 @@
       }
     },
 
-    // With more pets around they tend to overlap; when a press/tap happens, decide here which
-    // pet it actually belongs to: only consider pets whose hotspot actually contains that point,
-    // then pick whichever one's hotspot center is closest to it. This way it's always "whichever
-    // is nearest" that responds, regardless of DOM stacking order (who happens to be painted on top).
+    // pet多了容易叠在一起，鼠标/触摸按下的时候具体算按到了哪一只，统一在这里判断：
+    // 只看热区确实包含了这个坐标点的那些pet，在它们里面选热区中心离落点最近的一个。
+    // 这样不管DOM层叠顺序（谁盖着谁）是什么样，永远是"离得最近的那只"响应，而不是
+    // "占了这个位置最上面的那只"。
     findClosestInstance: function (x, y) {
       var best = null;
       var bestDist = Infinity;
@@ -1131,10 +1273,10 @@
       try {
         sessionStorage.setItem(DEFAULT_SESSION_KEY, JSON.stringify({ charId: character.id, entered: true }));
       } catch (e) {}
-      // persist:false — an untouched default pet is not written to localStorage,
-      // so every fresh load without customization still follows the sessionStorage-based
-      // "reroll on reload / keep on navigation" logic. As soon as the user drags, resizes,
-      // adds, removes, or duplicates a pet, a real save happens and it's locked in from then on.
+      // persist:false —— 还没被用户碰过的默认宠物不写入localStorage，
+      // 这样每次没有自定义配置时都会走sessionStorage的"刷新重随机/跳转保持"逻辑；
+      // 一旦用户拖动/缩放/加减/复制过，会通过onChange或spawn的正常持久化落盘，
+      // 之后就固定下来，刷新也不会再变。
       this.spawn(character, { entered: entered, persist: false });
     },
 
@@ -1185,8 +1327,7 @@
       for (var i = 0; i < this.instances.length; i++) {
         if (this.instances[i].uid === uid) {
           var src = this.instances[i].handle.getState();
-          // Only offset horizontally: pick a random side (left/right), distance 300-700px,
-          // keep the same vertical position as the original.
+          // 只在横向上随机落点：左右随机挑一边，距离300~700px，纵坐标跟原来的一样
           var dir = Math.random() < 0.5 ? -1 : 1;
           var dist = 300 + Math.random() * 400;
           this.spawn(this.instances[i].character, {
