@@ -171,7 +171,13 @@
   // （比如英文站的凯尔希），点击时会自动跳过冒泡，不会报错。=====
   var QUOTES = {
     zh: {
-      jiaqiu: ['君主御驾亲征。', '勿以知之为不知。', '勿以不知为知之，是知也。'],
+      jiaqiu: [
+        '君主御驾亲征。',
+        '勿以知之为不知。',
+        '勿以不知为知之，是知也。',
+        '从鸿园的最高处望去……大观园是这样的么？呼呼，那么……我也不必再掩饰了。',
+        '我将亲自展示……我是如何肃清大观园的。'
+      ],
       exusiai: [
         '主啊，希望你能让老板做个长长的美梦，希望那个美梦......终有一日能成真。',
         '我再确认下，美好人世间和地狱全景房，你到底想选哪一个啊？',
@@ -238,7 +244,13 @@
       }
     },
     en: {
-      jiaqiu: ['The Lord of Hongyuan marches to war.', 'I will not pretend ignorance before understanding.', 'Pretense of understanding may not have been a wise decision.'],
+      jiaqiu: [
+        'The Lord of Hongyuan marches to war.',
+        'I will not pretend ignorance before understanding.',
+        'Pretense of understanding may not have been a wise decision.',
+        'So this is what Daguanyuan looks like from the zenith of Hongyuan, huh? Fuhu, then I suppose… I have need of this pretense no longer.',
+        'I shall show you myself... How I have culled Daguanyuan.'
+      ],
       exusiai: [
         'Lord, please bless the Leader with a long and wonderful dream, and let that dream... come true some day.',
         'Real estate question: this wonderful realm or a panoramic view of hell—which did you want again?',
@@ -293,7 +305,13 @@
       }
     },
     ja: {
-      jiaqiu: ['君主自ら出ようじゃないか。', '知っていることに知らぬ振りは出来ないからな。', '知らぬことを知っていると言ってはならなかったか。'],
+      jiaqiu: [
+        '君主自ら出ようじゃないか。',
+        '知っていることに知らぬ振りは出来ないからな。',
+        '知らぬことを知っていると言ってはならなかったか。',
+        '鴻園の最も高い場所からは…大観園がこんな風に見えるんですね？ふふ、さて…うわべを取り繕うのは終わりだ。',
+        '直々に見せてやろう。いかに大観園を粛清してきたかを。'
+      ],
       exusiai: [
         '主よ、リーダーに長く幸せな夢を見せ給え。願わくはその夢が……いつの日か実現せんことを。',
         '念のためもっかい聞くけど、美しき人の世と地獄のパノラマビューはどっちにしたいんだっけ？',
@@ -894,7 +912,7 @@
       msState = 'sleep';
       msSetMedia(character.media.sleep, true);
       clearTimeout(msTimer);
-      var duration = 6000 + Math.random() * 8000;
+      var duration = 6000 + Math.random() * 174000;
       msTimer = setTimeout(function () { msEnterRelax(); }, duration);
     }
 
@@ -902,7 +920,7 @@
       msState = 'sleep';
       msSetMedia(character.media.sleep, true);
       clearTimeout(msTimer);
-      var duration = 6000 + Math.random() * 8000;
+      var duration = 6000 + Math.random() * 174000;
       msTimer = setTimeout(function () { msEnterRelax(); }, duration);
     }
 
@@ -910,7 +928,7 @@
       msState = 'sit';
       msSetMedia(character.media.sit, true);
       clearTimeout(msTimer);
-      var duration = 6000 + Math.random() * 8000;
+      var duration = 6000 + Math.random() * 174000;
       msTimer = setTimeout(function () { msEnterRelax(); }, duration);
     }
 
@@ -918,7 +936,7 @@
       msState = 'sit';
       msSetMedia(character.media.sit, true);
       clearTimeout(msTimer);
-      var duration = 6000 + Math.random() * 8000;
+      var duration = 6000 + Math.random() * 174000;
       msTimer = setTimeout(function () { msEnterRelax(); }, duration);
     }
 
