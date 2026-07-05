@@ -442,9 +442,13 @@
   var PETS_KEY = 'blogPetInstances';
   var MAX_SAVED_PETS = 10;
   var DEFAULT_SESSION_KEY = 'blogPetDefaultState';
-  // 拖拽范围基本不设限，允许拖出屏幕、拖到网页边界外一点点，只留这么多像素卡在
-  // 视口边缘，保证角色不会完全消失、之后还能重新抓回来。
-  var EDGE_KEEP_PX = 24;
+  // 拖拽范围基本不设限，允许拖出屏幕、拖到网页边界外一点点，但至少要保留这么大比例
+  // 的角色本体留在视口内（EDGE_KEEP_MIN_PX是绝对下限，防止角色本身很小时算出来的
+  // 保留宽度比24px还小）。之前固定只留24px，角色只要放大过或者被拖到角落，
+  // 露出来的就是一条几乎看不见的窄缝，很容易被当成"宠物丢了"；改成按角色当前
+  // 尺寸（含缩放）的比例来保留，缩放越大留的实际像素也越多，肉眼上更容易找到。
+  var EDGE_KEEP_RATIO = 0.5;
+  var EDGE_KEEP_MIN_PX = 24;
 
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -723,10 +727,12 @@
     // 真正的播放从下面的playEntranceThenStart()/swapMedia()开始
     if (isSprite && media) media.play().catch(function () {});
 
-    function minLeftBound() { return -boxW * scale + EDGE_KEEP_PX; }
-    function maxLeftBound() { return window.innerWidth - EDGE_KEEP_PX; }
-    function minTopBound() { return -boxH * scale + EDGE_KEEP_PX; }
-    function maxTopBound() { return window.innerHeight - EDGE_KEEP_PX; }
+    function edgeKeepX() { return Math.max(EDGE_KEEP_MIN_PX, boxW * scale * EDGE_KEEP_RATIO); }
+    function edgeKeepY() { return Math.max(EDGE_KEEP_MIN_PX, boxH * scale * EDGE_KEEP_RATIO); }
+    function minLeftBound() { return -boxW * scale + edgeKeepX(); }
+    function maxLeftBound() { return window.innerWidth - edgeKeepX(); }
+    function minTopBound() { return -boxH * scale + edgeKeepY(); }
+    function maxTopBound() { return window.innerHeight - edgeKeepY(); }
 
     var left, top;
     if (typeof opts.left === 'number' && typeof opts.top === 'number') {
