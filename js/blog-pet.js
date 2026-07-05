@@ -128,9 +128,9 @@
       // 台词还没配，attachQuotes()里"没配就是null"的兜底逻辑会让她在en/ja站互动时
       // 不出字幕气泡，但角色本身、动作、技能都正常，不受影响。
       // 角色本体缩小到其他方舟角色的一半（width/height从225减到112.5），但技能特效
-      // 要保持原来的绝对大小不跟着缩——specialFx的CSS尺寸是按角色框的百分比算的，
-      // 框缩小一半，百分比就要翻倍才能让特效实际像素大小不变，具体倍数见
-      // spawnSkillFx里的fxScale（等于225/112.5=2）。
+      // 和头顶字幕气泡的定位都要保持原来的绝对大小/位置不跟着缩——这两处的CSS尺寸/
+      // 偏移都是按角色框的百分比算的，框缩小一半，百分比就要翻倍才能不跟着走样，
+      // 具体倍数见fxScale（等于225/112.5=2），spawnSkillFx和quoteBottom()都会用到它。
       id: 'recoleta',
       type: 'multistate',
       width: 112.5,
@@ -431,7 +431,7 @@
       '.bp-media.bp-media-click{transform:translate(-20%,-20%) scale(1.15);}',
       '.bp-media-buffered{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;opacity:0;transition:opacity .2s ease;}',
       '.bp-media-buffered.bp-media-active{opacity:1;}',
-      '.bp-skill-fx{position:absolute;left:100%;top:-50%;width:200%;height:200%;object-fit:contain;pointer-events:none;}',
+      '.bp-skill-fx{position:absolute;left:100%;top:-37.5%;width:175%;height:175%;object-fit:contain;pointer-events:none;}',
       '.bp-skill-fx-left{left:auto;right:100%;}',
       '.bp-quote{position:absolute;left:50%;transform:translate(calc(-50% - 16px),0);background:radial-gradient(ellipse at center, rgba(0,0,0,.82) 0%, rgba(0,0,0,.55) 65%, rgba(0,0,0,0) 100%);color:#fff;font-size:12px;font-weight:600;line-height:1.4;padding:8px 22px;border-radius:999px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s;}',
       '.bp-quote.show{opacity:1;}',
@@ -616,7 +616,13 @@
       // 只有明日方舟这批multistate角色头顶留白比较多，才需要给字幕的涨幅打折扣；
       // jiaqiu没有这个问题，还是用原来的boxH*scale
       var quoteScale = isMultistate ? (1 + (scale - 1) * 0.4) : scale;
-      return (boxH * quoteScale + 8) + 'px';
+      // 这个公式本来是按boxH=225这个"标准尺寸"调出来的。像Recoleta这种把boxH
+      // 主动缩小了的角色（缩小到112.5），如果还是直接乘boxH，算出来的偏移量会跟着
+      // 等比缩小；但字幕本身字号、内边距都是固定像素，不会跟着缩小，放大倍数一高就会
+      // 相对显得偏低、盖到头。这里复用fxScale（角色框"缩小前/缩小后"的倍数）把boxH
+      // 换算回标准尺寸再算偏移，跟标准角色的字幕表现保持一致。
+      var boxCompensation = character.fxScale || 1;
+      return (boxH * boxCompensation * quoteScale + 8) + 'px';
     }
 
     var quote = document.createElement('div');
@@ -911,12 +917,14 @@
       // fxScale：特效的CSS尺寸是相对角色框的百分比，角色框如果被特意缩小了（比如
       // Recoleta缩到了一半），特效会跟着等比缩小。fxScale用来抵消这个效果，让特效
       // 保持它"设计时"的绝对大小，不随角色框缩放走样。数值等于"角色框缩小前/缩小后"
-      // 的倍数，没配就是1（不用特殊处理，直接吃CSS里.bp-skill-fx的默认200%/-50%）。
+      // 的倍数，没配就是1（不用特殊处理，直接吃CSS里.bp-skill-fx的默认175%/-37.5%）。
+      var FX_BASE_PERCENT = 175;
       var fxScale = character.fxScale || 1;
       if (fxScale !== 1) {
-        fx.style.width = (200 * fxScale) + '%';
-        fx.style.height = (200 * fxScale) + '%';
-        fx.style.top = (50 - 100 * fxScale) + '%';
+        var fxPercent = FX_BASE_PERCENT * fxScale;
+        fx.style.width = fxPercent + '%';
+        fx.style.height = fxPercent + '%';
+        fx.style.top = (50 - fxPercent / 2) + '%';
       }
       fx.muted = true;
       fx.playsInline = true;
