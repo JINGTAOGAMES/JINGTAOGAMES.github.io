@@ -26,8 +26,14 @@
     css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
     document.head.appendChild(css);
     var js = document.createElement('script');
+    var called = false;
+    function proceed() { if (called) return; called = true; cb(); }
     js.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-    js.onload = cb;
+    // 加载失败（CDN被阻断等）或8秒无响应时也继续渲染——后面的渲染逻辑会在
+    // window.L不存在时自动省略地图、只显示文字信息，避免整个组件永久卡在"加载中"
+    js.onload = proceed;
+    js.onerror = proceed;
+    setTimeout(proceed, 8000);
     document.head.appendChild(js);
   }
 
@@ -102,20 +108,26 @@
             var lng  = data.location.lng;
             var area = data.location.area || '';
 
-            var map = L.map('nw-map', {
-              zoomControl: false,
-              scrollWheelZoom: false,
-              dragging: true,
-              touchZoom: true,
-            }).setView([lat, lng], 13);
+            if (window.L) {
+              var map = L.map('nw-map', {
+                zoomControl: false,
+                scrollWheelZoom: false,
+                dragging: true,
+                touchZoom: true,
+              }).setView([lat, lng], 13);
 
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-              attribution: '© <a href="https://openstreetmap.org">OSM</a> © <a href="https://carto.com">CARTO</a>',
-              maxZoom: 19,
-            }).addTo(map);
+              L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '© <a href="https://openstreetmap.org">OSM</a> © <a href="https://carto.com">CARTO</a>',
+                maxZoom: 19,
+              }).addTo(map);
 
-            L.marker([lat, lng]).addTo(map)
-              .bindPopup('<b>' + escHtml(area) + '</b>').openPopup();
+              L.marker([lat, lng]).addTo(map)
+                .bindPopup('<b>' + escHtml(area) + '</b>').openPopup();
+            } else {
+              // Leaflet没能加载：隐藏地图区域，其余文字信息照常显示
+              var mapEl = document.getElementById('nw-map');
+              if (mapEl) mapEl.style.display = 'none';
+            }
 
             document.getElementById('nw-loc').innerHTML =
               '📍 <span>' + escHtml(area) + '</span>';

@@ -820,6 +820,10 @@
         incoming.play().catch(function () {});
         incoming.classList.add('bp-media-active');
         outgoing.classList.remove('bp-media-active');
+        // 旧video换出后还会静默播放最多260ms才被pause，这期间如果它自然播完（比如
+        // interact快结束时被换出），残留的onended会把状态机拉回旧状态——最坏情况是
+        // 把正在播的die退场动画打断，宠物"死不掉"还永远无法再删除。换出时一并清掉。
+        outgoing.onended = null;
         activeMedia = incoming;
         inactiveMedia = outgoing;
         media = activeMedia;
@@ -845,6 +849,9 @@
     }
 
     function msEnterRelax() {
+      // 所有状态入口统一守卫：die退场/销毁之后，任何残留的异步回调（视频onended、
+      // 定时器、拖拽松手等）都不允许再把状态机拉回来，否则退场动画会被打断
+      if (dying || destroyed) return;
       msState = 'relax';
       msSetMedia(character.media.relax, true);
       clearTimeout(msTimer);
@@ -861,6 +868,7 @@
     }
 
     function msEnterMove() {
+      if (dying || destroyed) return;
       msState = 'move';
       msSetMedia(character.media.move, true);
 
@@ -915,6 +923,7 @@
     }
 
     function msEnterSleep() {
+      if (dying || destroyed) return;
       msState = 'sleep';
       msSetMedia(character.media.sleep, true);
       clearTimeout(msTimer);
@@ -923,6 +932,7 @@
     }
 
     function msResumeSleep() {
+      if (dying || destroyed) return;
       msState = 'sleep';
       msSetMedia(character.media.sleep, true);
       clearTimeout(msTimer);
@@ -931,6 +941,7 @@
     }
 
     function msEnterSit() {
+      if (dying || destroyed) return;
       msState = 'sit';
       msSetMedia(character.media.sit, true);
       clearTimeout(msTimer);
@@ -939,6 +950,7 @@
     }
 
     function msResumeSit() {
+      if (dying || destroyed) return;
       msState = 'sit';
       msSetMedia(character.media.sit, true);
       clearTimeout(msTimer);
@@ -947,6 +959,7 @@
     }
 
     function msPlayInteract(onDone) {
+      if (dying || destroyed) return;
       msState = 'interact';
       clearTimeout(msTimer);
       if (moveRafId) cancelAnimationFrame(moveRafId);
@@ -998,6 +1011,7 @@
     }
 
     function msPlaySpecial(onDone) {
+      if (dying || destroyed) return;
       msState = 'special';
       clearTimeout(msTimer);
       if (moveRafId) cancelAnimationFrame(moveRafId);
@@ -1020,6 +1034,7 @@
     // 会把画面整体放大这么多倍（比如Recoleta配的1.5，即150%），播完切回其它状态时
     // swapMedia会自动把transform清空还原，不用额外收尾。
     function msPlaySpecial2(onDone) {
+      if (dying || destroyed) return;
       msState = 'special';
       clearTimeout(msTimer);
       if (moveRafId) cancelAnimationFrame(moveRafId);
@@ -1440,7 +1455,11 @@
       if (destroyed) return;
       if (isMultistate && character.media.die) {
         dying = true;
+        // 状态标成die：special的延迟特效定时器里有"msState必须还是special"的检查，
+        // 这里一并把定时器清掉+状态改掉，避免die动画播放中凭空冒出技能特效
+        msState = 'die';
         clearTimeout(msTimer);
+        clearTimeout(specialFxTimer);
         if (moveRafId) cancelAnimationFrame(moveRafId);
         swapMedia(character.media.die, false, function () {
           destroy();
@@ -1593,6 +1612,10 @@
             var idx = self.instances.indexOf(inst);
             if (idx > -1) self.instances.splice(idx, 1);
             if (self.instances.length === 0) {
+              // 用户明确删除了最后一只：先清掉localStorage存档再生成默认宠物
+              // （spawnDefault本身persist:false不落盘），否则刷新后loadSaved
+              // 会把刚删掉的那只原样读回来，表现为"删不掉"
+              try { localStorage.removeItem(PETS_KEY); } catch (e) {}
               self.spawnDefault();
             } else {
               self.save();

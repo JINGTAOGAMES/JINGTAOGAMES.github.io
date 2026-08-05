@@ -8,7 +8,7 @@
  * 网站默认使用的语言列表
  * @type {string[]} 默认语言代码数组
  */
-const defaultLanguage = ["zh","zh-CN"];
+const defaultLanguage = ["zh","zh-CN","zh-Hans-CN"];
 
 /**
  * 当访问者的语言与支持的语言不匹配时使用的默认语言
@@ -21,10 +21,10 @@ const notMatchedLanguage = 'en';
  * 键为语言路径，值为该语言支持的变体数组
  * @type {Object.<string, string[]>}
  */
-const supportedLanguages = {
-    "en": ["en"],      // 英语
-    "ja": ["ja"]       // 日语
-};
+// 注意：下面这行必须保持与index.js里replacements搜索串完全一致的单行格式，
+// 构建时会被整行替换成hexo-multiple-language.yml里other-language的配置值。
+// 之前这里是多行带注释的写法，导致替换静默失败、yml里的配置从未生效过。
+const supportedLanguages = {"en":["en","en-US","en-GB"],"ja":["ja","ja-JP"]};
 
 // --------------- 缓存配置区域 ---------------
 /**
