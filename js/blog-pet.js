@@ -516,29 +516,56 @@
     return false;
   }
 
-  var preloadedCharIds = {};
-  var preloadedMedia = [];
-  function preloadCharacterMedia(character) {
-    if (preloadedCharIds[character.id]) return;
-    preloadedCharIds[character.id] = true;
-    var urls = [];
-    if (character.type === 'sprite') {
-      if (character.idleSrc) urls.push(character.idleSrc);
-      if (character.clickSrc) urls.push(character.clickSrc);
-      if (character.enterSrc) urls.push(character.enterSrc);
-    } else if (character.type === 'multistate' && character.media) {
-      for (var key in character.media) {
-        if (character.media.hasOwnProperty(key) && character.media[key]) urls.push(character.media[key]);
-      }
-    }
-    urls.forEach(function (url) {
-      var v = document.createElement('video');
-      v.preload = 'auto';
-      v.muted = true;
-      v.src = url;
+  // 素材预热（分两档，避免每个页面一打开就把角色全部动作都下载下来）：
+  //  - 常用档：relax/move/sit/sleep/interact（sprite角色是click），体积小、状态机自己
+  //    会切过去，宠物出场后等浏览器空闲再预热；
+  //  - 重型档：special/special2/specialFx/die，单个能有1~2.5MB，只有用户把鼠标移到
+  //    宠物上（或在手机上摸了它）表现出要互动的意图时才预热。
+  // 预热用的临时video只负责把开头一段拉进浏览器缓存，canplaythrough之后立刻释放，
+  // 不再长期持有一堆video元素。没预热到的素材也没关系：swapMedia本身会等canplay，
+  // 最多800ms兜底切换。省流量模式/2G网络下完全不预热。
+  var WARM_COMMON_KEYS = ['relax', 'move', 'sit', 'sleep', 'interact'];
+  var WARM_HEAVY_KEYS = ['special', 'special2', 'specialFx', 'die'];
+  var warmedUrls = {};
+  function warmupAllowed() {
+    var c = navigator.connection;
+    return !(c && (c.saveData || /(^|-)2g$/.test(c.effectiveType || '')));
+  }
+  function warmUrl(url) {
+    if (!url || warmedUrls[url]) return;
+    warmedUrls[url] = true;
+    var v = document.createElement('video');
+    v.preload = 'auto';
+    v.muted = true;
+    var released = false;
+    function release() {
+      if (released) return;
+      released = true;
+      v.removeAttribute('src');
       v.load();
-      preloadedMedia.push(v);
-    });
+    }
+    v.addEventListener('canplaythrough', release);
+    v.addEventListener('error', release);
+    setTimeout(release, 20000);
+    v.src = url;
+    v.load();
+  }
+  function warmCharacterMedia(character, tier) {
+    if (!warmupAllowed()) return;
+    if (character.type === 'sprite') {
+      if (tier === 'common') warmUrl(character.clickSrc);
+      return;
+    }
+    if (character.type !== 'multistate' || !character.media) return;
+    var keys = tier === 'heavy' ? WARM_HEAVY_KEYS : WARM_COMMON_KEYS;
+    keys.forEach(function (k) { warmUrl(character.media[k]); });
+  }
+  function scheduleCommonWarmup(character) {
+    var run = function () { warmCharacterMedia(character, 'common'); };
+    setTimeout(function () {
+      if (window.requestIdleCallback) requestIdleCallback(run, { timeout: 5000 });
+      else run();
+    }, 1500);
   }
 
   function findCharacter(id) {
@@ -1200,7 +1227,11 @@
     // 鼠标斜着移动过去也很容易被判定成"离开了"，导致刚移过去菜单就消失、根本点不到。
     // 改成JS控制 + 一个短暂的隐藏延迟：进入就显示、离开先不急着隐藏，等一小段时间
     // 如果没有重新进入（sprite或controls任意一处）才真正隐藏，给鼠标移动留出容错时间。
+    // 鼠标移上来/手指摸到 = 可能要点它了，这时才预热技能、退场这些大体积素材
+    function warmHeavyOnIntent() { warmCharacterMedia(character, 'heavy'); }
+    root.addEventListener('touchstart', warmHeavyOnIntent, { passive: true, once: true });
     root.addEventListener('mouseenter', function () {
+      warmHeavyOnIntent();
       clearTimeout(controlsHideTimer);
       root.classList.add('bp-controls-visible');
       if (manager.hasMissing()) btnAdd.classList.remove('bp-ctrl-disabled');
@@ -1445,6 +1476,15 @@
         document.removeEventListener('touchend', onTouchEnd);
         document.removeEventListener('touchcancel', onTouchEnd);
       }
+      // 只把DOM摘掉的话，video元素可能还被浏览器留着继续解码/下载，这里显式停掉并释放素材
+      Array.prototype.forEach.call(root.querySelectorAll('video'), function (v) {
+        try {
+          v.onended = null;
+          v.pause();
+          v.removeAttribute('src');
+          v.load();
+        } catch (e) {}
+      });
       if (root.parentNode) root.parentNode.removeChild(root);
     }
 
@@ -1593,7 +1633,7 @@
         onChange: function () { self.save(); }
       });
       this.instances.push({ uid: uid, character: character, handle: handle });
-      preloadCharacterMedia(character);
+      scheduleCommonWarmup(character);
       if (opts.persist !== false) this.save();
       return handle;
     },
