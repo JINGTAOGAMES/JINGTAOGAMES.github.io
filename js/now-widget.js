@@ -118,10 +118,12 @@
                 touchZoom: true,
               }).setView([lat, lng], 13);
 
-              L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-                attribution: '© <a href="https://openstreetmap.org">OSM</a> © <a href="https://carto.com">CARTO</a>',
+              // CARTO 底图从 2026 年起要求 API key（不带 key 只返回 "API KEY REQUIRED" 图），改用 OSM 官方瓦片，
+              // 再加灰度滤镜保持原来浅色地图的样子。
+              L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
                 maxZoom: 19,
-              }).addTo(map);
+              }).addTo(map).getContainer().style.filter = 'grayscale(1) brightness(1.06) contrast(0.92)';
 
               L.marker([lat, lng]).addTo(map)
                 .bindPopup('<b>' + escHtml(area) + '</b>').openPopup();
