@@ -41,9 +41,11 @@
     var contentInner = document.getElementById('content-inner');
     if (!contentInner) return;
     if (!document.getElementById('recent-posts')) return; // 只在首页运行
+    if (document.getElementById('now-widget')) return; // pjax 回到首页时避免重复插入
 
     // ── 注入样式 ──
-    var style = document.createElement('style');
+    var style = document.getElementById('now-widget-style') || document.createElement('style');
+    style.id = 'now-widget-style';
     style.textContent =
       '#now-widget{' +
         'box-sizing:border-box;' +
@@ -149,6 +151,9 @@
         });
     });
   }
+
+  // pjax 站内跳转不会重新执行本脚本，回到首页时靠这个事件重新挂件
+  document.addEventListener('pjax:complete', init);
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);

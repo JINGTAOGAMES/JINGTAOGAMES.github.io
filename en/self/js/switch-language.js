@@ -14,17 +14,24 @@ const defaultLanguage = ["zh","zh-CN","zh-Hans-CN"];
  * 当访问者的语言与支持的语言不匹配时使用的默认语言
  * @type {string} 默认回退语言代码
  */
-const notMatchedLanguage = 'en';
+const notMatchedLanguage = "en";
 
 /**
  * 网站支持的其他语言配置
  * 键为语言路径，值为该语言支持的变体数组
  * @type {Object.<string, string[]>}
  */
-// 注意：下面这行必须保持与index.js里replacements搜索串完全一致的单行格式，
-// 构建时会被整行替换成hexo-multiple-language.yml里other-language的配置值。
-// 之前这里是多行带注释的写法，导致替换静默失败、yml里的配置从未生效过。
-const supportedLanguages = {"en":["en","en-US","en-GB"],"ja":["ja","ja-JP"]};
+const supportedLanguages = {
+    "en": [
+        "en",
+        "en-US",
+        "en-GB"
+    ],
+    "ja": [
+        "ja",
+        "ja-JP"
+    ]
+};
 
 // --------------- 缓存配置区域 ---------------
 /**
@@ -73,36 +80,18 @@ async function handleLanguageSwitch(languageType) {
     const hostUrl = `${pageProtocol}//${pageHost}`;
     const subPagePathName = getSubPagePath();
 
-    // 构建目标URL
-    let targetUrl;
-    let fallbackUrl;
-
-    if (defaultLanguage.includes(languageType)) {
-        targetUrl = `${hostUrl}/${subPagePathName}`;
-        fallbackUrl = `${hostUrl}/`;
-    } else {
-        targetUrl = `${hostUrl}/${languageType}/${subPagePathName}`;
-        fallbackUrl = `${hostUrl}/${languageType}/`;
-    }
-
-    // 如果是主页，直接跳转
+    // 目标语言下不一定有同一篇文章：先HEAD检查，不存在就回到该语言首页，避免404
+    const langRoot = defaultLanguage.includes(languageType) ? `${hostUrl}/` : `${hostUrl}/${languageType}/`;
+    const targetUrl = `${langRoot}${subPagePathName}`;
     if (!subPagePathName) {
         window.location.href = targetUrl;
         return;
     }
-
-    // 检查目标页面是否存在
     try {
         const response = await fetch(targetUrl, { method: 'HEAD' });
-        if (response.ok) {
-            window.location.href = targetUrl;
-        } else {
-            // 页面不存在，跳转到该语言的主页
-            window.location.href = fallbackUrl;
-        }
+        window.location.href = response.ok ? targetUrl : langRoot;
     } catch (error) {
-        // 网络错误或其他问题，跳转到该语言的主页
-        window.location.href = fallbackUrl;
+        window.location.href = langRoot;
     }
 }
 
@@ -187,7 +176,7 @@ function handleBrowserLanguageRedirect() {
         }
     } else if (supportedLanguage && !supportedLanguage.includes(currentLanguagePath)) {
         window.location.href = `${pageProtocol}//${pageHost}/${supportedLanguage[0]}`;
-    } else if (!(browserLanguage in supportedLanguages) && currentLanguagePath !== notMatchedLanguage) {
+    } else if (!supportedLanguage && !(browserLanguage in supportedLanguages) && currentLanguagePath !== notMatchedLanguage) {
         window.location.href = `${pageProtocol}//${pageHost}/${notMatchedLanguage}`;
     }
 }
@@ -214,11 +203,17 @@ function getSupportedLanguage(supportedLanguages, browserLanguage) {
  * @param {number} ttl - 过期时间（毫秒）
  */
 function setItemWithExpiry(key, value, ttl) {
+    if (!window.localStorage) return;
+
     const item = {
         value: value,
         expiry: Date.now() + ttl
     };
-    localStorage.setItem(key, JSON.stringify(item));
+    try {
+        localStorage.setItem(key, JSON.stringify(item));
+    } catch (error) {
+        console.warn('保存语言选择失败:', error);
+    }
 }
 
 /**
@@ -227,15 +222,22 @@ function setItemWithExpiry(key, value, ttl) {
  * @returns {*|null} 存储的值或null（如果已过期）
  */
 function getItemWithExpiry(key) {
-    const itemStr = localStorage.getItem(key);
-    if (!itemStr) return null;
+    if (!window.localStorage) return null;
 
-    const item = JSON.parse(itemStr);
-    if (Date.now() > item.expiry) {
+    try {
+        const itemStr = localStorage.getItem(key);
+        if (!itemStr) return null;
+
+        const item = JSON.parse(itemStr);
+        if (Date.now() > item.expiry) {
+            localStorage.removeItem(key);
+            return null;
+        }
+        return item.value;
+    } catch (error) {
         localStorage.removeItem(key);
         return null;
     }
-    return item.value;
 }
 
 // 初始化执行
