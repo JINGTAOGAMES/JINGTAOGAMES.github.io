@@ -458,8 +458,14 @@
     stylesInjected = true;
     var style = document.createElement('style');
     style.textContent = [
-      '.bp-pet{position:fixed;z-index:1000;-webkit-user-select:none;user-select:none;}',
-      '.bp-sprite{position:relative;pointer-events:auto;cursor:grab;}',
+      // 外层.bp-pet和.bp-sprite是按角色原始尺寸（boxW×boxH）排版的方框，不跟着--bp-scale缩放，
+      // 缩小后会比看到的角色大一圈、放大后又会被角色超出；而且素材四周本来就是透明留白。
+      // 所以这两层都不接收鼠标事件，点到空白处会直接穿透到下面的网页，只有跟着缩放的
+      // .bp-hitbox（以及显示出来的.bp-controls）才算点在宠物上。
+      '.bp-pet{position:fixed;z-index:1000;-webkit-user-select:none;user-select:none;pointer-events:none;}',
+      '.bp-sprite{position:relative;pointer-events:none;}',
+      // 没有单独热区的角色（既不是sprite也不是multistate的方块小人）退回整个方框都可点
+      '.bp-sprite.bp-sprite-hit{pointer-events:auto;cursor:grab;}',
       '.bp-hitbox{position:absolute;left:50%;top:6%;bottom:14.5%;width:38%;transform:translateX(-50%);pointer-events:auto;cursor:grab;}',
       '.bp-hitbox-jiaqiu{position:absolute;left:5%;top:3%;width:55%;height:60%;pointer-events:auto;cursor:grab;}',
       '.bp-visual{position:absolute;left:0;top:0;width:100%;height:100%;transform-origin:50% 100%;',
@@ -665,12 +671,12 @@
       // 不会再固定钉在原来的大小和位置上。
       visual.appendChild(hitTarget);
 
-      // 热区之外的空白区域现在没有绑任何拖拽/点击逻辑了，但如果完全不处理这里的
-      // mousedown/dragstart，浏览器会把这块区域当成普通网页内容，出现原生的文字选取
-      // 高亮框，或者把里面的视频当图片一样拖出重影。这里单独拦一层，只吃掉默认行为，
-      // 不做任何实际的拖拽/点击逻辑（真正的逻辑都在hitTarget上）。
-      sprite.addEventListener('mousedown', function (e) { e.preventDefault(); });
-      sprite.addEventListener('dragstart', function (e) { e.preventDefault(); });
+      // 热区之外的空白区域不接收鼠标事件（见.bp-sprite的CSS），点击会穿透到下面的网页。
+      // 热区自身要拦掉原生行为，否则拖拽时会出现文字选取高亮，或者把视频拖出重影。
+      hitTarget.addEventListener('mousedown', function (e) { e.preventDefault(); });
+      hitTarget.addEventListener('dragstart', function (e) { e.preventDefault(); });
+    } else {
+      sprite.classList.add('bp-sprite-hit');
     }
 
     // 放大倍数越高，角色画面里头顶以上的空白区域也跟着等比例放大，如果字幕完全按
